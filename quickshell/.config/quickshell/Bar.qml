@@ -2,8 +2,6 @@
 import Quickshell
 
 Scope {
-  // no more time object
-
   Variants {
     model: Quickshell.screens
 
@@ -17,13 +15,17 @@ Scope {
         right: true
       }
 
+      margins {
+             top: 10
+           }
+
       implicitHeight: 30
 
-      ClockWidget {
+      Pill {
         anchors.centerIn: parent
-        color: "red"
 
-        // no more time binding
+        ClockWidget {}
+        WeatherWidget {}
       }
     }
   }

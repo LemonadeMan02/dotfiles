@@ -1,4 +1,7 @@
 module shell
+singleton Theme 1.0 Theme.qml
 singleton Time 1.0 Time.qml
 Bar 1.0 Bar.qml
+Pill 1.0 Pill.qml
 ClockWidget 1.0 ClockWidget.qml
+WeatherWidget 1.0 WeatherWidget.qml

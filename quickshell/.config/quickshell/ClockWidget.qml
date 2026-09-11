@@ -1,9 +1,25 @@
 // ClockWidget.qml
 import QtQuick
+import QtQuick.Layouts
 
-Text {
-  // we no longer need time as an input
+ColumnLayout {
+  spacing: 0
 
-  // directly access the time property from the Time singleton
-  text: Time.time
+  Text {
+    text: Time.time
+    color: Theme.foreground
+    font.family: Theme.fontFamily
+    font.bold: true
+    font.pixelSize: 16
+    Layout.alignment: Qt.AlignHCenter
+  }
+
+  Text {
+    text: Time.date
+    color: Theme.foreground
+    font.family: Theme.fontFamily
+    font.pixelSize: 11
+    opacity: 0.7
+    Layout.alignment: Qt.AlignHCenter
+  }
 }
