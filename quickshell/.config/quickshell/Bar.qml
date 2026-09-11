@@ -1,11 +1,8 @@
 // Bar.qml
 import Quickshell
-import Quickshell.Io
-import QtQuick
 
 Scope {
-  id: root
-  property string time
+  // no more time object
 
   Variants {
     model: Quickshell.screens
@@ -22,28 +19,12 @@ Scope {
 
       implicitHeight: 30
 
-      // the ClockWidget type we just created
       ClockWidget {
         anchors.centerIn: parent
-        time: root.time
+        color: "red"
+
+        // no more time binding
       }
     }
-  }
-
-  Process {
-    id: dateProc
-    command: ["date"]
-    running: true
-
-    stdout: StdioCollector {
-      onStreamFinished: root.time = this.text
-    }
-  }
-
-  Timer {
-    interval: 1000
-    running: true
-    repeat: true
-    onTriggered: dateProc.running = true
   }
 }

@@ -18,7 +18,7 @@ local mainMod = "SUPER" -- Sets "Windows" key as main modifier
 ---- LAUNCH APPS ------
 -----------------------
 
-hl.bind(mainMod .. " + Q", hl.dsp.exec_cmd(terminal))    -- Terminal
+hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd(terminal))    -- Terminal
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager)) -- File manager
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(browser))     -- Browser
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(menu))        -- App launcher / menu
@@ -28,7 +28,7 @@ hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(menu))        -- App launcher / menu
 ---- WINDOW CONTROL -----
 -------------------------
 
-local closeWindowBind = hl.bind(mainMod .. " + C", hl.dsp.window.close()) -- Close focused window
+local closeWindowBind = hl.bind(mainMod .. " + W", hl.dsp.window.close()) -- Close focused window
 -- closeWindowBind:set_enabled(false)
 
 hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" })) -- Toggle floating
