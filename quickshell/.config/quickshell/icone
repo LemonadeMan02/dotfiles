@@ -1,4 +1,0 @@
- readonly property string iconPlay:         "" // nf-fa-play
-  readonly property string iconPause:        "" // nf-fa-pause
-  readonly property string iconSkipPrevious: "󰒮" // nf-md-skip_previous
-  readonly property string iconSkipNext:     "󰒭" // nf-md-skip_next
