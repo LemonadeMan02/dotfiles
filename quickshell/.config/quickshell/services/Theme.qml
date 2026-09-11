@@ -1,6 +1,8 @@
 // Theme.qml
 pragma Singleton
+
 import QtQuick
+
 
 QtObject {
   readonly property color background: "#1e1e2e"

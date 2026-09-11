@@ -1,6 +1,7 @@
 // ClockWidget.qml
 import QtQuick
 import QtQuick.Layouts
+import "../../services"
 
 ColumnLayout {
   spacing: 0

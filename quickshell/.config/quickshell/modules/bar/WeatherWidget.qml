@@ -1,6 +1,8 @@
 // WeatherWidget.qml
 import QtQuick
 import QtQuick.Layouts
+import "../../services"
+
 
 RowLayout {
   spacing: 6

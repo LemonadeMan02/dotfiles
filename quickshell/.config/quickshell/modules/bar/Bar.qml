@@ -1,5 +1,6 @@
 // Bar.qml
 import Quickshell
+import "../.."
 
 Scope {
   Variants {
