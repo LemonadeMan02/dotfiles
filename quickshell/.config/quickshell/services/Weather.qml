@@ -32,17 +32,17 @@ Singleton {
   }
 
   function iconFor(code) {
-    if (code === 0) return "\ue30d";              // weather-day_sunny
-    if (code >= 1 && code <= 2) return "\ue302";  // weather-day_cloudy
-    if (code === 3) return "\ue312";              // weather-cloudy
-    if (code === 45 || code === 48) return "\ue313"; // weather-fog
-    if (code >= 51 && code <= 57) return "\ue31b"; // weather-sprinkle (pioviggine)
-    if (code >= 61 && code <= 67) return "\ue318"; // weather-rain
-    if (code >= 71 && code <= 77) return "\ue31a"; // weather-snow
-    if (code >= 80 && code <= 82) return "\ue319"; // weather-showers (rovesci)
-    if (code >= 85 && code <= 86) return "\ue31a"; // weather-snow
-    if (code >= 95 && code <= 99) return "\ue31d"; // weather-thunderstorm
-    return "\ue30d";
+    if (code === 0) return "\u{f0599}";              // md-weather_sunny
+    if (code >= 1 && code <= 2) return "\u{f015f}";  // md-cloud (pieno)
+    if (code === 3) return "\u{f015f}";              // md-cloud (pieno)
+    if (code === 45 || code === 48) return "\u{f0591}"; // md-weather_fog
+    if (code >= 51 && code <= 57) return "\u{ef1c}"; // fa-cloud_rain (pieno)
+    if (code >= 61 && code <= 67) return "\u{ef1c}"; // fa-cloud_rain (pieno)
+    if (code >= 71 && code <= 77) return "\u{f0598}"; // md-weather_snowy
+    if (code >= 80 && code <= 82) return "\u{ef1c}"; // fa-cloud_rain (pieno)
+    if (code >= 85 && code <= 86) return "\u{f067f}"; // md-weather_snowy_rainy
+    if (code >= 95 && code <= 99) return "\u{ef2c}"; // fa-cloud_bolt (pieno)
+    return "\u{f0599}";
   }
   readonly property string icon: iconFor(weatherCode)
 

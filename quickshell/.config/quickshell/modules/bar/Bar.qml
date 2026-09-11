@@ -23,8 +23,16 @@ Scope {
       implicitHeight: 30
 
       Pill {
-        anchors.centerIn: parent
+        anchors {
+            left: parent.left;
+            verticalCenter: parent.verticalCenter;
+            leftMargin: 10
+        }
+        MediaWidget {}
+      }
 
+      Pill {
+        anchors.centerIn: parent
         ClockWidget {}
         WeatherWidget {}
       }
