@@ -6,18 +6,17 @@
 
 -- Primary: DisplayPort monitor (Dell AW3225QF, 4K)
 hl.monitor({
-    output   = "DP-1",
-    mode     = "preferred",
+    output   = "desc:Dell Inc. AW3225QF",
+    mode     = "3840x2160@239.99",
     position = "0x0",
-    scale    = "auto",
+    scale    = 1.25,
 })
 
--- Secondary: HDMI monitor (LG UltraGear), placed to the right of the primary
 hl.monitor({
-    output   = "HDMI-A-1",
-    mode     = "preferred",
-    position = "3840x0",
-    scale    = "auto",
+    output   = "desc:LG Electronics LG ULTRAGEAR",
+    mode     = "2560x1440@74.97",
+    position = "3072x0",
+    scale    = 1,
 })
 
 
@@ -176,7 +175,7 @@ hl.config({
 hl.config({
     input = {
         kb_layout  = "gb",
-        kb_variant = "",
+        kb_variant = "intl",
         kb_model   = "",
         kb_options = "",
         kb_rules   = "",
