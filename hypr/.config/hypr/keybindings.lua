@@ -44,31 +44,19 @@ hl.bind(mainMod .. " + M", hl.dsp.exec_cmd(
 ---- FOCUS MOVEMENT ----
 ------------------------
 
-hl.bind(mainMod .. " + left",  hl.dsp.focus({ direction = "left" }))
-hl.bind(mainMod .. " + right", hl.dsp.focus({ direction = "right" }))
-hl.bind(mainMod .. " + up",    hl.dsp.focus({ direction = "up" }))
-hl.bind(mainMod .. " + down",  hl.dsp.focus({ direction = "down" }))
+hl.bind(mainMod .. " + CTRL + left",  hl.dsp.focus({ direction = "left" }))
+hl.bind(mainMod .. " + CTRL + right", hl.dsp.focus({ direction = "right" }))
+hl.bind(mainMod .. " + up",           hl.dsp.focus({ direction = "up" }))
+hl.bind(mainMod .. " + down",         hl.dsp.focus({ direction = "down" }))
 
 
 ----------------------
 ---- WORKSPACES ------
 ----------------------
 
--- Switch workspaces with mainMod + [0-9]
--- Move active window to a workspace with mainMod + SHIFT + [0-9]
-for i = 1, 10 do
-    local key = i % 10 -- 10 maps to key 0
-    hl.bind(mainMod .. " + " .. key,         hl.dsp.focus({ workspace = i }))
-    hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = i }))
-end
-
--- Special workspace (scratchpad)
-hl.bind(mainMod .. " + S",         hl.dsp.workspace.toggle_special("magic"))
-hl.bind(mainMod .. " + SHIFT + S", hl.dsp.window.move({ workspace = "special:magic" }))
-
--- Scroll through existing workspaces with mainMod + scroll
-hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
-hl.bind(mainMod .. " + mouse_up",   hl.dsp.focus({ workspace = "e-1" }))
+-- Workspace monitor pinning and all workspace-related keybindings live in
+-- ~/.config/hypr/workspaces.lua so they're easy to find and edit.
+require("workspaces")
 
 
 -------------------
