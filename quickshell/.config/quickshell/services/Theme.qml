@@ -45,6 +45,10 @@ QtObject {
   readonly property color onAccent:      c.crust
   readonly property color urgent:        c.red
 
+  readonly property color surfaceLight:   c.text     // quasi bianco, per pill informative
+  readonly property color surfaceAccent:  c.red      // rosa, per pill interattive
+  readonly property color onLight:        c.crust    // testo scuro su sfondo chiaro
+
   // ── 3. Scale ────────────────────────────────────────────────────────
   readonly property int spacingXs: 2
   readonly property int spacingS:  4
@@ -59,7 +63,10 @@ QtObject {
   readonly property int fontS:  13
   readonly property int fontM:  15
   readonly property int fontL:  17
+  readonly property int iconXs: 15
   readonly property int iconM:  22
+  readonly property int iconL:  30
+
 
   // Peso dei caratteri. Cambiando questi due valori cambia tutta la barra.
   readonly property int weightNormal: Font.Medium

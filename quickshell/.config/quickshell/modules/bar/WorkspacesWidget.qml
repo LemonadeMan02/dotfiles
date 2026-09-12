@@ -16,9 +16,19 @@ RowLayout {
   property int chipSizeFocused: 34
   property int dotSize: 12
 
-  readonly property var monitor: {
-    Hyprland.monitors.values
-    return Hyprland.monitorFor(root.screen)
+  // Assegnata a mano, non via binding: monitorFor() tocca lo stesso modello
+  // Hyprland.monitors da cui il binding dipenderebbe, e il risultato e' un loop.
+  property HyprlandMonitor monitor: null
+
+  function updateMonitor() {
+    root.monitor = Hyprland.monitorFor(root.screen)
+  }
+
+  Component.onCompleted: root.updateMonitor()
+
+  Connections {
+    target: Hyprland.monitors
+    function onValuesChanged() { root.updateMonitor() }
   }
 
   readonly property var activeWs: monitor ? monitor.activeWorkspace : null

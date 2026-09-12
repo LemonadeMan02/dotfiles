@@ -1,3 +1,4 @@
 singleton Theme 1.0 Theme.qml
 singleton Time 1.0 Time.qml
 singleton Weather 1.0 Weather.qml
+singleton Audio 1.0 Audio.qml

@@ -1,0 +1,4 @@
+  readonly property string iconMuted:  "" // nf-md-volume_off
+  readonly property string iconLow:    "" // nf-md-volume_low
+  readonly property string iconMedium: "" // nf-md-volume_medium
+  readonly property string iconHigh:   "" // nf-md-volume_high

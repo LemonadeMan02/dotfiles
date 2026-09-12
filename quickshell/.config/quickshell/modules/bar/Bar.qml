@@ -33,7 +33,9 @@ Scope {
         top: 10
       }
 
-      implicitHeight: Math.max(leftGroup.implicitHeight, centerPill.implicitHeight)
+      implicitHeight: Math.max(leftGroup.implicitHeight,
+                               centerPill.implicitHeight,
+                               rightGroup.implicitHeight)
                       + panel.barPadding * 2
 
       // --- Gruppo sinistro: workspaces + media ---
@@ -75,6 +77,26 @@ Scope {
         spacing: Theme.spacingL
         ClockWidget {}
         WeatherWidget {}
+      }
+      // --- Gruppo destro: indicatori di sistema ---
+      RowLayout {
+        id: rightGroup
+        spacing: Theme.spacingM
+
+        anchors {
+          right: parent.right
+          verticalCenter: parent.verticalCenter
+          rightMargin: 10
+        }
+
+        Pill {
+          spacing: Theme.spacingS
+
+          Chip {
+            interactive: true
+            VolumeWidget {}
+          }
+        }
       }
     }
   }

@@ -13,6 +13,11 @@ Rectangle {
   property int paddingH: Theme.spacingL
   property int paddingV: Theme.spacingM
 
+  // Estratti come proprieta' cosi' le varianti possono sovrascriverli
+  // senza perdere il comportamento dell'hover.
+  property color bgNormal: Theme.surface
+  property color bgHover:  Theme.surfaceHover
+
   property bool interactive: false
   readonly property bool hovered: hover.hovered
 
@@ -23,7 +28,7 @@ Rectangle {
   radius: Theme.radiusM
   antialiasing: true
 
-  color: (interactive && hovered) ? Theme.surfaceHover : Theme.surface
+  color: (interactive && hovered) ? bgHover : bgNormal
 
   Behavior on color {
     ColorAnimation { duration: Theme.durFast; easing.type: Easing.OutCubic }
