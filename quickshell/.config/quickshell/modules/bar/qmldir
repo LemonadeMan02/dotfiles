@@ -2,3 +2,4 @@ Bar 1.0 Bar.qml
 ClockWidget 1.0 ClockWidget.qml
 WeatherWidget 1.0 WeatherWidget.qml
 MediaWidget 1.0 MediaWidget.qml
+WorkspacesWidget 1.0 WorkspacesWidget.qml
