@@ -6,10 +6,31 @@ import "../../services"
 
 RowLayout {
   id: root
-  spacing: 4
+  spacing: Theme.spacingS
 
-  // Quanti workspace mostrare sempre, anche se vuoti
+  required property var screen
+
   property int count: 8
+
+  // Dimensioni dei chip, raccolte qui per essere tarabili in un posto solo.
+  property int chipSize: 22
+  property int chipSizeFocused: 34
+  property int dotSize: 12
+
+  readonly property var monitor: {
+    Hyprland.monitors.values
+    return Hyprland.monitorFor(root.screen)
+  }
+
+  readonly property var activeWs: monitor ? monitor.activeWorkspace : null
+  readonly property bool monitorFocused: monitor ? monitor.focused : false
+
+  function goToWorkspace(id) {
+    if (Hyprland.usingLua)
+      Hyprland.dispatch("hl.dsp.focus({ workspace = " + id + " })")
+    else
+      Hyprland.dispatch("workspace " + id)
+  }
 
   Repeater {
     model: root.count
@@ -27,34 +48,66 @@ RowLayout {
       }
 
       readonly property bool populated: ws !== null
-      readonly property bool focused: Hyprland.focusedWorkspace
-                                      && Hyprland.focusedWorkspace.id === chip.wsId
+      readonly property bool active: root.activeWs !== null
+                                     && root.activeWs.id === chip.wsId
+      readonly property bool focused: active && root.monitorFocused
+      // Diventa false da solo appena il workspace viene focalizzato.
+      readonly property bool urgent: ws !== null && ws.urgent
 
-      implicitWidth: 22
-      implicitHeight: 22
-      radius: 6
+      implicitHeight: root.chipSize
+      implicitWidth: focused ? root.chipSizeFocused
+                             : (populated || active ? root.chipSize : root.dotSize)
 
-      color: focused ? Theme.foreground
-                     : (populated ? Theme.surface : "transparent")
+      radius: height / 2
+      antialiasing: true
 
+      color: focused   ? Theme.accent
+           : urgent    ? Theme.urgent
+           : active    ? "transparent"
+           : populated ? Theme.surfaceSolid
+                       : "transparent"
+
+      border.width: (active && !focused) ? 2 : 0
+      border.color: Theme.accent
+
+      scale: hover.hovered ? 1.15 : 1.0
+
+      Behavior on implicitWidth {
+        NumberAnimation { duration: Theme.durSlow; easing.type: Easing.OutBack }
+      }
       Behavior on color {
-        ColorAnimation { duration: 120 }
+        ColorAnimation { duration: Theme.durFast }
+      }
+      Behavior on scale {
+        NumberAnimation { duration: Theme.durFast; easing.type: Easing.OutCubic }
       }
 
       Text {
         anchors.centerIn: parent
+        visible: chip.populated || chip.active
         text: chip.wsId
         font.family: Theme.fontFamily
         font.bold: chip.focused
-        font.pixelSize: chip.focused ? 13 : 11
-        color: chip.focused ? Theme.background
-                            : (chip.populated ? Theme.foreground : Theme.muted)
+        font.pixelSize: chip.focused ? Theme.fontS : Theme.fontXs
+        color: (chip.focused || chip.urgent) ? Theme.onAccent : Theme.foreground
       }
 
-      MouseArea {
-        anchors.fill: parent
+      Rectangle {
+        anchors.centerIn: parent
+        visible: !chip.populated && !chip.active
+        implicitWidth: 5
+        implicitHeight: 5
+        radius: 2.5
+        color: Theme.muted
+      }
+
+      HoverHandler {
+        id: hover
         cursorShape: Qt.PointingHandCursor
-        onClicked: Hyprland.dispatch("workspace " + chip.wsId)
+      }
+
+      TapHandler {
+        onTapped: root.goToWorkspace(chip.wsId)
       }
     }
   }

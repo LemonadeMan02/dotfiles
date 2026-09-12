@@ -114,6 +114,10 @@ require("animations")
 
 -- Ref https://wiki.hypr.land/Configuring/Basics/Workspace-Rules/
 
+-- -- Le regole dei layer (blur della barra) stanno in
+-- ~/.config/hypr/layerrules.lua
+require("layerrules")
+
 -- Which workspace is pinned to which monitor lives in
 -- ~/.config/hypr/workspaces.lua, alongside the workspace-switching keybinds.
 require("workspaces")
@@ -175,7 +179,7 @@ hl.config({
 hl.config({
     input = {
         kb_layout  = "gb",
-        kb_variant = "intl",
+        kb_variant = "extd",
         kb_model   = "",
         kb_options = "",
         kb_rules   = "",

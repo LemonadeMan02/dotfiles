@@ -5,19 +5,20 @@ import "../../services"
 
 
 RowLayout {
-  spacing: 6
+  spacing: Theme.spacingS
 
   Text {
     text: Weather.icon
     font.family: Theme.nerdFontFamily
-    font.pixelSize: 16
+    font.pixelSize: Theme.iconM
     color: Theme.foreground
   }
 
   Text {
-    text: Weather.temperature.toFixed(1) + "°C"
+    text: Math.round(Weather.temperature) + "°C"
     font.family: Theme.fontFamily
-    font.pixelSize: 14
+    font.pixelSize: Theme.fontM
+    font.weight: Theme.weightBold
     color: Theme.foreground
   }
 }

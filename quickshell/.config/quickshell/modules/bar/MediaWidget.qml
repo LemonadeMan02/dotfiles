@@ -6,10 +6,10 @@ import "../../services"
 
 RowLayout {
   id: root
-  spacing: 8
+  spacing: Theme.spacingM
 
-  readonly property string iconPlay:         "" // nf-fa-play
-  readonly property string iconPause:        "" // nf-fa-pause
+  readonly property string iconPlay:         "" // nf-fa-play
+  readonly property string iconPause:        "" // nf-fa-pause
   readonly property string iconSkipPrevious: "󰒮" // nf-md-skip_previous
   readonly property string iconSkipNext:     "󰒭" // nf-md-skip_next
 
@@ -56,24 +56,25 @@ RowLayout {
       text: root.player ? root.player.trackTitle : ""
       color: Theme.foreground
       font.family: Theme.fontFamily
-      font.pixelSize: 14
+      font.pixelSize: Theme.fontM
+      font.weight: Theme.weightBold
       elide: Text.ElideRight
       Layout.maximumWidth: 160
     }
 
     Text {
       text: root.player ? root.fmt(root.elapsed) + " / " + root.fmt(root.player.length) : ""
-      color: Theme.foreground
-      opacity: 0.7
+      color: Theme.foregroundDim
       font.family: Theme.fontFamily
-      font.pixelSize: 11
+      font.pixelSize: Theme.fontXs
+      font.weight: Theme.weightBold
     }
   }
 
   Text {
     text: root.iconSkipPrevious
     font.family: Theme.nerdFontFamily
-    font.pixelSize: 16
+    font.pixelSize: Theme.iconM
     color: Theme.foreground
 
     MouseArea {
@@ -85,7 +86,7 @@ RowLayout {
   Text {
     text: root.player && root.player.playbackState === MprisPlaybackState.Playing ? root.iconPause : root.iconPlay
     font.family: Theme.nerdFontFamily
-    font.pixelSize: 16
+    font.pixelSize: Theme.iconM
     color: Theme.foreground
 
     MouseArea {
@@ -97,7 +98,7 @@ RowLayout {
   Text {
     text: root.iconSkipNext
     font.family: Theme.nerdFontFamily
-    font.pixelSize: 16
+    font.pixelSize: Theme.iconM
     color: Theme.foreground
 
     MouseArea {

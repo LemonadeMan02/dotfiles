@@ -2,7 +2,8 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import "../.."
+import Quickshell.Wayland
+import "../common"
 
 Scope {
   Variants {
@@ -12,6 +13,12 @@ Scope {
       id: panel
       required property var modelData
       screen: modelData
+
+      // Nome del layer-shell: e' l'aggancio con cui Hyprland ci trova
+      // per applicare il blur.
+      WlrLayershell.namespace: "quickshell:bar"
+
+      readonly property int barPadding: 4
 
       color: "transparent"
 
@@ -25,12 +32,13 @@ Scope {
         top: 10
       }
 
-      implicitHeight: 30
+      implicitHeight: Math.max(leftGroup.implicitHeight, centerPill.implicitHeight)
+                      + panel.barPadding * 2
 
       // --- Gruppo sinistro: workspaces + media ---
       RowLayout {
         id: leftGroup
-        spacing: 8
+        spacing: Theme.spacingM
 
         anchors {
           left: parent.left
@@ -39,12 +47,11 @@ Scope {
         }
 
         Pill {
-          WorkspacesWidget {}
+          WorkspacesWidget { screen: panel.screen }
         }
 
         Pill {
-          // La pill sparisce del tutto quando non c'è nessun player MPRIS,
-          // così non resta un blocchetto vuoto accanto ai workspace.
+          id: mediaPill
           visible: media.player !== null
           MediaWidget { id: media }
         }
@@ -52,6 +59,7 @@ Scope {
 
       // --- Gruppo centrale: orologio + meteo ---
       Pill {
+        id: centerPill
         anchors.centerIn: parent
         ClockWidget {}
         WeatherWidget {}

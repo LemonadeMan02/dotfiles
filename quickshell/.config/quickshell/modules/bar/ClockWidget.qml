@@ -10,17 +10,19 @@ ColumnLayout {
     text: Time.time
     color: Theme.foreground
     font.family: Theme.fontFamily
-    font.bold: true
-    font.pixelSize: 16
+    font.pixelSize: Theme.fontL
+    font.weight: Theme.weightBold
     Layout.alignment: Qt.AlignHCenter
   }
 
   Text {
     text: Time.date
-    color: Theme.foreground
+    // Prima era opacity: 0.7. Un colore dedicato e' meglio: l'opacity
+    // agisce sul rendering dell'item, il token e' una scelta di design.
+    color: Theme.foregroundDim
     font.family: Theme.fontFamily
-    font.pixelSize: 11
-    opacity: 0.7
+    font.pixelSize: Theme.fontXs
+    font.weight: Theme.weightNormal
     Layout.alignment: Qt.AlignHCenter
   }
 }
