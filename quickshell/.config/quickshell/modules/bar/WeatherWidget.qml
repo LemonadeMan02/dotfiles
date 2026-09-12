@@ -5,7 +5,7 @@ import "../../services"
 
 
 RowLayout {
-  spacing: Theme.spacingS
+  spacing: Theme.spacingM
 
   Text {
     text: Weather.icon

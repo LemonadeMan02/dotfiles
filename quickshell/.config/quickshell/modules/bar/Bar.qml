@@ -4,6 +4,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
 import "../common"
+import "../../services"
 
 Scope {
   Variants {
@@ -52,7 +53,17 @@ Scope {
 
         Pill {
           id: mediaPill
-          visible: media.player !== null
+
+          // Dissolvenza invece di comparsa secca quando apri o chiudi
+          // Spotify. Il visible legato all'opacity toglie la pill dal
+          // layout a fine animazione, altrimenti resta un buco.
+          opacity: media.player !== null ? 1 : 0
+          visible: opacity > 0
+
+          Behavior on opacity {
+            NumberAnimation { duration: Theme.durSlow; easing.type: Easing.OutCubic }
+          }
+
           MediaWidget { id: media }
         }
       }
@@ -61,6 +72,7 @@ Scope {
       Pill {
         id: centerPill
         anchors.centerIn: parent
+        spacing: Theme.spacingL
         ClockWidget {}
         WeatherWidget {}
       }

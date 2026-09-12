@@ -12,7 +12,6 @@ RowLayout {
 
   property int count: 8
 
-  // Dimensioni dei chip, raccolte qui per essere tarabili in un posto solo.
   property int chipSize: 22
   property int chipSizeFocused: 34
   property int dotSize: 12
@@ -51,14 +50,14 @@ RowLayout {
       readonly property bool active: root.activeWs !== null
                                      && root.activeWs.id === chip.wsId
       readonly property bool focused: active && root.monitorFocused
-      // Diventa false da solo appena il workspace viene focalizzato.
       readonly property bool urgent: ws !== null && ws.urgent
 
       implicitHeight: root.chipSize
       implicitWidth: focused ? root.chipSizeFocused
                              : (populated || active ? root.chipSize : root.dotSize)
 
-      radius: height / 2
+      // Angoli smussati ma lati dritti, come le pill.
+      radius: Theme.radiusS
       antialiasing: true
 
       color: focused   ? Theme.accent
@@ -87,7 +86,7 @@ RowLayout {
         visible: chip.populated || chip.active
         text: chip.wsId
         font.family: Theme.fontFamily
-        font.bold: chip.focused
+        font.weight: Theme.weightBold
         font.pixelSize: chip.focused ? Theme.fontS : Theme.fontXs
         color: (chip.focused || chip.urgent) ? Theme.onAccent : Theme.foreground
       }

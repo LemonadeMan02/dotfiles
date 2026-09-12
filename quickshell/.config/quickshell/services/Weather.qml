@@ -13,17 +13,20 @@ Singleton {
 
   property real temperature: 0
   property int weatherCode: 0
+  property bool isDay: true
 
   function refresh() {
     var xhr = new XMLHttpRequest();
     var url = "https://api.open-meteo.com/v1/forecast?latitude=" + latitude
-             + "&longitude=" + longitude + "&current=temperature_2m,weather_code";
+             + "&longitude=" + longitude
+             + "&current=temperature_2m,weather_code,is_day";
 
     xhr.onreadystatechange = function() {
       if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
         var data = JSON.parse(xhr.responseText);
         root.temperature = data.current.temperature_2m;
         root.weatherCode = data.current.weather_code;
+        root.isDay = data.current.is_day === 1;
       }
     }
 
@@ -31,19 +34,47 @@ Singleton {
     xhr.send();
   }
 
+  // ── Glifi. Prendili da nerdfonts.com/cheat-sheet cercando il nome
+  //    indicato nel commento, e incolla il carattere letterale. ────────
+  readonly property string gClear:        "󰖨"
+  readonly property string gClearNight:   "󰖔"
+  readonly property string gPartly:       ""
+  readonly property string gPartlyNight:  ""
+  readonly property string gCloudy:       ""
+  readonly property string gOvercast:     ""
+  readonly property string gFog:          "󰖑"
+  readonly property string gDrizzle:      ""
+  readonly property string gRain:         ""
+  readonly property string gPouring:      "󰖖"
+  readonly property string gSnow:         ""
+  readonly property string gSleet:        ""
+  readonly property string gThunder:      ""
+  readonly property string gHail:         ""
+
+  // Codici WMO 4677, come esposti da Open-Meteo nel campo weather_code.
   function iconFor(code) {
-    if (code === 0) return "\u{f0599}";              // md-weather_sunny
-    if (code >= 1 && code <= 2) return "\u{f015f}";  // md-cloud (pieno)
-    if (code === 3) return "\u{f015f}";              // md-cloud (pieno)
-    if (code === 45 || code === 48) return "\u{f0591}"; // md-weather_fog
-    if (code >= 51 && code <= 57) return "\u{ef1c}"; // fa-cloud_rain (pieno)
-    if (code >= 61 && code <= 67) return "\u{ef1c}"; // fa-cloud_rain (pieno)
-    if (code >= 71 && code <= 77) return "\u{f0598}"; // md-weather_snowy
-    if (code >= 80 && code <= 82) return "\u{ef1c}"; // fa-cloud_rain (pieno)
-    if (code >= 85 && code <= 86) return "\u{f067f}"; // md-weather_snowy_rainy
-    if (code >= 95 && code <= 99) return "\u{ef2c}"; // fa-cloud_bolt (pieno)
-    return "\u{f0599}";
+    // Sereno e quasi sereno: unici due casi in cui il sole si vede davvero,
+    // quindi gli unici che hanno senso alternare giorno/notte.
+    if (code === 0)  return root.isDay ? gClear  : gClearNight
+    if (code === 1)  return root.isDay ? gClear  : gClearNight
+    if (code === 2)  return root.isDay ? gPartly : gPartlyNight
+
+    if (code === 3)  return gOvercast                  // coperto
+
+    if (code === 45 || code === 48) return gFog        // nebbia, anche con brina
+
+    if (code >= 51 && code <= 57) return gDrizzle      // pioviggine, gelata inclusa
+    if (code >= 61 && code <= 67) return gRain         // pioggia, gelata inclusa
+    if (code >= 71 && code <= 77) return gSnow         // neve e granelli
+    if (code >= 80 && code <= 82) return gPouring      // rovesci intermittenti
+    if (code >= 85 && code <= 86) return gSleet        // rovesci di neve
+
+    if (code === 95) return gThunder                   // temporale
+    if (code >= 96 && code <= 99) return gHail         // temporale con grandine
+
+    return gClear
   }
+
   readonly property string icon: iconFor(weatherCode)
 
   Timer {

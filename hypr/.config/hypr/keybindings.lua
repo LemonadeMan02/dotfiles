@@ -50,15 +50,6 @@ hl.bind(mainMod .. " + up",           hl.dsp.focus({ direction = "up" }))
 hl.bind(mainMod .. " + down",         hl.dsp.focus({ direction = "down" }))
 
 
-----------------------
----- WORKSPACES ------
-----------------------
-
--- Workspace monitor pinning and all workspace-related keybindings live in
--- ~/.config/hypr/workspaces.lua so they're easy to find and edit.
-require("workspaces")
-
-
 -------------------
 ---- MOUSE --------
 -------------------
