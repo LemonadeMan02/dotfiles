@@ -11,8 +11,10 @@ QtObject {
     return Qt.rgba(col.r, col.g, col.b, a)
   }
 
-  // ── 1. Primitive: la palette grezza (Catppuccin Mocha) ──────────────
-  readonly property QtObject c: QtObject {
+  // ── 1. Primitive: le due palette Catppuccin, crude ──────────────────
+  // Devono esporre esattamente gli stessi nomi: e' quello che permette
+  // al livello semantico qui sotto di restare cieco alla variante.
+  readonly property QtObject mocha: QtObject {
     readonly property color crust:    "#11111b"
     readonly property color mantle:   "#181825"
     readonly property color base:     "#1e1e2e"
@@ -30,8 +32,38 @@ QtObject {
     readonly property color red:      "#f38ba8"
   }
 
+  readonly property QtObject latte: QtObject {
+    readonly property color crust:    "#dce0e8"
+    readonly property color mantle:   "#e6e9ef"
+    readonly property color base:     "#eff1f5"
+    readonly property color surface0: "#ccd0da"
+    readonly property color surface1: "#bcc0cc"
+    readonly property color overlay0: "#9ca0b0"
+    readonly property color subtext0: "#6c6f85"
+    readonly property color text:     "#4c4f69"
+    readonly property color blue:     "#1e66f5"
+    readonly property color mauve:    "#8839ef"
+    readonly property color pink:     "#ea76cb"
+    readonly property color green:    "#40a02b"
+    readonly property color yellow:   "#df8e1d"
+    readonly property color peach:    "#fe640b"
+    readonly property color red:      "#d20f39"
+  }
+
+  // Il ?? serve: all'avvio Config puo' non avere ancora caricato l'adapter,
+  // e un undefined qui diventerebbe silenziosamente "tema chiaro".
+  readonly property bool dark: Config.appearance?.darkMode ?? true
+
+  readonly property QtObject c: dark ? mocha : latte
+
   // ── 2. Semantica ────────────────────────────────────────────────────
-  readonly property real pillAlpha: 0.70
+  // Il clamp non e' paranoia: un JSON editato a mano con 5.0 renderebbe
+  // la barra invisibile senza alcun errore a schermo.
+  // Nota: sotto 0.30 sparisce il blur, vedi ignore_alpha in layerrules.lua.
+  readonly property real pillAlpha: {
+    const t = Config.appearance?.transparency ?? 0.30
+    return Math.max(0.15, Math.min(1.0, 1.0 - t))
+  }
 
   readonly property color surface:       withAlpha(c.mantle, pillAlpha)
   readonly property color surfaceHover:  withAlpha(c.surface0, 0.85)
@@ -46,7 +78,9 @@ QtObject {
   readonly property color onAccent:      c.crust
   readonly property color urgent:        c.red
 
-  // Contenitori chiari: sfondo + coppia di primo piano che li accompagna.
+  // Contenitori invertiti rispetto allo sfondo: chiari su tema scuro,
+  // scuri su tema chiaro. Il nome "Light" resta storico, il contrasto
+  // regge in entrambe le varianti perche' text e crust sono gli estremi.
   readonly property color surfaceLight:       c.text
   readonly property color surfaceLightHover:  withAlpha(c.text, 0.85)
   readonly property color surfaceAccent:      c.pink

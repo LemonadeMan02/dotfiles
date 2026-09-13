@@ -39,6 +39,8 @@ hl.bind(mainMod .. " + M", hl.dsp.exec_cmd(
     "command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'"
 )) -- Session exit / power menu
 
+hl.bind(mainMod .. " + Space", hl.dsp.global("quickshell:drawerToggle"))
+
 
 ------------------------
 ---- FOCUS MOVEMENT ----

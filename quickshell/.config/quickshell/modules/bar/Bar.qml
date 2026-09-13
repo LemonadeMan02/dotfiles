@@ -112,6 +112,17 @@ Scope {
               fgMuted:  volChip.foregroundDim
             }
           }
+
+          Chip {
+            id: powerChip
+            variant: "accent"
+            interactive: true
+
+            PowerWidget {
+              fgNormal: powerChip.foreground
+              fgMuted:  powerChip.foregroundDim
+            }
+          }
         }
       }
     }
