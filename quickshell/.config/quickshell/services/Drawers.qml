@@ -86,7 +86,7 @@ Singleton {
   readonly property int autoCloseTimeout: Config.drawer?.autoCloseTimeout ?? 0
 
   Timer {
-    interval: root.autoCloseTimeout > 0 ? root.autoCloseTimeout : 20
+    interval: root.autoCloseTimeout > 0 ? root.autoCloseTimeout : 1000
 
     // Fermo mentre ci passi sopra: il conto riparte da zero quando esci,
     // cosi' il pannello non ti muore sotto le mani mentre lo usi.

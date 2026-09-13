@@ -10,6 +10,8 @@ Singleton {
 
   // Il resto della shell legge Config.appearance.*, non tocca mai il FileView.
   property alias appearance: adapter.appearance
+  property alias drawer:     adapter.drawer
+
 
   function toggleDarkMode() {
     adapter.appearance.darkMode = !adapter.appearance.darkMode
@@ -52,6 +54,9 @@ Singleton {
         // l'utente vede nello slider, non l'alpha: una sola conversione,
         // in Theme, invece di doppie negazioni sparse.
         property real transparency: 0.30
+      }
+      property JsonObject drawer: JsonObject {
+        property int autoCloseTimeout: 20000
       }
     }
   }

@@ -9,6 +9,6 @@ Scope {
 
   LazyLoader {
     active: Drawers.visible
-    Drawer {}
+    DrawerWindow {}
   }
 }

@@ -1,4 +1,4 @@
-// Drawer.qml
+// DrawerWindow.qml
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
@@ -25,11 +25,7 @@ PanelWindow {
   implicitWidth:  layout.implicitWidth  + 40
   implicitHeight: layout.implicitHeight + 30
 
-  Component.onCompleted: {
-    console.log("Drawer: creato su", root.screen ? root.screen.name : "?",
-                root.implicitWidth + "x" + root.implicitHeight)
-    Drawers.registerWindow(root)
-  }
+  Component.onCompleted: Drawers.registerWindow(root)
 
   Rectangle {
     anchors.fill: parent
