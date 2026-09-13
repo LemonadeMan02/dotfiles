@@ -20,7 +20,12 @@ RowLayout {
     return iconHigh
   }
 
-  readonly property color fg: Audio.muted ? Theme.muted : Theme.foreground
+  // Chi ospita il widget decide i colori. Qui ci sono solo i default,
+  // validi se il widget finisce su una pill scura.
+  property color fgNormal: Theme.foreground
+  property color fgMuted:  Theme.muted
+
+  readonly property color fg: Audio.muted ? fgMuted : fgNormal
 
   Text {
     text: root.icon

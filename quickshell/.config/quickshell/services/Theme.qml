@@ -23,6 +23,7 @@ QtObject {
     readonly property color text:     "#cdd6f4"
     readonly property color blue:     "#89b4fa"
     readonly property color mauve:    "#cba6f7"
+    readonly property color pink:     "#f5c2e7"
     readonly property color green:    "#a6e3a1"
     readonly property color yellow:   "#f9e2af"
     readonly property color peach:    "#fab387"
@@ -45,9 +46,13 @@ QtObject {
   readonly property color onAccent:      c.crust
   readonly property color urgent:        c.red
 
-  readonly property color surfaceLight:   c.text     // quasi bianco, per pill informative
-  readonly property color surfaceAccent:  c.red      // rosa, per pill interattive
-  readonly property color onLight:        c.crust    // testo scuro su sfondo chiaro
+  // Contenitori chiari: sfondo + coppia di primo piano che li accompagna.
+  readonly property color surfaceLight:       c.text
+  readonly property color surfaceLightHover:  withAlpha(c.text, 0.85)
+  readonly property color surfaceAccent:      c.pink
+  readonly property color surfaceAccentHover: withAlpha(c.pink, 0.85)
+  readonly property color onLight:            c.crust
+  readonly property color onLightDim:         withAlpha(c.crust, 0.55)
 
   // ── 3. Scale ────────────────────────────────────────────────────────
   readonly property int spacingXs: 2

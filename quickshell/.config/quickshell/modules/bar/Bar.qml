@@ -93,8 +93,24 @@ Scope {
           spacing: Theme.spacingS
 
           Chip {
+            id: netChip
+            variant: "light"
+
+            NetworkWidget {
+              fgNormal: netChip.foreground
+              fgMuted:  netChip.foregroundDim
+            }
+          }
+
+          Chip {
+            id: volChip
+            variant: "accent"
             interactive: true
-            VolumeWidget {}
+
+            VolumeWidget {
+              fgNormal: volChip.foreground
+              fgMuted:  volChip.foregroundDim
+            }
           }
         }
       }

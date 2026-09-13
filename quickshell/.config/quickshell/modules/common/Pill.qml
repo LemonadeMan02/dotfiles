@@ -17,6 +17,8 @@ Rectangle {
   // senza perdere il comportamento dell'hover.
   property color bgNormal: Theme.surface
   property color bgHover:  Theme.surfaceHover
+  property color foreground:    Theme.foreground
+  property color foregroundDim: Theme.foregroundDim
 
   property bool interactive: false
   readonly property bool hovered: hover.hovered
