@@ -10,7 +10,11 @@ import Quickshell.Hyprland
 Singleton {
   id: root
 
+  // Due stati distinti. "visible" e' l'intenzione: aperto o chiuso.
+  // "loaded" e' la finestra viva, e sopravvive alla chiusura per il tempo
+  // dell'animazione di uscita.
   property bool visible: false
+  property bool loaded: false
 
   // Fotografato all'apertura, non seguito con un binding: se cambiassi
   // output mentre e' aperto, il drawer salterebbe da uno schermo all'altro.
@@ -38,6 +42,9 @@ Singleton {
       return
     }
 
+    // Ordine obbligato: la finestra deve esistere prima di chiederle di
+    // mostrarsi, altrimenti nasce gia' aperta e l'entrata non si vede.
+    root.loaded = true
     root.visible = true
   }
 
@@ -50,8 +57,21 @@ Singleton {
     else root.open()
   }
 
-  onVisibleChanged: {
+  // Chiamata dalla finestra a fine animazione di uscita. La guardia copre
+  // la riapertura a meta' uscita: li' la finestra serve ancora.
+  function unload() {
     if (!root.visible) {
+      grab.windows = []
+      root.loaded = false
+    }
+  }
+
+  // Il grab segue l'apertura, non la nascita della finestra: ora la
+  // finestra sopravvive alle chiusure e onCompleted gira una volta sola.
+  onVisibleChanged: {
+    if (root.visible) {
+      grabDelay.restart()
+    } else {
       grab.active = false
       root.hovered = false
     }
@@ -66,20 +86,21 @@ Singleton {
     onCleared: root.close()
   }
 
+  // Registra la finestra e, se il drawer e' gia' aperto, riarma il grab:
+  // copre il caso in cui LazyLoader costruisca dopo l'apertura.
+  function registerWindow(win) {
+    grab.windows = [win]
+    if (root.visible) grabDelay.restart()
+  }
+
   // Il grab non puo' partire subito: alla Component.onCompleted la
   // superficie Wayland non e' ancora mappata, Hyprland vede il focus
   // altrove ed emette cleared all'istante.
-  function registerWindow(win) {
-    grab.windows = [win]
-    grabDelay.restart()
-  }
-
   Timer {
     id: grabDelay
     interval: 50
-    // La guardia serve: se chiudi entro l'intervallo, senza di essa
-    // attiveresti un grab su una finestra gia' distrutta.
-    onTriggered: if (root.visible) grab.active = true
+    // Due guardie: la finestra puo' essere gia' chiusa, o non ancora nata.
+    onTriggered: if (root.visible && grab.windows.length > 0) grab.active = true
   }
 
   // ── Chiusura per inattivita' ────────────────────────────────────────

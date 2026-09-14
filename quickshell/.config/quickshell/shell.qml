@@ -7,8 +7,10 @@ import "./services"
 Scope {
   Bar {}
 
+  // Legato a "loaded", non a "visible": la finestra deve restare in vita
+  // per tutta l'animazione di uscita e smontarsi solo dopo.
   LazyLoader {
-    active: Drawers.visible
+    active: Drawers.loaded
     DrawerWindow {}
   }
 }
