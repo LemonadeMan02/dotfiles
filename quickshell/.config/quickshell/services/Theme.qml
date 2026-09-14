@@ -57,12 +57,15 @@ QtObject {
   readonly property QtObject c: dark ? mocha : latte
 
   // ── 2. Semantica ────────────────────────────────────────────────────
-  // Il clamp non e' paranoia: un JSON editato a mano con 5.0 renderebbe
-  // la barra invisibile senza alcun errore a schermo.
-  // Nota: sotto 0.30 sparisce il blur, vedi ignore_alpha in layerrules.lua.
+  // Sotto questa soglia Hyprland smette di sfocare: vedi ignore_alpha
+  // (0.30) in layerrules.lua. Il margine copre l'antialias degli angoli.
+  readonly property real minPillAlpha: 0.35
+
+  // Rimappatura, non clamp: tutta la corsa dello slider produce un
+  // effetto visibile, e il fondo scala non spegne mai il blur.
   readonly property real pillAlpha: {
-    const t = Config.appearance?.transparency ?? 0.30
-    return Math.max(0.15, Math.min(1.0, 1.0 - t))
+    const t = Math.max(0, Math.min(1, Config.appearance?.transparency ?? 0.30))
+    return 1.0 - t * (1.0 - root.minPillAlpha)
   }
 
   readonly property color surface:       withAlpha(c.mantle, pillAlpha)

@@ -13,3 +13,11 @@ hl.layer_rule({
     -- schermo. Va tenuta sotto pillAlpha (0.70) e sopra 0.
     ignore_alpha = 0.3,
 })
+
+hl.layer_rule({
+    name  = "quickshell-drawer-blur",
+    match = { namespace = "^quickshell:drawer$" },
+
+    blur = true,
+    ignore_alpha = 0.3,
+})

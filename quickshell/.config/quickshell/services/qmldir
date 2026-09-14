@@ -1,6 +1,7 @@
 singleton Theme 1.0 Theme.qml
 singleton Config 1.0 Config.qml
 singleton Drawers 1.0 Drawers.qml
+singleton Session 1.0 Session.qml
 singleton Time 1.0 Time.qml
 singleton Weather 1.0 Weather.qml
 singleton Audio 1.0 Audio.qml

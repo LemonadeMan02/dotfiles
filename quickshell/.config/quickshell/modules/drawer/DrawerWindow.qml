@@ -22,48 +22,42 @@ PanelWindow {
 
   // La finestra si misura sul layout, non sul Rectangle: il Rectangle ha
   // anchors.fill e prenderebbe la taglia dalla finestra, chiudendo il giro.
-  implicitWidth:  layout.implicitWidth  + 40
-  implicitHeight: layout.implicitHeight + 30
+  // Il minimo evita che il pannello si stringa su titoli corti.
+  implicitWidth:  Math.max(400, layout.implicitWidth + Theme.spacingM * 2)
+  implicitHeight: layout.implicitHeight + Theme.spacingM * 2
 
   Component.onCompleted: Drawers.registerWindow(root)
 
-  Rectangle {
+  // L'hover sta qui e non sul Rectangle: ora dentro ci sono righe con i
+  // loro HoverHandler, e l'auto-close non deve dipendere da chi vince.
+  Item {
     anchors.fill: parent
-
-    radius: Theme.radiusM
-    color: Theme.surface
-    antialiasing: true
-
-    Behavior on color {
-      ColorAnimation { duration: Theme.durFast; easing.type: Easing.OutCubic }
-    }
 
     HoverHandler {
       onHoveredChanged: Drawers.hovered = hovered
     }
-  }
 
-  ColumnLayout {
-    id: layout
-    anchors.centerIn: parent
-    spacing: Theme.spacingS
+    Rectangle {
+      anchors.fill: parent
 
-    Text {
-      text: "Drawer"
-      color: Theme.foreground
-      font.family: Theme.fontFamily
-      font.pixelSize: Theme.fontL
-      font.weight: Theme.weightBold
-      Layout.alignment: Qt.AlignHCenter
+      radius: Theme.radiusM
+      color: Theme.surface
+      antialiasing: true
+
+      Behavior on color {
+        ColorAnimation { duration: Theme.durFast; easing.type: Easing.OutCubic }
+      }
     }
 
-    Text {
-      text: root.screen ? root.screen.name : "?"
-      color: Theme.foregroundDim
-      font.family: Theme.fontFamily
-      font.pixelSize: Theme.fontXs
-      font.weight: Theme.weightNormal
-      Layout.alignment: Qt.AlignHCenter
+    ColumnLayout {
+      id: layout
+      anchors.fill: parent
+      anchors.margins: Theme.spacingM
+      spacing: Theme.spacingXs
+
+      QuickSettings {
+        Layout.fillWidth: true
+      }
     }
   }
 }

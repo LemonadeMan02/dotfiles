@@ -3,6 +3,7 @@ pragma Singleton
 
 import Quickshell
 import Quickshell.Io
+import QtQuick
 
 
 Singleton {
@@ -12,13 +13,28 @@ Singleton {
   property alias appearance: adapter.appearance
   property alias drawer:     adapter.drawer
 
+  // Scrittura differita. Il drag dello slider chiama il setter a ogni frame:
+  // il timer riparte, il disco viene toccato una volta sola a fine gesto.
+  Timer {
+    id: writeDebounce
+    interval: 300
+    onTriggered: view.writeAdapter()
+  }
+
+  function save() { writeDebounce.restart() }
+
+  function setDarkMode(v) {
+    adapter.appearance.darkMode = v
+    root.save()
+  }
 
   function toggleDarkMode() {
-    adapter.appearance.darkMode = !adapter.appearance.darkMode
+    root.setDarkMode(!adapter.appearance.darkMode)
   }
 
   function setTransparency(v) {
     adapter.appearance.transparency = Math.max(0, Math.min(1, v))
+    root.save()
   }
 
   FileView {
@@ -33,9 +49,8 @@ Singleton {
     watchChanges: true
     onFileChanged: view.reload()
 
-    // Ogni assegnazione su adapter.* finisce su disco. E' questo che rende
-    // il JsonAdapter bidirezionale: non serve una funzione save().
-    onAdapterUpdated: view.writeAdapter()
+    // Niente onAdapterUpdated: la scrittura parte dai setter qui sopra.
+    // Cosi' il nostro write non si auto-inseque via fileChanged.
 
     // Primo avvio: il file non esiste ancora, lo scriviamo con i default.
     onLoadFailed: (error) => {
@@ -46,13 +61,12 @@ Singleton {
       id: adapter
 
       // Ogni sezione di primo livello corrisponde a un'area della shell.
-      // Aggiungeremo "drawer", "paths", "bar" quando serviranno davvero.
       property JsonObject appearance: JsonObject {
-        property bool darkMode: false
+        // Mocha e' la base di design: il default deve dirlo.
+        property bool darkMode: true
 
         // 0 = pill opache, 1 = pill invisibili. Salviamo il valore che
-        // l'utente vede nello slider, non l'alpha: una sola conversione,
-        // in Theme, invece di doppie negazioni sparse.
+        // l'utente vede nello slider, non l'alpha.
         property real transparency: 0.30
       }
       property JsonObject drawer: JsonObject {
