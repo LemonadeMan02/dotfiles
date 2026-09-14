@@ -7,8 +7,8 @@ RowLayout {
   id: root
   spacing: Theme.spacingM
 
-  // Placeholder: incolla il glifo letterale nf-md-power da
-  // nerdfonts.com/cheat-sheet, questo e' solo un segnaposto.
+  // Incolla il glifo letterale nf-md-power da nerdfonts.com/cheat-sheet:
+  // questo e' un carattere Unicode generico, non un glifo della Nerd Font.
   readonly property string iconPower: "⏻"
 
   property color fgNormal: Theme.foreground
@@ -31,8 +31,5 @@ RowLayout {
     cursorShape: Qt.PointingHandCursor
   }
 
-  TapHandler {
-    // Placeholder: qui in futuro apriremo la popup del power menu.
-    onTapped: console.log("power menu: TODO")
-  }
+  // Niente TapHandler: il tap lo raccoglie la pill che ci contiene.
 }

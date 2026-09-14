@@ -8,10 +8,10 @@ RowLayout {
   spacing: Theme.spacingM
 
   // Incolla i glifi letterali da nerdfonts.com/cheat-sheet.
-  readonly property string iconMuted:  "" // nf-md-volume_off
-  readonly property string iconLow:    "" // nf-md-volume_low
-  readonly property string iconMedium: "" // nf-md-volume_medium
-  readonly property string iconHigh:   "" // nf-md-volume_high
+  readonly property string iconMuted:  "" // nf-md-volume_off
+  readonly property string iconLow:    "" // nf-md-volume_low
+  readonly property string iconMedium: "" // nf-md-volume_medium
+  readonly property string iconHigh:   "" // nf-md-volume_high
 
   readonly property string icon: {
     if (Audio.muted || Audio.volume <= 0) return iconMuted
@@ -57,15 +57,12 @@ RowLayout {
     }
   }
 
-
   HoverHandler {
     cursorShape: Qt.PointingHandCursor
   }
 
-  TapHandler {
-    onTapped: Audio.toggleMute()
-  }
-
+  // Niente TapHandler: il click sulla pill apre il dashboard, e il mute
+  // vive li' dentro. Lo scroll non collide e resta la scorciatoia veloce.
   WheelHandler {
     onWheel: (event) => Audio.stepVolume(event.angleDelta.y > 0 ? 0.05 : -0.05)
   }

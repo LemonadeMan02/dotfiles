@@ -78,6 +78,7 @@ Scope {
         ClockWidget {}
         WeatherWidget {}
       }
+
       // --- Gruppo destro: indicatori di sistema ---
       RowLayout {
         id: rightGroup
@@ -91,6 +92,12 @@ Scope {
 
         Pill {
           spacing: Theme.spacingS
+          interactive: true
+
+          // screen esplicito: su un layer surface il focusedMonitor di
+          // Hyprland puo' non seguire il mouse, e il pannello nascerebbe
+          // sul monitor sbagliato.
+          onClicked: Drawers.toggle("dashboard", panel.screen)
 
           Chip {
             id: netChip

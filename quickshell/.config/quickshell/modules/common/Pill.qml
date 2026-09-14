@@ -23,6 +23,9 @@ Rectangle {
   property bool interactive: false
   readonly property bool hovered: hover.hovered
 
+  // Emesso solo se interactive. Chi istanzia decide cosa significa.
+  signal clicked()
+
   implicitWidth:  layout.implicitWidth  + paddingH * 2
   implicitHeight: layout.implicitHeight + paddingV * 2
 
@@ -39,6 +42,14 @@ Rectangle {
   HoverHandler {
     id: hover
     enabled: root.interactive
+  }
+
+  // parent esplicito: la default property manda i figli dentro il layout,
+  // e senza questa riga il padding della pill non risponderebbe al click.
+  TapHandler {
+    parent: root
+    enabled: root.interactive
+    onTapped: root.clicked()
   }
 
   RowLayout {
