@@ -7,17 +7,11 @@ RowLayout {
   id: root
   spacing: Theme.spacingM
 
-  // Incolla i glifi letterali da nerdfonts.com/cheat-sheet.
-  readonly property string iconMuted:  "" // nf-md-volume_off
-  readonly property string iconLow:    "" // nf-md-volume_low
-  readonly property string iconMedium: "" // nf-md-volume_medium
-  readonly property string iconHigh:   "" // nf-md-volume_high
-
   readonly property string icon: {
-    if (Audio.muted || Audio.volume <= 0) return iconMuted
-    if (Audio.volume < 0.34) return iconLow
-    if (Audio.volume < 0.67) return iconMedium
-    return iconHigh
+    if (Audio.muted || Audio.volume <= 0) return Icons.volMuted
+    if (Audio.volume < 0.34) return Icons.volLow
+    if (Audio.volume < 0.67) return Icons.volMedium
+    return Icons.volHigh
   }
 
   // Chi ospita il widget decide i colori. Qui ci sono solo i default,

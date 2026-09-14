@@ -10,7 +10,6 @@ hl.layer_rule({
     -- Soglia sotto la quale un pixel NON viene sfocato. Senza questa riga
     -- Hyprland sfoca l'intera superficie del layer, cioe' anche lo spazio
     -- vuoto tra le pill: ti ritrovi una fascia sfocata larga quanto lo
-    -- schermo. Va tenuta sotto pillAlpha (0.70) e sopra 0.
     ignore_alpha = 0.3,
 })
 

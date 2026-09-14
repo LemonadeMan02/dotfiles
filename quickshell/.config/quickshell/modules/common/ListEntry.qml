@@ -1,15 +1,27 @@
 // ListEntry.qml
 import QtQuick
 import QtQuick.Layouts
+import Quickshell.Widgets
 import "../../services"
 
 
 Rectangle {
   id: root
 
+  // Due canali alternativi: un glifo Nerd Font, oppure il nome di
+  // un'icona di sistema da risolvere contro il tema installato.
+  // iconSource vince se valorizzato.
   property string icon: ""
+  property string iconSource: ""
+
   property string title: ""
   property string subtitle: ""
+
+  // Evidenziazione da tastiera. Separata dall'hover: le frecce e il mouse
+  // possono puntare righe diverse e nessuna delle due deve vincere.
+  property bool highlighted: false
+
+  readonly property bool active: hover.hovered || root.highlighted
 
   // La riga non sa cosa fa: lo decide chi la istanzia.
   signal activated()
@@ -21,7 +33,7 @@ Rectangle {
   antialiasing: true
 
   // Trasparente a riposo: il fondo e' gia' la superficie del drawer.
-  color: hover.hovered ? Theme.surfaceHover : "transparent"
+  color: root.active ? Theme.surfaceHover : "transparent"
 
   Behavior on color {
     ColorAnimation { duration: Theme.durFast; easing.type: Easing.OutCubic }
@@ -34,18 +46,37 @@ Rectangle {
     anchors.rightMargin: Theme.spacingL
     spacing: Theme.spacingL
 
-    Text {
-      text: root.icon
-      font.family: Theme.nerdFontFamily
-      font.pixelSize: Theme.iconM
-      color: hover.hovered ? Theme.accent : Theme.foreground
-      horizontalAlignment: Text.AlignHCenter
-      // Larghezza fissa: senza, glifi di larghezza diversa disallineano i titoli.
-      Layout.preferredWidth: Theme.iconL
+    // Contenitore a larghezza fissa: senza, glifi e icone di larghezza
+    // diversa disallineano i titoli da una riga all'altra.
+    Item {
+      visible: root.icon !== "" || root.iconSource !== ""
+      Layout.preferredWidth:  Theme.iconL
+      Layout.preferredHeight: Theme.iconL
       Layout.alignment: Qt.AlignVCenter
 
-      Behavior on color {
-        ColorAnimation { duration: Theme.durFast }
+      Text {
+        anchors.centerIn: parent
+        // Anche il ripiego dell'icona di sistema: un buco e' peggio di
+        // un glifo generico.
+        visible: root.iconSource === "" || appIcon.status === Image.Error
+        text: root.iconSource !== "" ? Icons.app : root.icon
+        font.family: Theme.nerdFontFamily
+        font.pixelSize: Theme.iconM
+        color: root.active ? Theme.accent : Theme.foreground
+        horizontalAlignment: Text.AlignHCenter
+
+        Behavior on color {
+          ColorAnimation { duration: Theme.durFast }
+        }
+      }
+
+      IconImage {
+        id: appIcon
+        anchors.centerIn: parent
+        width:  Theme.iconM
+        height: Theme.iconM
+        visible: root.iconSource !== "" && status !== Image.Error
+        source: root.iconSource
       }
     }
 

@@ -26,14 +26,15 @@ PanelWindow {
   // I launcher vogliono i tasti appena aperti, i pannelli da cliccare no.
   property bool grabKeyboard: false
 
+  signal focusReady()
+
   default property alias content: layout.data
 
   screen: Drawers.screen
 
   WlrLayershell.namespace: "quickshell:drawer"
   WlrLayershell.layer: WlrLayer.Overlay
-  WlrLayershell.keyboardFocus: root.grabKeyboard ? WlrKeyboardFocus.Exclusive
-                                                 : WlrKeyboardFocus.OnDemand
+  WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
 
   exclusiveZone: 0
   color: "transparent"
@@ -84,12 +85,21 @@ PanelWindow {
   readonly property real maskH: Math.max(0,
       Math.min(root.height, root.panelY + root.panelFullH) - root.maskY)
 
-  Component.onCompleted: {
-    Drawers.registerWindow(root.name, root)
-    // Rimandato di un ciclo: se lo scrivessi qui, il valore iniziale e
-    // quello finale verrebbero applicati insieme e il Behavior non scatta.
-    Qt.callLater(() => root.shown = true)
-  }
+      Component.onCompleted: {
+        Drawers.registerWindow(root.name, root)
+        // Rimandato di un ciclo: se lo scrivessi qui, il valore iniziale e
+        // quello finale verrebbero applicati insieme e il Behavior non scatta.
+        Qt.callLater(() => root.shown = true)
+        // Dopo il grab: prima la superficie non ha il focus Wayland e il
+        // focus Qt andrebbe perso. 80 > i 50ms di grabDelay in Drawers.
+        if (root.grabKeyboard) focusTimer.restart()
+      }
+
+      Timer {
+        id: focusTimer
+        interval: 80
+        onTriggered: root.focusReady()
+      }
 
   Connections {
     target: Drawers

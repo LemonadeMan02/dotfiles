@@ -34,45 +34,28 @@ Singleton {
     xhr.send();
   }
 
-  // ── Glifi. Prendili da nerdfonts.com/cheat-sheet cercando il nome
-  //    indicato nel commento, e incolla il carattere letterale. ────────
-  readonly property string gClear:        "󰖨"
-  readonly property string gClearNight:   "󰖔"
-  readonly property string gPartly:       ""
-  readonly property string gPartlyNight:  ""
-  readonly property string gCloudy:       ""
-  readonly property string gOvercast:     ""
-  readonly property string gFog:          "󰖑"
-  readonly property string gDrizzle:      ""
-  readonly property string gRain:         ""
-  readonly property string gPouring:      "󰖖"
-  readonly property string gSnow:         ""
-  readonly property string gSleet:        ""
-  readonly property string gThunder:      ""
-  readonly property string gHail:         ""
-
   // Codici WMO 4677, come esposti da Open-Meteo nel campo weather_code.
   function iconFor(code) {
     // Sereno e quasi sereno: unici due casi in cui il sole si vede davvero,
     // quindi gli unici che hanno senso alternare giorno/notte.
-    if (code === 0)  return root.isDay ? gClear  : gClearNight
-    if (code === 1)  return root.isDay ? gClear  : gClearNight
-    if (code === 2)  return root.isDay ? gPartly : gPartlyNight
+    if (code === 0)  return root.isDay ? Icons.wClear  : Icons.wClearNight
+    if (code === 1)  return root.isDay ? Icons.wClear  : Icons.wClearNight
+    if (code === 2)  return root.isDay ? Icons.wPartly : Icons.wPartlyNight
 
-    if (code === 3)  return gOvercast                  // coperto
+    if (code === 3)  return Icons.wOvercast                  // coperto
 
-    if (code === 45 || code === 48) return gFog        // nebbia, anche con brina
+    if (code === 45 || code === 48) return Icons.wFog        // nebbia, anche con brina
 
-    if (code >= 51 && code <= 57) return gDrizzle      // pioviggine, gelata inclusa
-    if (code >= 61 && code <= 67) return gRain         // pioggia, gelata inclusa
-    if (code >= 71 && code <= 77) return gSnow         // neve e granelli
-    if (code >= 80 && code <= 82) return gPouring      // rovesci intermittenti
-    if (code >= 85 && code <= 86) return gSleet        // rovesci di neve
+    if (code >= 51 && code <= 57) return Icons.wDrizzle      // pioviggine, gelata inclusa
+    if (code >= 61 && code <= 67) return Icons.wRain         // pioggia, gelata inclusa
+    if (code >= 71 && code <= 77) return Icons.wSnow         // neve e granelli
+    if (code >= 80 && code <= 82) return Icons.wPouring      // rovesci intermittenti
+    if (code >= 85 && code <= 86) return Icons.wSleet        // rovesci di neve
 
-    if (code === 95) return gThunder                   // temporale
-    if (code >= 96 && code <= 99) return gHail         // temporale con grandine
+    if (code === 95) return Icons.wThunder                   // temporale
+    if (code >= 96 && code <= 99) return Icons.wHail         // temporale con grandine
 
-    return gClear
+    return Icons.wClear
   }
 
   readonly property string icon: iconFor(weatherCode)

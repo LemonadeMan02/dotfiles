@@ -21,7 +21,6 @@ local mainMod = "SUPER" -- Sets "Windows" key as main modifier
 hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd(terminal))    -- Terminal
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager)) -- File manager
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(browser))     -- Browser
-hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(menu))        -- App launcher / menu
 
 
 -------------------------

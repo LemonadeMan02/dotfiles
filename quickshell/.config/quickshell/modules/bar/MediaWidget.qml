@@ -8,11 +8,6 @@ RowLayout {
   id: root
   spacing: Theme.spacingM
 
-  readonly property string iconPlay:         "" // nf-md-play
-  readonly property string iconPause:        "" // nf-md-pause
-  readonly property string iconSkipPrevious: "󰒮" // nf-md-skip_previous
-  readonly property string iconSkipNext:     "󰒭" // nf-md-skip_next
-
   readonly property MprisPlayer player: {
     for (const p of Mpris.players.values) {
       if (p.desktopEntry === "spotify") return p
@@ -83,7 +78,7 @@ RowLayout {
 
     Text {
       id: prevBtn
-      text: root.iconSkipPrevious
+      text: Icons.prev
       font.family: Theme.nerdFontFamily
       font.pixelSize: Theme.iconM
       // L'icona si accende sotto il mouse: e' l'unico segnale che il
@@ -109,7 +104,7 @@ RowLayout {
     Text {
       id: playBtn
       text: root.player && root.player.playbackState === MprisPlaybackState.Playing
-            ? root.iconPause : root.iconPlay
+            ? Icons.pause : Icons.play
       font.family: Theme.nerdFontFamily
       font.pixelSize: Theme.iconM
       color: playHover.hovered ? Theme.accent : Theme.foreground
@@ -130,7 +125,7 @@ RowLayout {
 
     Text {
       id: nextBtn
-      text: root.iconSkipNext
+      text: Icons.next
       font.family: Theme.nerdFontFamily
       font.pixelSize: Theme.iconM
       color: nextHover.hovered ? Theme.accent : Theme.foreground

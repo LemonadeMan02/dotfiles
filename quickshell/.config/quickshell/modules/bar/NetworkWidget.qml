@@ -13,14 +13,9 @@ RowLayout {
 
   readonly property color fg: Net.connected ? fgNormal : fgMuted
 
-  // Incolla i glifi letterali da nerdfonts.com/cheat-sheet.
-  readonly property string iconWired:   "󰈀" // nf-md-ethernet
-  readonly property string iconWifi:    "" // nf-md-wifi
-  readonly property string iconOffline: "" // nf-md-wifi_off
-
   readonly property string icon: {
-    if (!Net.connected) return iconOffline
-    return Net.wired ? iconWired : iconWifi
+    if (!Net.connected) return Icons.offline
+    return Net.wired ? Icons.wired : Icons.wifi
   }
 
   Text {
