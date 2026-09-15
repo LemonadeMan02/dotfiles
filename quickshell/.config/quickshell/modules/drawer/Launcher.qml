@@ -62,6 +62,14 @@ ColumnLayout {
 
     readonly property var all: [
       {
+        name: "Wallpaper",
+        comment: "Choose a wallpaper",
+        icon: Icons.wallpaper,
+        // open() basta a chiudere questo: Drawers ne tiene aperto uno solo.
+        // Lo schermo e' quello su cui sta il launcher, non il focusedMonitor.
+        action: () => Drawers.open("wallpapers", Drawers.screen)
+      },
+      {
         name: "Transparency",
         comment: "Change shell transparency",
         icon: Icons.opacity,

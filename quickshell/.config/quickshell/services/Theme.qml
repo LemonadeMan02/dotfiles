@@ -30,6 +30,10 @@ QtObject {
     readonly property color yellow:   "#f9e2af"
     readonly property color peach:    "#fab387"
     readonly property color red:      "#f38ba8"
+    // Catppuccin non li definisce: sono i valori che il contenitore
+    // invertito aveva gia', promossi a nome proprio.
+    readonly property color inverseSurface:   "#cdd6f4"
+    readonly property color inverseOnSurface: "#11111b"
   }
 
   readonly property QtObject latte: QtObject {
@@ -48,13 +52,48 @@ QtObject {
     readonly property color yellow:   "#df8e1d"
     readonly property color peach:    "#fe640b"
     readonly property color red:      "#d20f39"
+    readonly property color inverseSurface:   "#4c4f69"
+    readonly property color inverseOnSurface: "#dce0e8"
   }
 
   // Il ?? serve: all'avvio Config puo' non avere ancora caricato l'adapter,
   // e un undefined qui diventerebbe silenziosamente "tema chiaro".
   readonly property bool dark: Config.appearance?.darkMode ?? true
 
-  readonly property QtObject c: dark ? mocha : latte
+  // ── 1b. Palette generata ────────────────────────────────────────────
+  readonly property QtObject fallback: dark ? mocha : latte
+
+  // Oggetto JS crudo di matugen, o null. I valori sono stringhe.
+  readonly property var gen: Colors.ready ? (dark ? Colors.dark : Colors.light)
+                                          : null
+
+  readonly property bool dynamic: (Config.appearance?.dynamicColors ?? true)
+                                  && gen !== null
+
+  // Punto unico di conversione. Le stringhe del JSON diventano color qui,
+  // cosi' withAlpha() riceve sempre un colore vero e non un testo.
+  readonly property QtObject c: QtObject {
+    readonly property color crust:    root.dynamic ? root.gen.crust    : root.fallback.crust
+    readonly property color mantle:   root.dynamic ? root.gen.mantle   : root.fallback.mantle
+    readonly property color base:     root.dynamic ? root.gen.base     : root.fallback.base
+    readonly property color surface0: root.dynamic ? root.gen.surface0 : root.fallback.surface0
+    readonly property color surface1: root.dynamic ? root.gen.surface1 : root.fallback.surface1
+    readonly property color overlay0: root.dynamic ? root.gen.overlay0 : root.fallback.overlay0
+    readonly property color subtext0: root.dynamic ? root.gen.subtext0 : root.fallback.subtext0
+    readonly property color text:     root.dynamic ? root.gen.text     : root.fallback.text
+    readonly property color blue:     root.dynamic ? root.gen.blue     : root.fallback.blue
+    readonly property color mauve:    root.dynamic ? root.gen.mauve    : root.fallback.mauve
+    readonly property color pink:     root.dynamic ? root.gen.pink     : root.fallback.pink
+    readonly property color green:    root.dynamic ? root.gen.green    : root.fallback.green
+    readonly property color yellow:   root.dynamic ? root.gen.yellow   : root.fallback.yellow
+    readonly property color peach:    root.dynamic ? root.gen.peach    : root.fallback.peach
+    readonly property color red:      root.dynamic ? root.gen.red      : root.fallback.red
+
+    readonly property color inverseSurface:   root.dynamic ? root.gen.inverseSurface
+                                                           : root.fallback.inverseSurface
+    readonly property color inverseOnSurface: root.dynamic ? root.gen.inverseOnSurface
+                                                           : root.fallback.inverseOnSurface
+  }
 
   // ── 2. Semantica ────────────────────────────────────────────────────
   // Sotto questa soglia Hyprland smette di sfocare: vedi ignore_alpha
@@ -82,14 +121,15 @@ QtObject {
   readonly property color urgent:        c.red
 
   // Contenitori invertiti rispetto allo sfondo: chiari su tema scuro,
-  // scuri su tema chiaro. Il nome "Light" resta storico, il contrasto
-  // regge in entrambe le varianti perche' text e crust sono gli estremi.
-  readonly property color surfaceLight:       c.text
-  readonly property color surfaceLightHover:  withAlpha(c.text, 0.85)
+  // scuri su tema chiaro. Il nome "Light" resta storico. Ora la coppia
+  // arriva da inverseSurface/inverseOnSurface invece che dagli estremi
+  // della scala: il contrasto e' garantito dal generatore, non sperato.
+  readonly property color surfaceLight:       c.inverseSurface
+  readonly property color surfaceLightHover:  withAlpha(c.inverseSurface, 0.85)
   readonly property color surfaceAccent:      c.pink
   readonly property color surfaceAccentHover: withAlpha(c.pink, 0.85)
-  readonly property color onLight:            c.crust
-  readonly property color onLightDim:         withAlpha(c.crust, 0.55)
+  readonly property color onLight:            c.inverseOnSurface
+  readonly property color onLightDim:         withAlpha(c.inverseOnSurface, 0.55)
 
   // ── 3. Scale ────────────────────────────────────────────────────────
   readonly property int spacingXs: 2

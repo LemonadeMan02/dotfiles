@@ -89,6 +89,11 @@ Singleton {
   // sopravvivono alle chiusure e onCompleted gira una volta sola.
   onCurrentChanged: {
     if (root.current !== "") {
+      // Disarmare prima di riarmare non e' ridondante: passando da un
+      // cassetto all'altro la finestra vecchia muore, e un grab ancora
+      // attivo su di lei emette cleared, che chiuderebbe quello nuovo.
+      grab.active = false
+
       const w = root.windows[root.current]
       grab.windows = w ? [w] : []
       grabDelay.restart()
@@ -105,7 +110,11 @@ Singleton {
     windows: []
     active: false
 
-    onCleared: root.close()
+    // Ignorato solo mentre grabDelay gira, cioe' nella finestra in cui
+    // stiamo scambiando un cassetto con un altro. Dopo, ogni cleared e'
+    // un click vero. Guardare grab.active non basterebbe: Hyprland lo
+    // rimette a false da solo prima di emettere il segnale.
+    onCleared: if (!grabDelay.running) root.close()
   }
 
   // Registra la finestra e, se quel cassetto e' gia' aperto, riarma il

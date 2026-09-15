@@ -1,6 +1,7 @@
 singleton Theme 1.0 Theme.qml
 singleton Icons 1.0 Icons.qml
 singleton Config 1.0 Config.qml
+singleton Colors 1.0 Colors.qml
 singleton Drawers 1.0 Drawers.qml
 singleton Session 1.0 Session.qml
 singleton Apps 1.0 Apps.qml
@@ -8,3 +9,4 @@ singleton Time 1.0 Time.qml
 singleton Weather 1.0 Weather.qml
 singleton Audio 1.0 Audio.qml
 singleton Net 1.0 Net.qml
+singleton Wallpapers 1.0 Wallpapers.qml

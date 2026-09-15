@@ -57,4 +57,28 @@ Scope {
       }
     }
   }
+
+  LazyLoader {
+    active: Drawers.isLoaded("wallpapers")
+
+    Drawer {
+      name: "wallpapers"
+      edge: "center"
+      minWidth: 900
+
+      // Frecce e invio: servono i tasti appena aperto.
+      grabKeyboard: true
+
+      // Nessun anchor: su layer-shell una superficie non ancorata a lati
+      // opposti viene centrata dal compositore. E' il posizionamento del
+      // cassetto centrale, non una dimenticanza.
+
+      onFocusReady: picker.focusStrip()
+
+      WallpaperPicker {
+        id: picker
+        Layout.fillWidth: true
+      }
+    }
+  }
 }

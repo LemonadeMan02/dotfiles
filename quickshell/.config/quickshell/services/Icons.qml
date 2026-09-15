@@ -58,4 +58,7 @@ Singleton {
   readonly property string wSleet:       "" // nf-md-weather_snowy_rainy         (da Weather.qml)
   readonly property string wThunder:     "" // nf-md-weather_lightning           (da Weather.qml)
   readonly property string wHail:        "" // nf-md-weather_hail                (da Weather.qml)
+
+    // ── Wallpapers ───────────────────────────────────────────────────────────
+  readonly property string wallpaper: "󰸉" // nf-md-image — DA INCOLLARE
 }

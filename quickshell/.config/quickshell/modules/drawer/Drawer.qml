@@ -12,8 +12,8 @@ PanelWindow {
   //    istanzia, perche' questo e' gia' un PanelWindow. ────────────────
   required property string name
 
-  // "bottom" o "top": decide da che parte entra. E' l'unica asimmetria
-  // vera fra un cassetto e l'altro.
+  // "bottom", "top" o "center". I primi due entrano traslando dal bordo,
+  // il terzo non ha un bordo da cui entrare e usa scala + dissolvenza.
   property string edge: "bottom"
 
   property int minWidth: 400
@@ -39,17 +39,23 @@ PanelWindow {
   exclusiveZone: 0
   color: "transparent"
 
+  readonly property bool centered:   root.edge === "center"
   readonly property bool fromBottom: root.edge === "bottom"
 
-  // Aria oltre la quota di riposo: esiste solo perche' il rimbalzo porta
-  // il pannello piu' in la'. Senza, gli angoli verrebbero tranciati.
+  // Aria oltre la quota di riposo. Per i cassetti a bordo serve al rimbalzo
+  // della traslazione; per quello centrale al sovradimensionamento della scala.
   readonly property int overshootRoom: 28
 
-  // Altezza del solo pannello, senza l'aria del rimbalzo.
+  // Dimensioni del solo pannello, senza l'aria.
+  readonly property real panelFullW: Math.max(root.minWidth,
+                                              layout.implicitWidth + Theme.spacingM * 2)
   readonly property real panelFullH: layout.implicitHeight + Theme.spacingM * 2
 
-  implicitWidth:  Math.max(root.minWidth, layout.implicitWidth + Theme.spacingM * 2)
-  implicitHeight: root.panelFullH + root.overshootRoom
+  // Il cassetto centrale galleggia: gli serve aria su tutti e quattro i lati.
+  // Quelli a bordo occupano tutta la larghezza e ne hanno solo da un lato.
+  implicitWidth:  root.panelFullW + (root.centered ? root.overshootRoom * 2 : 0)
+  implicitHeight: root.panelFullH + (root.centered ? root.overshootRoom * 2
+                                                   : root.overshootRoom)
 
   // Durata dell'entrata. Piu' lunga di durSlow: il rimbalzo ha bisogno di
   // tempo per leggersi, sotto i 250ms diventa uno scatto.
@@ -63,24 +69,41 @@ PanelWindow {
   // 0 = pannello fuori dalla superficie, 1 = a riposo. OutBack va oltre 1.
   property real reveal: shown ? 1 : 0
 
+  // Il rimbalzo della scala e' compresso dal fattore che lo moltiplica
+  // (0.15), quindi qui serve una corsa molto piu' larga per vedersi.
+  readonly property real revealOvershoot: root.centered ? 2.2 : 1.1
+
   Behavior on reveal {
     NumberAnimation {
       duration: root.animDuration
       easing.type: Easing.OutBack
       // Default 1.70158: troppo, servirebbe il doppio di overshootRoom.
-      easing.overshoot: 1.1
+      easing.overshoot: root.revealOvershoot
     }
   }
 
   // Altezza fissa, y che si muove: la parte che esce dalla superficie non
   // viene composta, ed e' li' che il pannello sparisce. Stessa formula per
-  // i due bordi, cambia solo il segno.
-  readonly property real panelY: root.fromBottom
-      ? root.overshootRoom + root.panelFullH * (1 - root.reveal)
-      : root.panelFullH * (root.reveal - 1)
+  // i due bordi, cambia solo il segno. Al centro y sta ferma.
+  readonly property real panelY: root.centered
+      ? root.overshootRoom
+      : (root.fromBottom
+          ? root.overshootRoom + root.panelFullH * (1 - root.reveal)
+          : root.panelFullH * (root.reveal - 1))
+
+  readonly property real panelX: root.centered ? root.overshootRoom : 0
+  readonly property real panelW: root.centered ? root.panelFullW : root.width
+
+  // Scala e opacita' solo al centro: i cassetti a bordo restano identici
+  // a prima, questi due valori li lasciano a 1.
+  readonly property real panelScale:   root.centered ? 0.85 + 0.15 * root.reveal : 1.0
+  // Il clamp e' esplicito anche se Qt lo farebbe: reveal supera 1 e leggere
+  // "opacity: 1.15" in un log e' un falso allarme evitabile.
+  readonly property real panelOpacity: root.centered ? Math.min(1, root.reveal) : 1.0
 
   // Intersezione fra pannello e superficie: durante il rimbalzo il
-  // pannello si stacca dal bordo e la regione deve seguirlo.
+  // pannello si stacca dal bordo e la regione deve seguirlo. Al centro
+  // la formula si riduce da sola al rettangolo del pannello.
   readonly property real maskY: Math.max(0, root.panelY)
   readonly property real maskH: Math.max(0,
       Math.min(root.height, root.panelY + root.panelFullH) - root.maskY)
@@ -119,9 +142,9 @@ PanelWindow {
   }
 
   Rectangle {
-    x: 0
+    x: root.panelX
     y: root.panelY
-    width:  root.width
+    width:  root.panelW
     height: root.panelFullH
 
     topLeftRadius:      root.topRadius
@@ -131,6 +154,10 @@ PanelWindow {
 
     color: Theme.surface
     antialiasing: true
+
+    transformOrigin: Item.Center
+    scale:   root.panelScale
+    opacity: root.panelOpacity
 
     Behavior on color {
       ColorAnimation { duration: Theme.durFast; easing.type: Easing.OutCubic }
@@ -149,19 +176,25 @@ PanelWindow {
   ColumnLayout {
     id: layout
 
-    x: Theme.spacingM
+    x: root.panelX + Theme.spacingM
     y: root.panelY + Theme.spacingM
-    width: root.width - Theme.spacingM * 2
+    width: root.panelW - Theme.spacingM * 2
 
     spacing: Theme.spacingXs
+
+    // Stesso centro del rettangolo sotto, perche' l'inset e' simmetrico:
+    // le due scale restano allineate senza un wrapper comune.
+    transformOrigin: Item.Center
+    scale:   root.panelScale
+    opacity: root.panelOpacity
   }
 
   // Regione d'input sulla sola porzione visibile: l'aria del rimbalzo
   // resta click-through.
   mask: Region {
-    x: 0
+    x: root.panelX
     y: root.maskY
-    width:  root.width
+    width:  root.panelW
     height: root.maskH
   }
 }

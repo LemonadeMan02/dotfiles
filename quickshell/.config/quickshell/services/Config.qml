@@ -37,6 +37,20 @@ Singleton {
     root.save()
   }
 
+  function setDynamicColors(v) {
+    adapter.appearance.dynamicColors = v
+    root.save()
+  }
+
+  function toggleDynamicColors() {
+    root.setDynamicColors(!adapter.appearance.dynamicColors)
+  }
+
+  function setWallpaper(path) {
+    adapter.appearance.wallpaper = path
+    root.save()
+  }
+
   FileView {
     id: view
     path: Quickshell.env("HOME") + "/.local/state/quickshell/config.json"
@@ -68,6 +82,18 @@ Singleton {
         // 0 = pill opache, 1 = pill invisibili. Salviamo il valore che
         // l'utente vede nello slider, non l'alpha.
         property real transparency: 0.30
+
+        // Se false, Catppuccin anche quando colors.json esiste. Serve a
+        // tornare indietro senza cancellare file.
+        property bool dynamicColors: true
+
+        // "" = ripiego su ~/Wallpapers. Risolto in Wallpapers.qml, non qui:
+        // un JsonObject vuole un default costante.
+        property string wallpaperDir: ""
+
+        // Path dell'immagine applicata. Vive qui e non solo nella cache di
+        // awww, perche' il picker deve sapere quale evidenziare.
+        property string wallpaper: ""
       }
       property JsonObject drawer: JsonObject {
         property int autoCloseTimeout: 20000
