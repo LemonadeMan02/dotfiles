@@ -1,0 +1,47 @@
+{
+  "dark": {
+    "crust":    "{{colors.surface_container_lowest.dark.hex}}",
+    "mantle":   "{{colors.surface_container_low.dark.hex}}",
+    "base":     "{{colors.surface.dark.hex}}",
+    "surface0": "{{colors.surface_container_high.dark.hex}}",
+    "surface1": "{{colors.surface_container_highest.dark.hex}}",
+    "overlay0": "{{colors.outline.dark.hex}}",
+    "subtext0": "{{colors.on_surface_variant.dark.hex}}",
+    "text":     "{{colors.on_surface.dark.hex}}",
+
+    "inverseSurface":   "{{colors.inverse_surface.dark.hex}}",
+    "inverseOnSurface": "{{colors.inverse_on_surface.dark.hex}}",
+
+    "mauve": "{{colors.primary.dark.hex}}",
+    "pink":  "{{colors.tertiary.dark.hex}}",
+    "red":   "{{colors.error.dark.hex}}",
+
+    "blue":   "#89b4fa",
+    "green":  "#a6e3a1",
+    "yellow": "#f9e2af",
+    "peach":  "#fab387"
+  },
+
+  "light": {
+    "crust":    "{{colors.surface_container_lowest.light.hex}}",
+    "mantle":   "{{colors.surface_container_low.light.hex}}",
+    "base":     "{{colors.surface.light.hex}}",
+    "surface0": "{{colors.surface_container_high.light.hex}}",
+    "surface1": "{{colors.surface_container_highest.light.hex}}",
+    "overlay0": "{{colors.outline.light.hex}}",
+    "subtext0": "{{colors.on_surface_variant.light.hex}}",
+    "text":     "{{colors.on_surface.light.hex}}",
+
+    "inverseSurface":   "{{colors.inverse_surface.light.hex}}",
+    "inverseOnSurface": "{{colors.inverse_on_surface.light.hex}}",
+
+    "mauve": "{{colors.primary.light.hex}}",
+    "pink":  "{{colors.tertiary.light.hex}}",
+    "red":   "{{colors.error.light.hex}}",
+
+    "blue":   "#1e66f5",
+    "green":  "#40a02b",
+    "yellow": "#df8e1d",
+    "peach":  "#fe640b"
+  }
+}

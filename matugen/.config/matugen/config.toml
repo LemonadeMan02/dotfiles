@@ -1,0 +1,13 @@
+# Unico orchestratore: `matugen image <path>` imposta lo sfondo e rigenera
+# i colori. Niente script wrapper attorno.
+
+[config.wallpaper]
+command = "awww"
+# matugen accoda il path dell'immagine a questi argomenti.
+arguments = ["img", "--transition-type", "fade"]
+set = true
+
+[templates.quickshell]
+input_path  = "~/.config/matugen/templates/quickshell.json"
+output_path = "~/.local/state/quickshell/colors.json"
+# Niente post_hook: FileView con watchChanges se ne accorge da solo.
