@@ -7,16 +7,17 @@ hl.layer_rule({
 
     blur = true,
 
-    -- Soglia sotto la quale un pixel NON viene sfocato. Senza questa riga
-    -- Hyprland sfoca l'intera superficie del layer, cioe' anche lo spazio
-    -- vuoto tra le pill: ti ritrovi una fascia sfocata larga quanto lo
+    -- Sotto questa alpha un pixel non viene sfocato: senza, si sfoca anche lo spazio vuoto tra le pill
     ignore_alpha = 0.3,
 })
 
 hl.layer_rule({
-    name  = "quickshell-drawer-blur",
+    name  = "quickshell-drawer",
     match = { namespace = "^quickshell:drawer$" },
 
     blur = true,
     ignore_alpha = 0.3,
+
+    -- I drawer si animano da soli in Drawer.qml: il fade di Hyprland si sommerebbe
+    no_anim = true,
 })
