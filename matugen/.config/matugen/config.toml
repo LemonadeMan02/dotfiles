@@ -1,25 +1,27 @@
-# Unico orchestratore: `matugen image <path>` imposta lo sfondo e rigenera
-# i colori. Niente script wrapper attorno.
+# Unico orchestratore: `matugen image <path>` imposta lo sfondo e rigenera i colori
 
 [config]
-# Sceglie il colore sorgente senza chiedere: 0 = il piu' dominante.
-# Senza questo matugen apre un prompt interattivo, che si pianta quando
-# a chiamarlo sara' il launcher invece di te.
+# 0 = colore piu' dominante; senza, matugen apre un prompt che blocca il launcher
 source_color_index = 0
 
-# Se dall'immagine non esce nessun colore valido.
+# Usato se dall'immagine non esce nessun colore valido
 fallback_color = "#ffbf9b"
 
-# 0 e' lo standard Material. Alzandolo si allargano gli scalini fra i
-# livelli di superficie: e' la leva per staccare i chip dalle pill.
+# 0 = standard Material; alzarlo allarga gli scalini fra i livelli di superficie
 contrast = 0.0
 
 [config.wallpaper]
 set = true
-# Dalla 4.x l'immagine non viene piu' accodata: la posizioni tu col keyword.
+# Dalla 4.x l'immagine non viene piu' accodata: la posizioni tu col keyword
 command = "awww img --transition-type fade {{ image }}"
 
 [templates.quickshell]
 input_path  = "~/.config/matugen/templates/quickshell.json"
 output_path = "~/.local/state/quickshell/colors.json"
-# Niente post_hook: FileView con watchChanges se ne accorge da solo.
+# Niente post_hook: FileView con watchChanges se ne accorge da solo
+
+[templates.hyprland]
+input_path  = "~/.config/matugen/templates/hyprland-colors.lua"
+output_path = "~/.local/state/hypr/colors.lua"
+# Hyprland non osserva file fuori dalla sua config: il reload va chiesto
+post_hook   = "hyprctl reload"

@@ -4,7 +4,7 @@
 
 -- See https://wiki.hypr.land/Configuring/Basics/Monitors/
 
--- Primary: DisplayPort monitor (Dell AW3225QF, 4K)
+-- Primario: Dell AW3225QF su DisplayPort, 4K
 hl.monitor({
     output   = "desc:Dell Inc. AW3225QF",
     mode     = "3840x2160@239.99",
@@ -12,6 +12,7 @@ hl.monitor({
     scale    = 1.25,
 })
 
+-- Secondario: LG UltraGear su HDMI, 1440p; x = 3840 / 1.25
 hl.monitor({
     output   = "desc:LG Electronics LG ULTRAGEAR",
     mode     = "2560x1440@74.97",
@@ -41,8 +42,7 @@ hl.env("HYPRCURSOR_SIZE", "24")
 -----------------------
 
 -- See https://wiki.hypr.land/Configuring/Advanced-and-Cool/Permissions/
--- Please note permission changes here require a Hyprland restart and are not applied on-the-fly
--- for security reasons
+-- Le modifiche ai permessi richiedono un riavvio di Hyprland, non un reload
 
 -- hl.config({
 --   ecosystem = {
@@ -58,49 +58,56 @@ hl.env("HYPRCURSOR_SIZE", "24")
 ---- LOOK AND FEEL ----
 -----------------------
 
--- Refer to https://wiki.hypr.land/Configuring/Basics/Variables/
+-- See https://wiki.hypr.land/Configuring/Basics/Variables/
 hl.config({
     general = {
+        -- gaps_out uguale al margine laterale della barra: finestre e pill allineate
         gaps_in  = 5,
-        gaps_out = 20,
+        gaps_out = 10,
 
         border_size = 2,
 
         col = {
-            active_border   = { colors = {"rgba(33ccffee)", "rgba(00ff99ee)"}, angle = 45 },
-            inactive_border = "rgba(595959aa)",
+            -- Ripiego statico (mauve Catppuccin); theme.lua lo sovrascrive col colore di matugen
+            active_border   = "rgba(cba6f7ff)",
+            -- Trasparente: le inattive sembrano senza bordo, la griglia non si sposta
+            inactive_border = "rgba(00000000)",
         },
 
-        -- Set to true to enable resizing windows by clicking and dragging on borders and gaps
         resize_on_border = false,
 
-        -- Please see https://wiki.hypr.land/Configuring/Advanced-and-Cool/Tearing/ before you turn this on
+        -- Leggi la pagina Tearing del wiki prima di attivarlo
         allow_tearing = false,
 
         layout = "dwindle",
     },
 
     decoration = {
+        -- Uguale a Theme.radiusM: finestre e pill condividono la stessa curva
         rounding       = 10,
         rounding_power = 2,
 
-        -- Change transparency of focused and unfocused windows
         active_opacity   = 1.0,
         inactive_opacity = 1.0,
 
+        -- Spento di proposito: con follow_mouse = 1 il dimming lampeggia al passaggio del mouse
+        dim_inactive = false,
+
         shadow = {
             enabled      = true,
-            range        = 4,
+            range        = 20,
             render_power = 3,
-            color        = 0xee1a1a1a,
+            -- Formato 0xAARRGGBB: nero al 40%
+            color        = 0x66000000,
         },
 
         blur = {
-            enabled   = true,
-            size      = 3,
-            passes    = 1,
-            vibrancy = 0.1696,
-            brightness = 0.6
+            enabled    = true,
+            size       = 6,
+            passes     = 3,
+            vibrancy   = 0.1696,
+            -- 1.0: il blur non scurisce piu' le pill della barra
+            brightness = 1.0,
         },
     },
 
@@ -109,22 +116,19 @@ hl.config({
     },
 })
 
--- Animation curves live in ~/.config/hypr/animations.lua so they're easy
--- to find and edit.
+-- Dopo il blocco look: sovrascrive i colori statici con quelli di matugen, se presenti
+require("theme")
+
+-- Curve e animazioni in animations.lua
 require("animations")
 
--- Ref https://wiki.hypr.land/Configuring/Basics/Workspace-Rules/
-
--- -- Le regole dei layer (blur della barra) stanno in
--- ~/.config/hypr/layerrules.lua
+-- Regole dei layer (blur di barra e drawer) in layerrules.lua
 require("layerrules")
 
--- Which workspace is pinned to which monitor lives in
--- ~/.config/hypr/workspaces.lua, alongside the workspace-switching keybinds.
+-- Pin dei workspace ai monitor e relativi keybind in workspaces.lua
 require("workspaces")
 
--- "Smart gaps" / "No gaps when only"
--- uncomment all if you wish to use that.
+-- "Smart gaps": niente gaps con una sola finestra; decommenta tutto per usarlo
 -- hl.workspace_rule({ workspace = "w[tv1]", gaps_out = 0, gaps_in = 0 })
 -- hl.workspace_rule({ workspace = "f[1]",   gaps_out = 0, gaps_in = 0 })
 -- hl.window_rule({
@@ -140,21 +144,21 @@ require("workspaces")
 --     rounding    = 0,
 -- })
 
--- See https://wiki.hypr.land/Configuring/Layouts/Dwindle-Layout/ for more
+-- See https://wiki.hypr.land/Configuring/Layouts/Dwindle-Layout/
 hl.config({
     dwindle = {
-        preserve_split = true, -- You probably want this
+        preserve_split = true,
     },
 })
 
--- See https://wiki.hypr.land/Configuring/Layouts/Master-Layout/ for more
+-- See https://wiki.hypr.land/Configuring/Layouts/Master-Layout/
 hl.config({
     master = {
         new_status = "master",
     },
 })
 
--- See https://wiki.hypr.land/Configuring/Layouts/Scrolling-Layout/ for more
+-- See https://wiki.hypr.land/Configuring/Layouts/Scrolling-Layout/
 hl.config({
     scrolling = {
         fullscreen_on_one_column = true,
@@ -167,8 +171,10 @@ hl.config({
 
 hl.config({
     misc = {
-        force_default_wallpaper = -1,    -- Set to 0 or 1 to disable the anime mascot wallpapers
-        disable_hyprland_logo   = false, -- If true disables the random hyprland logo / anime girl background. :(
+        -- Niente wallpaper e logo di default: evita il flash prima che awww ripristini lo sfondo
+        force_default_wallpaper  = 0,
+        disable_hyprland_logo    = true,
+        disable_splash_rendering = true,
     },
 })
 
@@ -187,7 +193,8 @@ hl.config({
 
         follow_mouse = 1,
 
-        sensitivity = 0, -- -1.0 - 1.0, 0 means no modification.
+        -- Da -1.0 a 1.0; 0 = nessuna modifica
+        sensitivity = 0,
 
         touchpad = {
             natural_scroll = false,
@@ -201,20 +208,14 @@ hl.gesture({
     action = "workspace"
 })
 
--- Example per-device config
--- See https://wiki.hypr.land/Configuring/Advanced-and-Cool/Devices/ for more
-hl.device({
-    name        = "epic-mouse-v1",
-    sensitivity = -0.5,
-})
+-- Config per singolo dispositivo: see https://wiki.hypr.land/Configuring/Advanced-and-Cool/Devices/
 
 
 ---------------------
 ---- KEYBINDINGS ----
 ---------------------
 
--- All keybindings (including the programs they launch) live in
--- ~/.config/hypr/keybindings.lua so they're easy to find and edit.
+-- Tutti i keybind in keybindings.lua
 require("keybindings")
 
 
@@ -225,10 +226,8 @@ require("keybindings")
 -- See https://wiki.hypr.land/Configuring/Basics/Window-Rules/
 -- and https://wiki.hypr.land/Configuring/Basics/Workspace-Rules/
 
--- Example window rules that are useful
-
+-- Ignora le richieste di maximize delle app; i tuoi dispatcher funzionano comunque
 local suppressMaximizeRule = hl.window_rule({
-    -- Ignore maximize requests from all apps. You'll probably like this.
     name  = "suppress-maximize-events",
     match = { class = ".*" },
 
@@ -236,8 +235,8 @@ local suppressMaximizeRule = hl.window_rule({
 })
 -- suppressMaximizeRule:set_enabled(false)
 
+-- Corregge alcuni problemi di drag con XWayland
 hl.window_rule({
-    -- Fix some dragging issues with XWayland
     name  = "fix-xwayland-drags",
     match = {
         class      = "^$",
@@ -251,7 +250,7 @@ hl.window_rule({
     no_focus = true,
 })
 
--- Layer rules also return a handle.
+-- Anche le layer rule restituiscono un handle
 -- local overlayLayerRule = hl.layer_rule({
 --     name  = "no-anim-overlay",
 --     match = { namespace = "^my-overlay$" },
@@ -259,7 +258,7 @@ hl.window_rule({
 -- })
 -- overlayLayerRule:set_enabled(false)
 
--- Hyprland-run windowrule
+-- Finestra di hyprland-run
 hl.window_rule({
     name  = "move-hyprland-run",
     match = { class = "hyprland-run" },
