@@ -13,8 +13,10 @@ Rectangle {
   property int paddingH: Theme.spacingL
   property int paddingV: Theme.spacingM
 
-  // Estratti come proprieta' cosi' le varianti possono sovrascriverli
-  // senza perdere il comportamento dell'hover.
+  // 0 = altezza dal contenuto. Un valore fisso allinea pill con contenuti diversi.
+  property int fixedHeight: 0
+
+  // Proprieta' separate: le varianti le sovrascrivono senza perdere l'hover.
   property color bgNormal: Theme.surface
   property color bgHover:  Theme.surfaceHover
   property color foreground:    Theme.foreground
@@ -26,8 +28,9 @@ Rectangle {
   // Emesso solo se interactive. Chi istanzia decide cosa significa.
   signal clicked()
 
-  implicitWidth:  layout.implicitWidth  + paddingH * 2
-  implicitHeight: layout.implicitHeight + paddingV * 2
+  implicitWidth:  layout.implicitWidth + paddingH * 2
+  implicitHeight: fixedHeight > 0 ? fixedHeight
+                                  : layout.implicitHeight + paddingV * 2
 
   // Angoli arrotondati ma lati dritti: radius fisso, non height/2.
   radius: Theme.radiusM
@@ -44,14 +47,14 @@ Rectangle {
     enabled: root.interactive
   }
 
-  // parent esplicito: la default property manda i figli dentro il layout,
-  // e senza questa riga il padding della pill non risponderebbe al click.
+  // parent esplicito: i figli vanno nel layout, ma il tap deve coprire anche il padding.
   TapHandler {
     parent: root
     enabled: root.interactive
     onTapped: root.clicked()
   }
 
+  // centerIn: con altezza fissa il contenuto resta centrato qualunque sia la sua altezza.
   RowLayout {
     id: layout
     anchors.centerIn: parent

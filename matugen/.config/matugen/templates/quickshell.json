@@ -16,6 +16,10 @@
     "pink":  "{{colors.tertiary.dark.hex}}",
     "red":   "{{colors.error.dark.hex}}",
 
+    "onPrimary":  "{{colors.on_primary.dark.hex}}",
+    "onTertiary": "{{colors.on_tertiary.dark.hex}}",
+    "onError":    "{{colors.on_error.dark.hex}}",
+
     "blue":   "#89b4fa",
     "green":  "#a6e3a1",
     "yellow": "#f9e2af",
@@ -38,6 +42,10 @@
     "mauve": "{{colors.primary.light.hex}}",
     "pink":  "{{colors.tertiary.light.hex}}",
     "red":   "{{colors.error.light.hex}}",
+
+    "onPrimary":  "{{colors.on_primary.light.hex}}",
+    "onTertiary": "{{colors.on_tertiary.light.hex}}",
+    "onError":    "{{colors.on_error.light.hex}}",
 
     "blue":   "#1e66f5",
     "green":  "#40a02b",

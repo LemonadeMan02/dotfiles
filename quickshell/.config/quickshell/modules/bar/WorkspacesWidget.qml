@@ -12,12 +12,16 @@ RowLayout {
 
   property int count: 8
 
-  property int chipSize: 22
-  property int chipSizeFocused: 34
-  property int dotSize: 12
+  // Stessa altezza dei chip di destra: la barra ha un solo ritmo verticale.
+  property int chipSize: Theme.chipHeight
+  property int chipSizeFocused: Theme.chipHeight + 20
+  property int dotSize: 16
 
-  // Assegnata a mano, non via binding: monitorFor() tocca lo stesso modello
-  // Hyprland.monitors da cui il binding dipenderebbe, e il risultato e' un loop.
+  // Velo del testo sulla pill: contrasta sempre, qualunque palette generi matugen.
+  readonly property color tint:      Theme.withAlpha(Theme.foreground, 0.14)
+  readonly property color tintHover: Theme.withAlpha(Theme.foreground, 0.24)
+
+  // Assegnata a mano: un binding su monitorFor() dipenderebbe dal modello che tocca, loop.
   property HyprlandMonitor monitor: null
 
   function updateMonitor() {
@@ -56,15 +60,26 @@ RowLayout {
         return null
       }
 
-      readonly property bool populated: ws !== null
+      // Confronto per nome: HyprlandMonitor e' un oggetto, il nome e' l'identita' stabile.
+      readonly property bool here: ws !== null && ws.monitor !== null
+                                   && root.monitor !== null
+                                   && ws.monitor.name === root.monitor.name
+
+      readonly property bool populated: here
+      readonly property bool elsewhere: ws !== null && !here
       readonly property bool active: root.activeWs !== null
                                      && root.activeWs.id === chip.wsId
       readonly property bool focused: active && root.monitorFocused
-      readonly property bool urgent: ws !== null && ws.urgent
+      // Urgente anche se sta sull'altro monitor: e' proprio li' che serve vederlo.
+      readonly property bool urgent: ws !== null && ws.urgent && !focused
+
+      readonly property bool showsNumber: populated || active || urgent
+      readonly property bool hovered: hover.hovered
 
       implicitHeight: root.chipSize
-      implicitWidth: focused ? root.chipSizeFocused
-                             : (populated || active ? root.chipSize : root.dotSize)
+      implicitWidth: focused     ? root.chipSizeFocused
+                   : showsNumber ? root.chipSize
+                                 : root.dotSize
 
       // Angoli smussati ma lati dritti, come le pill.
       radius: Theme.radiusS
@@ -72,42 +87,47 @@ RowLayout {
 
       color: focused   ? Theme.accent
            : urgent    ? Theme.urgent
-           : active    ? "transparent"
-           : populated ? Theme.surfaceSolid
-                       : "transparent"
+           : active    ? (hovered ? root.tint : "transparent")
+           : populated ? (hovered ? root.tintHover : root.tint)
+                       : (hovered ? root.tint : "transparent")
 
+      // Attivo sul monitor senza focus: solo contorno, per distinguerlo dal focused.
       border.width: (active && !focused) ? 2 : 0
       border.color: Theme.accent
 
-      scale: hover.hovered ? 1.15 : 1.0
-
+      // OutCubic invece di OutBack: il rimbalzo sulla larghezza fa tremare i vicini.
       Behavior on implicitWidth {
-        NumberAnimation { duration: Theme.durSlow; easing.type: Easing.OutBack }
+        NumberAnimation { duration: Theme.durSlow; easing.type: Easing.OutCubic }
       }
       Behavior on color {
         ColorAnimation { duration: Theme.durFast }
       }
-      Behavior on scale {
-        NumberAnimation { duration: Theme.durFast; easing.type: Easing.OutCubic }
-      }
 
       Text {
         anchors.centerIn: parent
-        visible: chip.populated || chip.active
+        visible: chip.showsNumber
         text: chip.wsId
         font.family: Theme.fontFamily
         font.weight: Theme.weightBold
-        font.pixelSize: chip.focused ? Theme.fontS : Theme.fontXs
-        color: (chip.focused || chip.urgent) ? Theme.onAccent : Theme.foreground
+        font.pixelSize: Theme.fontM
+        color: chip.focused ? Theme.onAccent
+             : chip.urgent  ? Theme.onUrgent
+                            : Theme.foreground
+
+        Behavior on color {
+          ColorAnimation { duration: Theme.durFast }
+        }
       }
 
+      // Pallino: grigio se vuoto, piu' chiaro se il workspace vive sull'altro monitor.
       Rectangle {
         anchors.centerIn: parent
-        visible: !chip.populated && !chip.active
-        implicitWidth: 5
-        implicitHeight: 5
-        radius: 2.5
-        color: Theme.muted
+        visible: !chip.showsNumber
+        implicitWidth: 6
+        implicitHeight: 6
+        radius: 3
+        antialiasing: true
+        color: chip.elsewhere ? Theme.foregroundDim : Theme.muted
       }
 
       HoverHandler {

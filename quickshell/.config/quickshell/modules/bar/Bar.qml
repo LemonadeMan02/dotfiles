@@ -15,8 +15,7 @@ Scope {
       required property var modelData
       screen: modelData
 
-      // Nome del layer-shell: e' l'aggancio con cui Hyprland ci trova
-      // per applicare il blur.
+      // Namespace layer-shell: e' l'aggancio con cui Hyprland applica il blur.
       WlrLayershell.namespace: "quickshell:bar"
 
       readonly property int barPadding: 4
@@ -33,10 +32,8 @@ Scope {
         top: 10
       }
 
-      implicitHeight: Math.max(leftGroup.implicitHeight,
-                               centerPill.implicitHeight,
-                               rightGroup.implicitHeight)
-                      + panel.barPadding * 2
+      // Altezza dal token, non dal contenuto: identica su entrambi i monitor.
+      implicitHeight: Theme.barHeight + panel.barPadding * 2
 
       // --- Gruppo sinistro: workspaces + media ---
       RowLayout {
@@ -50,15 +47,15 @@ Scope {
         }
 
         Pill {
+          fixedHeight: Theme.barHeight
           WorkspacesWidget { screen: panel.screen }
         }
 
         Pill {
           id: mediaPill
+          fixedHeight: Theme.barHeight
 
-          // Dissolvenza invece di comparsa secca quando apri o chiudi
-          // Spotify. Il visible legato all'opacity toglie la pill dal
-          // layout a fine animazione, altrimenti resta un buco.
+          // Dissolvenza; visible legato all'opacity toglie la pill dal layout a fine animazione.
           opacity: media.player !== null ? 1 : 0
           visible: opacity > 0
 
@@ -73,6 +70,7 @@ Scope {
       // --- Gruppo centrale: orologio + meteo ---
       Pill {
         id: centerPill
+        fixedHeight: Theme.barHeight
         anchors.centerIn: parent
         spacing: Theme.spacingL
         ClockWidget {}
@@ -91,12 +89,11 @@ Scope {
         }
 
         Pill {
+          fixedHeight: Theme.barHeight
           spacing: Theme.spacingS
           interactive: true
 
-          // screen esplicito: su un layer surface il focusedMonitor di
-          // Hyprland puo' non seguire il mouse, e il pannello nascerebbe
-          // sul monitor sbagliato.
+          // screen esplicito: su layer-shell il focusedMonitor puo' non seguire il mouse.
           onClicked: Drawers.toggle("dashboard", panel.screen)
 
           Chip {

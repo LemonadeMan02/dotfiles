@@ -8,11 +8,13 @@ import QtQuick
 Singleton {
   id: root
 
-  readonly property string time: Qt.formatDateTime(clock.date, "hh:mm:ss")
+  // Senza secondi: meno rumore visivo nella barra.
+  readonly property string time: Qt.formatDateTime(clock.date, "hh:mm")
   readonly property string date: Qt.formatDateTime(clock.date, "dddd, MMM dd")
 
   SystemClock {
     id: clock
-    precision: SystemClock.Seconds
+    // Un risveglio al minuto invece che al secondo.
+    precision: SystemClock.Minutes
   }
 }

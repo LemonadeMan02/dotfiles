@@ -27,16 +27,20 @@ hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(browser))     -- Browser
 ---- WINDOW CONTROL -----
 -------------------------
 
-local closeWindowBind = hl.bind(mainMod .. " + W", hl.dsp.window.close()) -- Close focused window
--- closeWindowBind:set_enabled(false)
+local closeWindowBind = hl.bind(mainMod .. " + W", hl.dsp.window.close())
 
-hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" })) -- Toggle floating
-hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())                     -- Toggle pseudotiling
-hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit"))               -- Toggle split (dwindle only)
+hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
+hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
+hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit"))
+
+-- Vero fullscreen (nasconde la bar) sulla finestra con focus, toggle.
+-- Se il toggle si inceppa al secondo press su questo monitor 240Hz/scale 1.25,
+-- e' il bug noto Hyprland #14494/#14531: workaround = mode "maximized".
+hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
 
 hl.bind(mainMod .. " + M", hl.dsp.exec_cmd(
     "command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'"
-)) -- Session exit / power menu
+))
 
 hl.bind(mainMod .. " + Space", hl.dsp.global("quickshell:drawerToggle"))
 
