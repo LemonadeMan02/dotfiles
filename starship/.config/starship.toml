@@ -1,0 +1,40 @@
+# Riferimento: https://starship.rs/config/
+# Solo nomi ANSI (blue, red, ...): il prompt segue la palette di kitty/matugen
+"$schema" = "https://starship.rs/config-schema.json"
+
+# Due righe: info sopra, input sotto
+format = """
+$directory\
+$git_branch\
+$git_status\
+$python\
+$nodejs\
+$rust\
+$cmd_duration\
+$line_break\
+$character"""
+
+# Riga vuota fra un prompt e l'altro
+add_newline = true
+
+[directory]
+style = "bold blue"
+truncation_length = 3
+truncate_to_repo = true
+
+[git_branch]
+style = "bold purple"
+format = "on [$symbol$branch]($style) "
+
+[git_status]
+style = "red"
+
+[cmd_duration]
+# Mostrato solo se il comando dura piu' di 2 secondi
+min_time = 2000
+style = "yellow"
+format = "took [$duration]($style) "
+
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[❯](bold red)"

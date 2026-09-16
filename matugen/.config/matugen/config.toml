@@ -15,6 +15,15 @@ set = true
 # Dalla 4.x l'immagine non viene piu' accodata: la posizioni tu col keyword
 command = "awww img --transition-type fade {{ image }}"
 
+# Tinte ANSI per il terminale: base Catppuccin, blend = spinte verso il colore sorgente
+[config.custom_colors]
+red     = { color = "#f38ba8", blend = true }
+green   = { color = "#a6e3a1", blend = true }
+yellow  = { color = "#f9e2af", blend = true }
+blue    = { color = "#89b4fa", blend = true }
+magenta = { color = "#f5c2e7", blend = true }
+cyan    = { color = "#94e2d5", blend = true }
+
 [templates.quickshell]
 input_path  = "~/.config/matugen/templates/quickshell.json"
 output_path = "~/.local/state/quickshell/colors.json"
@@ -25,3 +34,9 @@ input_path  = "~/.config/matugen/templates/hyprland-colors.lua"
 output_path = "~/.local/state/hypr/colors.lua"
 # Hyprland non osserva file fuori dalla sua config: il reload va chiesto
 post_hook   = "hyprctl reload"
+
+[templates.kitty]
+input_path  = "~/.config/matugen/templates/kitty-colors.conf"
+output_path = "~/.local/state/kitty/colors.conf"
+# SIGUSR1 = reload config in tutte le istanze; `|| true` se kitty non e' aperto
+post_hook   = "pkill -USR1 -x kitty || true"
