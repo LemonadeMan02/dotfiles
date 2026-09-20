@@ -9,14 +9,7 @@ ColumnLayout {
   id: root
   spacing: Theme.spacingM
 
-  readonly property string volumeIcon: {
-    if (Audio.muted || Audio.volume <= 0) return Icons.volMuted
-    if (Audio.volume < 0.34) return Icons.volLow
-    if (Audio.volume < 0.67) return Icons.volMedium
-    return Icons.volHigh
-  }
-
-  // ── Volume ──────────────────────────────────────────────────────────
+  // ── Volume generale ─────────────────────────────────────────────────
   RowLayout {
     Layout.fillWidth: true
     Layout.leftMargin:  Theme.spacingS
@@ -24,7 +17,7 @@ ColumnLayout {
     spacing: Theme.spacingM
 
     Text {
-      text: root.volumeIcon
+      text: Audio.icon
       font.family: Theme.nerdFontFamily
       font.pixelSize: Theme.iconM
       color: Audio.muted ? Theme.muted : Theme.foreground
@@ -66,6 +59,21 @@ ColumnLayout {
       Layout.preferredWidth: 44
       Layout.alignment: Qt.AlignVCenter
     }
+  }
+
+  // Compare e sparisce col blocco che separa.
+  Rectangle {
+    visible: Audio.streams.length > 0
+    Layout.fillWidth: true
+    Layout.leftMargin:  Theme.spacingS
+    Layout.rightMargin: Theme.spacingS
+    implicitHeight: 1
+    color: Theme.border
+  }
+
+  // ── Volume per applicazione ─────────────────────────────────────────
+  AppVolume {
+    Layout.fillWidth: true
   }
 
   Rectangle {

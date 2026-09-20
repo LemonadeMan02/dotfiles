@@ -21,6 +21,16 @@ Singleton {
   // Comodo per il display: 0.37 -> 37
   readonly property int percent: Math.round(volume * 100)
 
+  // Prima questa catena stava duplicata in VolumeWidget e in Dashboard.
+  readonly property string icon: root.iconFor(root.volume, root.muted)
+
+  function iconFor(vol, mut) {
+    if (mut || vol <= 0) return Icons.volMuted
+    if (vol < 0.34) return Icons.volLow
+    if (vol < 0.67) return Icons.volMedium
+    return Icons.volHigh
+  }
+
   function setVolume(v) {
     if (!sink?.audio) return
     // PipeWire accetta volumi oltre 1.0 (sovramplificazione). Senza
@@ -38,11 +48,66 @@ Singleton {
     sink.audio.muted = !sink.audio.muted
   }
 
+  // ── Stream delle applicazioni ───────────────────────────────────────
+
+  // Soprainsieme: comprende i flussi in entrata e i nodi non ancora
+  // bound. E' questo che va dato al tracker, non la lista filtrata.
+  readonly property var streamNodes:
+    Pipewire.nodes.values.filter(n => n.isStream && n.audio)
+
+  // Cio' che vede la UI: sola riproduzione, suoni di sistema esclusi.
+  // media.class e' leggibile solo a nodo bound, quindi ready entra nel
+  // filtro: e' la dipendenza che fa rivalutare il binding al momento giusto.
+  readonly property var streams: root.streamNodes.filter(n =>
+    n.ready
+    && n.properties["media.class"] === "Stream/Output/Audio"
+    && n.properties["media.role"] !== "event")
+
+  function volumeOf(node)  { return node?.audio?.volume ?? 0 }
+  function mutedOf(node)   { return node?.audio?.muted  ?? false }
+  function percentOf(node) { return Math.round(root.volumeOf(node) * 100) }
+  function iconOf(node)    { return root.iconFor(root.volumeOf(node), root.mutedOf(node)) }
+
+  function setNodeVolume(node, v) {
+    if (!node?.audio) return
+    node.audio.volume = Math.max(0, Math.min(1, v))
+  }
+
+  function toggleNodeMute(node) {
+    if (!node?.audio) return
+    node.audio.muted = !node.audio.muted
+  }
+
+  // Catena di ripiego: i giochi Proton e i client WebRTC raramente hanno
+  // un application.name presentabile.
+  function labelFor(node) {
+    if (!node) return ""
+    const p = node.properties ?? ({})
+    return p["application.name"]
+        || p["application.process.binary"]
+        || node.description
+        || node.name
+  }
+
+  // Nome di icona di sistema gia' risolto: "" se il tema non ce l'ha.
+  function iconNameFor(node) {
+    if (!node) return ""
+    const p = node.properties ?? ({})
+    const n = p["application.icon-name"] || p["application.process.binary"] || ""
+    return n ? Quickshell.iconPath(n, true) : ""
+  }
+
   // ── Senza questo, le proprieta' qui sopra restano congelate al valore
   //    iniziale: gli oggetti Pipewire nascono "unbound". Deve vivere
   //    quanto la sessione, ed e' l'unico motivo per cui tutto questo sta
   //    in un singleton e non dentro il widget. ─────────────────────────
   PwObjectTracker {
     objects: [root.sink]
+  }
+
+  // Tracker separato: il sink vive quanto la sessione, gli stream nascono
+  // e muoiono con le applicazioni.
+  PwObjectTracker {
+    objects: root.streamNodes
   }
 }

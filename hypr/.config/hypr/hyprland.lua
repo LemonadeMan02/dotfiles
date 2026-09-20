@@ -65,14 +65,8 @@ hl.config({
         gaps_in  = 5,
         gaps_out = 10,
 
+        -- Colori dei bordi (attivo e inattivo) in theme.lua
         border_size = 2,
-
-        col = {
-            -- Ripiego statico (mauve Catppuccin); theme.lua lo sovrascrive col colore di matugen
-            active_border   = "rgba(cba6f7ff)",
-            -- Trasparente: le inattive sembrano senza bordo, la griglia non si sposta
-            inactive_border = "rgba(00000000)",
-        },
 
         resize_on_border = false,
 
@@ -116,7 +110,7 @@ hl.config({
     },
 })
 
--- Dopo il blocco look: sovrascrive i colori statici con quelli di matugen, se presenti
+-- Colori dei bordi: palette di matugen se valida, altrimenti ripiego Catppuccin
 require("theme")
 
 -- Curve e animazioni in animations.lua
@@ -175,6 +169,19 @@ hl.config({
         force_default_wallpaper  = 0,
         disable_hyprland_logo    = true,
         disable_splash_rendering = true,
+    },
+})
+
+--------------------
+----  XWAYLAND  ----
+--------------------
+
+-- DP-1 ha scale frazionario (1.25): senza questo le app Xwayland (es. Steam)
+-- vengono renderizzate a bassa risoluzione e poi ingrandite -> sgranate.
+-- See https://wiki.hypr.land/Configuring/XWayland/
+hl.config({
+    xwayland = {
+        force_zero_scaling = true,
     },
 })
 

@@ -7,13 +7,6 @@ RowLayout {
   id: root
   spacing: Theme.spacingM
 
-  readonly property string icon: {
-    if (Audio.muted || Audio.volume <= 0) return Icons.volMuted
-    if (Audio.volume < 0.34) return Icons.volLow
-    if (Audio.volume < 0.67) return Icons.volMedium
-    return Icons.volHigh
-  }
-
   // Chi ospita il widget decide i colori. Qui ci sono solo i default,
   // validi se il widget finisce su una pill scura.
   property color fgNormal: Theme.foreground
@@ -22,7 +15,7 @@ RowLayout {
   readonly property color fg: Audio.muted ? fgMuted : fgNormal
 
   Text {
-    text: root.icon
+    text: Audio.icon
     font.family: Theme.nerdFontFamily
     font.pixelSize: Theme.iconXs
     color: root.fg
