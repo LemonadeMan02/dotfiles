@@ -72,8 +72,13 @@ Singleton {
     return out.map(x => x.entry)
   }
 
+  // uwsm app mette l'app in uno scope suo: con Quickshell come servizio systemd,
+  // execute() la lascerebbe nel cgroup della shell e un restart la ucciderebbe.
   function launch(entry) {
-    if (entry) entry.execute()
+    if (!entry) return
+    // uwsm riconosce un desktop entry dal suffisso: deve esserci una volta sola
+    const id = entry.id.endsWith(".desktop") ? entry.id : entry.id + ".desktop"
+    Quickshell.execDetached(["uwsm", "app", "--", id])
   }
 
   // DesktopEntry.icon e' un nome (es. "firefox"), non un percorso:

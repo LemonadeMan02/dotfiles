@@ -31,10 +31,7 @@ require("autostart")
 ---- ENVIRONMENT VARIABLES ----
 -------------------------------
 
--- See https://wiki.hypr.land/Configuring/Advanced-and-Cool/Environment-variables/
-
-hl.env("XCURSOR_SIZE", "24")
-hl.env("HYPRCURSOR_SIZE", "24")
+-- Con uwsm stanno in ~/.config/uwsm/env (tutta la sessione) ed env-hyprland (solo Hyprland)
 
 
 -----------------------
@@ -169,6 +166,9 @@ hl.config({
         force_default_wallpaper  = 0,
         disable_hyprland_logo    = true,
         disable_splash_rendering = true,
+
+        -- Se hyprlock crasha la sessione resta bloccata: cosi' si puo' rilanciare da TTY
+        allow_session_lock_restore = true,
     },
 })
 

@@ -1,0 +1,2 @@
+# Esportate a tutta la sessione, servizi systemd compresi
+export XCURSOR_SIZE=24

@@ -8,7 +8,8 @@ Singleton {
   id: root
 
   // Solo nomi di comandi, nessuna logica: si sostituiscono senza toccare la UI.
-  readonly property var lockCmd:     ["hyprlock"]
+  // Il lock passa da logind: hypridle lo riceve e lancia hyprlock, un solo ingresso.
+  readonly property var lockCmd:     ["loginctl", "lock-session"]
   readonly property var sleepCmd:    ["systemctl", "suspend"]
   readonly property var rebootCmd:   ["systemctl", "reboot"]
   readonly property var shutdownCmd: ["systemctl", "poweroff"]

@@ -19,9 +19,12 @@ local mainMod = "SUPER"
 ---- LAUNCH APPS ------
 -----------------------
 
-hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd(terminal))    -- Terminale
-hl.bind(mainMod .. " + E",      hl.dsp.exec_cmd(fileManager)) -- File manager
-hl.bind(mainMod .. " + B",      hl.dsp.exec_cmd(browser))     -- Browser
+-- uwsm app: ogni app nel suo scope, sopravvive al restart di Quickshell e Hyprland
+local function app(cmd) return hl.dsp.exec_cmd("uwsm app -- " .. cmd) end
+
+hl.bind(mainMod .. " + Return", app(terminal))    -- Terminale
+hl.bind(mainMod .. " + E",      app(fileManager)) -- File manager
+hl.bind(mainMod .. " + B",      app(browser))     -- Browser
 
 
 -------------------------
@@ -52,6 +55,7 @@ hl.bind(mainMod .. " + SHIFT + F", hl.dsp.window.fullscreen({ mode = "fullscreen
 hl.bind(mainMod .. " + M", hl.dsp.exec_cmd(
     "command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'"
 )) -- Uscita dalla sessione
+hl.bind(mainMod .. " + L", hl.dsp.exec_cmd("loginctl lock-session")) -- Lock
 
 
 ------------------------
