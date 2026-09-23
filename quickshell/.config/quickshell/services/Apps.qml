@@ -22,13 +22,16 @@ Singleton {
     let streak = 0
 
     for (let qi = 0; qi < q.length; qi++) {
-      const c = q[qi]
-      let found = -1
+        const c = q[qi]
+        let found = -1
 
-      while (ti < t.length) {
-        if (t[ti] === c) { found = ti; break }
-        ti++
-      }
+        // Punto di partenza: se la lettera e' qui, e' attaccata alla precedente.
+        const start = ti
+
+        while (ti < t.length) {
+          if (t[ti] === c) { found = ti; break }
+          ti++
+        }
 
       if (found === -1) return -1
 
@@ -38,7 +41,7 @@ Singleton {
       if (atWordStart) points += 10
 
       // Lettere consecutive: premio crescente, cosi' "fire" batte "frie".
-      streak = (found === ti && qi > 0) ? streak + 1 : 0
+      streak = (found === start && qi > 0) ? streak + 1 : 0
       points += streak * 3
 
       // Piu' avanti nel testo, meno vale.

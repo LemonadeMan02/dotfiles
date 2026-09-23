@@ -22,9 +22,6 @@ Singleton {
   // output mentre e' aperto, il pannello salterebbe da uno schermo all'altro.
   property var screen: null
 
-  // Scritta dalle finestre. Tiene vivo il pannello finche' ci stai sopra.
-  property bool hovered: false
-
   // Handle delle finestre per nome. Non serve un binding: lo legge il grab.
   readonly property var windows: ({})
 
@@ -100,7 +97,6 @@ Singleton {
     } else {
       grab.active = false
       grab.windows = []
-      root.hovered = false
     }
   }
 
@@ -138,17 +134,14 @@ Singleton {
   }
 
   // ── Chiusura per inattivita' ────────────────────────────────────────
+  // Solo il valore: il timer vive in Drawer.qml, che conosce il suo hover.
   readonly property int autoCloseTimeout: Config.drawer?.autoCloseTimeout ?? 0
 
-  Timer {
-    interval: root.autoCloseTimeout > 0 ? root.autoCloseTimeout : 1000
+  // Input da tastiera nel contenuto: il cassetto aperto fa ripartire il conto.
+  signal activity()
 
-    // Fermo mentre ci passi sopra: il conto riparte da zero quando esci,
-    // cosi' il pannello non ti muore sotto le mani mentre lo usi.
-    running: root.current !== "" && !root.hovered && root.autoCloseTimeout > 0
-
-    onTriggered: root.close()
-  }
+  // Unico ingresso per il contenuto: sa quando c'e' input, non quale timer esiste.
+  function poke() { root.activity() }
 
   // ── Ingressi esterni ────────────────────────────────────────────────
   IpcHandler {

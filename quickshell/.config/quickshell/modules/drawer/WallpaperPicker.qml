@@ -46,6 +46,8 @@ ColumnLayout {
   }
 
   function apply() {
+    // Il pannello resta aperto dopo l'Invio: conta come input.
+    Drawers.poke()
     const p = Wallpapers.pathAt(strip.currentIndex)
     if (!p) return
     // Niente Drawers.close(): il pannello resta aperto cosi' vedi la shell
@@ -81,6 +83,9 @@ ColumnLayout {
     focus: true
     keyNavigationEnabled: true
     keyNavigationWraps: true
+
+    // Frecce, rotella e tap passano tutti da qui: ogni spostamento e' input.
+    onCurrentIndexChanged: Drawers.poke()
 
     // Return ed Enter sono due tasti diversi: il secondo e' quello del
     // tastierino, e senza questa riga non fa niente.

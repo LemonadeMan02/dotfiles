@@ -16,7 +16,7 @@ Scope {
     Drawer {
       name: "launcher"
       edge: "bottom"
-      minWidth: 560
+      panelWidth: 560
 
       // Un launcher vuole i tasti appena aperto, senza un click prima.
       grabKeyboard: true
@@ -44,7 +44,7 @@ Scope {
     Drawer {
       name: "dashboard"
       edge: "top"
-      minWidth: 340
+      panelWidth: 340
 
       // Allineato al gruppo destro della barra: stesso margine.
       anchors.top: true
@@ -64,7 +64,7 @@ Scope {
     Drawer {
       name: "wallpapers"
       edge: "center"
-      minWidth: 900
+      panelWidth: 900
 
       // Frecce e invio: servono i tasti appena aperto.
       grabKeyboard: true

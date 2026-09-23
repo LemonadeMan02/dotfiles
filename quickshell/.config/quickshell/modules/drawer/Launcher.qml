@@ -34,14 +34,21 @@ ColumnLayout {
   // l'applicazione sbagliata.
   onResultsChanged: root.selected = 0
 
+  // Righe davvero mostrate: la selezione non deve uscire dalla lista visibile.
+  readonly property int visibleCount: Math.min(root.results.length, root.maxRows)
+
   function move(delta) {
-    const n = root.results.length
+    // Prima della guardia: la freccia e' input anche a lista vuota.
+    Drawers.poke()
+    const n = root.visibleCount
     if (n === 0) return
     // Modulo con correzione: in JS -1 % 8 fa -1, non 7.
     root.selected = ((root.selected + delta) % n + n) % n
   }
 
   function activate() {
+    // Un comando come Light/Dark lascia il launcher aperto: l'Invio conta come input.
+    Drawers.poke()
     if (root.selected < 0 || root.selected >= root.results.length) return
     const item = root.results[root.selected]
 
@@ -196,6 +203,9 @@ ColumnLayout {
     icon: root.commandMode ? Icons.command : Icons.search
     placeholder: root.commandMode ? "Comando..." : "Cerca applicazioni..."
 
+    // Ogni carattere scritto o cancellato tiene vivo il cassetto.
+    onTextChanged: Drawers.poke()
+
     onAccepted:  root.activate()
     onMoveUp:    root.move(-1)
     onMoveDown:  root.move(1)
@@ -203,7 +213,7 @@ ColumnLayout {
     // Escape: prima torna alla lista, poi chiude. Due livelli, come
     // l'abitudine vuole.
     onCancelled: {
-      if (root.page !== 0) root.page = 0
+      if (root.page !== 0) { root.page = 0; Drawers.poke() }
       else Drawers.close()
     }
   }

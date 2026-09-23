@@ -17,13 +17,12 @@ RowLayout {
 
   visible: player !== null
 
-  property real elapsed: player ? player.position : 0
-
+  // Non scrive valori: segnala il cambio, cosi' i binding su position si rivalutano.
   Timer {
     interval: 1000
     running: root.player !== null && root.player.playbackState === MprisPlaybackState.Playing
     repeat: true
-    onTriggered: root.elapsed = root.player.position
+    onTriggered: root.player.positionChanged()
   }
 
   function fmt(sec) {
@@ -57,8 +56,9 @@ RowLayout {
       Layout.maximumWidth: 160
     }
 
+    // Binding diretto su position: nessuna copia locale da tenere in sincronia.
     Text {
-      text: root.player ? root.fmt(root.elapsed) + " / " + root.fmt(root.player.length) : ""
+      text: root.player ? root.fmt(root.player.position) + " / " + root.fmt(root.player.length) : ""
       color: Theme.foregroundDim
       font.family: Theme.fontFamily
       font.pixelSize: Theme.fontXs
