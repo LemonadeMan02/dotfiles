@@ -3,6 +3,7 @@ pragma Singleton
 
 import Quickshell
 import Quickshell.Services.Pipewire
+import Quickshell.Services.Mpris
 
 
 Singleton {
@@ -63,16 +64,44 @@ Singleton {
     && n.properties["media.class"] === "Stream/Output/Audio"
     && n.properties["media.role"] !== "event")
 
-  function volumeOf(node)  { return node?.audio?.volume ?? 0 }
+  // App che riscrivono il volume del proprio stream: per loro si passa da MPRIS.
+  readonly property var mprisVolumeApps: ["spotify"]
+
+  // Player MPRIS che possiede il volume di questo nodo, o null.
+  function playerFor(node) {
+    if (!node) return null
+    const p = node.properties ?? ({})
+    const keys = [p["application.name"], p["application.process.binary"]]
+      .filter(k => k).map(k => k.toLowerCase())
+    if (!keys.some(k => root.mprisVolumeApps.includes(k))) return null
+
+    for (const pl of Mpris.players.values) {
+      if (!pl.canControl || !pl.volumeSupported) continue
+      const id = (pl.desktopEntry || pl.identity || "").toLowerCase()
+      if (keys.includes(id)) return pl
+    }
+    return null
+  }
+
+  function volumeOf(node) {
+    const pl = root.playerFor(node)
+    return pl ? pl.volume : (node?.audio?.volume ?? 0)
+  }
+
   function mutedOf(node)   { return node?.audio?.muted  ?? false }
   function percentOf(node) { return Math.round(root.volumeOf(node) * 100) }
   function iconOf(node)    { return root.iconFor(root.volumeOf(node), root.mutedOf(node)) }
 
   function setNodeVolume(node, v) {
+    const c = Math.max(0, Math.min(1, v))
+    // Volume interno del player: lo applica e lo ricorda lui, niente conflitti.
+    const pl = root.playerFor(node)
+    if (pl) { pl.volume = c; return }
     if (!node?.audio) return
-    node.audio.volume = Math.max(0, Math.min(1, v))
+    node.audio.volume = c
   }
 
+  // Il mute resta su PipeWire: MPRIS non ha un concetto di mute.
   function toggleNodeMute(node) {
     if (!node?.audio) return
     node.audio.muted = !node.audio.muted
