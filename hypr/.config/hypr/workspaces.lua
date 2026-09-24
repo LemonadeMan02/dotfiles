@@ -9,11 +9,14 @@ local mainMod = "SUPER" -- Sets "Windows" key as main modifier
 ---- MONITOR PINS -----
 -----------------------
 
--- Pin workspace 1 to the primary DisplayPort monitor and workspace 2 to the
--- secondary HDMI monitor. "persistent" keeps them bound to that monitor even
--- when empty, "default" makes them the workspace shown when the monitor loads.
-hl.workspace_rule({ workspace = "1", monitor = "DP-1",     persistent = true, default = true })
-hl.workspace_rule({ workspace = "2", monitor = "HDMI-A-1", persistent = true, default = true })
+-- Descrizione invece del connettore: DP-1 e HDMI-A-1 cambiano se sposti un cavo
+-- Stesse stringhe di hl.monitor in hyprland.lua: vanno aggiornate insieme
+local primary   = "desc:Dell Inc. AW3225QF"
+local secondary = "desc:LG Electronics LG ULTRAGEAR"
+
+-- "persistent" tiene il workspace sul monitor anche vuoto, "default" lo mostra all'avvio
+hl.workspace_rule({ workspace = "1", monitor = primary,   persistent = true, default = true })
+hl.workspace_rule({ workspace = "2", monitor = secondary, persistent = true, default = true })
 
 
 ----------------------

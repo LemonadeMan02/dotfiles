@@ -8,22 +8,10 @@ RowLayout {
   id: root
   spacing: Theme.spacingM
 
-  readonly property MprisPlayer player: {
-    for (const p of Mpris.players.values) {
-      if (p.desktopEntry === "spotify") return p
-    }
-    return Mpris.players.values.length > 0 ? Mpris.players.values[0] : null
-  }
+  // La scelta del player vive in Media: qui solo un nome corto. Bar.qml lo legge.
+  readonly property MprisPlayer player: Media.player
 
   visible: player !== null
-
-  // Non scrive valori: segnala il cambio, cosi' i binding su position si rivalutano.
-  Timer {
-    interval: 1000
-    running: root.player !== null && root.player.playbackState === MprisPlaybackState.Playing
-    repeat: true
-    onTriggered: root.player.positionChanged()
-  }
 
   function fmt(sec) {
     if (isNaN(sec) || sec < 0) return "00:00"
@@ -56,7 +44,7 @@ RowLayout {
       Layout.maximumWidth: 160
     }
 
-    // Binding diretto su position: nessuna copia locale da tenere in sincronia.
+    // Binding diretto su position: il Timer in Media lo tiene vivo.
     Text {
       text: root.player ? root.fmt(root.player.position) + " / " + root.fmt(root.player.length) : ""
       color: Theme.foregroundDim
@@ -94,17 +82,15 @@ RowLayout {
         cursorShape: Qt.PointingHandCursor
       }
 
+      // La guardia su player sta in Media: vale anche per i tasti.
       TapHandler {
-        // La guardia serve: la pill e' nascosta quando player e' null, ma
-        // non e' una garanzia, e' solo una coincidenza di layout.
-        onTapped: if (root.player) root.player.previous()
+        onTapped: Media.previous()
       }
     }
 
     Text {
       id: playBtn
-      text: root.player && root.player.playbackState === MprisPlaybackState.Playing
-            ? Icons.pause : Icons.play
+      text: Media.playing ? Icons.pause : Icons.play
       font.family: Theme.nerdFontFamily
       font.pixelSize: Theme.iconM
       color: playHover.hovered ? Theme.accent : Theme.foreground
@@ -119,7 +105,7 @@ RowLayout {
       }
 
       TapHandler {
-        onTapped: if (root.player) root.player.togglePlaying()
+        onTapped: Media.playPause()
       }
     }
 
@@ -140,7 +126,7 @@ RowLayout {
       }
 
       TapHandler {
-        onTapped: if (root.player) root.player.next()
+        onTapped: Media.next()
       }
     }
   }

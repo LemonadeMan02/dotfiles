@@ -94,21 +94,24 @@ ColumnLayout {
     IconButton {
       Layout.fillWidth: true
       icon: Icons.sleep
-      // Chiudi prima di lanciare: il focus-grab sopravvivrebbe al suspend.
+      // Non distruttivo: click singolo. Chiudi prima: il focus-grab sopravvivrebbe al suspend.
       onActivated: { Drawers.close(); Session.sleep() }
     }
 
     IconButton {
       Layout.fillWidth: true
       icon: Icons.restart
+      holdToConfirm: true
       onActivated: { Drawers.close(); Session.reboot() }
     }
 
     IconButton {
       Layout.fillWidth: true
       icon: Icons.shutdown
+      holdToConfirm: true
       // Azione distruttiva: e' l'unico caso in cui urgent non significa errore.
       hoverColor: Theme.urgent
+      onFillColor: Theme.onUrgent
       onActivated: { Drawers.close(); Session.shutdown() }
     }
   }

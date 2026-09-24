@@ -47,7 +47,7 @@ ColumnLayout {
   }
 
   function activate() {
-    // Un comando come Light/Dark lascia il launcher aperto: l'Invio conta come input.
+    // Un comando come Theme lascia il launcher aperto: l'Invio conta come input.
     Drawers.poke()
     if (root.selected < 0 || root.selected >= root.results.length) return
     const item = root.results[root.selected]
@@ -83,16 +83,11 @@ ColumnLayout {
         action: () => root.showTransparency()
       },
       {
-        name: "Light",
-        comment: "Change the scheme to light mode",
-        icon: Icons.light,
-        action: () => Config.setDarkMode(false)
-      },
-      {
-        name: "Dark",
-        comment: "Change the scheme to dark mode",
-        icon: Icons.dark,
-        action: () => Config.setDarkMode(true)
+        // Nome fisso per la ricerca; descrizione e icona dicono cosa fara' l'Invio.
+        name: "Theme",
+        comment: Theme.dark ? "Switch to light mode" : "Switch to dark mode",
+        icon: Theme.dark ? Icons.light : Icons.dark,
+        action: () => Config.toggleDarkMode()
       },
       {
         name: "Lock",

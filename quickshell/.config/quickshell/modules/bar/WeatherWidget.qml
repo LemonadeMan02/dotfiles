@@ -7,6 +7,9 @@ import "../../services"
 RowLayout {
   spacing: Theme.spacingM
 
+  // Nascosto finche' non c'e' un dato vero: un sole a 0°C sarebbe un'informazione falsa.
+  visible: Weather.ready
+
   Text {
     text: Weather.icon
     font.family: Theme.nerdFontFamily
