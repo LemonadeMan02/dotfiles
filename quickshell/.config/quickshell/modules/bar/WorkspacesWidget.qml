@@ -10,7 +10,8 @@ RowLayout {
 
   required property var screen
 
-  property int count: 8
+  // Posti per monitor: da tenere uguale a workspaces_per_monitor in hypr/monitors.lua.
+  property int count: 5
 
   // Stessa altezza dei chip di destra: la barra ha un solo ritmo verticale.
   property int chipSize: Theme.chipHeight
@@ -38,6 +39,12 @@ RowLayout {
   readonly property var activeWs: monitor ? monitor.activeWorkspace : null
   readonly property bool monitorFocused: monitor ? monitor.focused : false
 
+  // Primo workspace del blocco, dedotto dal workspace attivo: 7 attivo -> blocco da 6.
+  // Niente lista di monitor copiata da monitors.lua: il blocco lo decide Hyprland.
+  readonly property int base: (activeWs !== null && activeWs.id > 0)
+                              ? Math.floor((activeWs.id - 1) / root.count) * root.count + 1
+                              : 1
+
   function goToWorkspace(id) {
     if (Hyprland.usingLua)
       Hyprland.dispatch("hl.dsp.focus({ workspace = " + id + " })")
@@ -52,7 +59,8 @@ RowLayout {
       id: chip
       required property int index
 
-      readonly property int wsId: index + 1
+      // ID globale per Hyprland; all'utente si mostra la posizione nel blocco.
+      readonly property int wsId: root.base + index
 
       readonly property var ws: {
         for (const w of Hyprland.workspaces.values)
@@ -66,11 +74,11 @@ RowLayout {
                                    && ws.monitor.name === root.monitor.name
 
       readonly property bool populated: here
+      // Anomalia: un workspace del blocco finito sull'altro monitor, va visto.
       readonly property bool elsewhere: ws !== null && !here
       readonly property bool active: root.activeWs !== null
                                      && root.activeWs.id === chip.wsId
       readonly property bool focused: active && root.monitorFocused
-      // Urgente anche se sta sull'altro monitor: e' proprio li' che serve vederlo.
       readonly property bool urgent: ws !== null && ws.urgent && !focused
 
       readonly property bool showsNumber: populated || active || urgent
@@ -106,7 +114,7 @@ RowLayout {
       Text {
         anchors.centerIn: parent
         visible: chip.showsNumber
-        text: chip.wsId
+        text: chip.index + 1
         font.family: Theme.fontFamily
         font.weight: Theme.weightBold
         font.pixelSize: Theme.fontM
