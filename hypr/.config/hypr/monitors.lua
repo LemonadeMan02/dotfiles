@@ -19,4 +19,10 @@ M.secondary = {
     scale    = 1,
 }
 
+-- Ordine dei blocchi di workspace: il primo monitor ha 1-5, il secondo 6-10
+M.ordered = { M.primary, M.secondary }
+
+-- Posti per monitor; da tenere uguale a WorkspacesWidget.qml
+M.workspaces_per_monitor = 5
+
 return M
