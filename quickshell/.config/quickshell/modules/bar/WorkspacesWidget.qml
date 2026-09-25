@@ -10,9 +10,6 @@ RowLayout {
 
   required property var screen
 
-  // Posti per monitor: da tenere uguale a workspaces_per_monitor in hypr/monitors.lua.
-  property int count: 5
-
   // Stessa altezza dei chip di destra: la barra ha un solo ritmo verticale.
   property int chipSize: Theme.chipHeight
   property int chipSizeFocused: Theme.chipHeight + 20
@@ -39,21 +36,11 @@ RowLayout {
   readonly property var activeWs: monitor ? monitor.activeWorkspace : null
   readonly property bool monitorFocused: monitor ? monitor.focused : false
 
-  // Primo workspace del blocco, dedotto dal workspace attivo: 7 attivo -> blocco da 6.
-  // Niente lista di monitor copiata da monitors.lua: il blocco lo decide Hyprland.
-  readonly property int base: (activeWs !== null && activeWs.id > 0)
-                              ? Math.floor((activeWs.id - 1) / root.count) * root.count + 1
-                              : 1
-
-  function goToWorkspace(id) {
-    if (Hyprland.usingLua)
-      Hyprland.dispatch("hl.dsp.focus({ workspace = " + id + " })")
-    else
-      Hyprland.dispatch("workspace " + id)
-  }
+  // Primo workspace del blocco di questo monitor: 1 sul Dell, 6 sull'LG.
+  readonly property int base: Workspaces.baseFor(root.monitor)
 
   Repeater {
-    model: root.count
+    model: Workspaces.perMonitor
 
     delegate: Rectangle {
       id: chip
@@ -61,12 +48,7 @@ RowLayout {
 
       // ID globale per Hyprland; all'utente si mostra la posizione nel blocco.
       readonly property int wsId: root.base + index
-
-      readonly property var ws: {
-        for (const w of Hyprland.workspaces.values)
-          if (w.id === chip.wsId) return w
-        return null
-      }
+      readonly property var ws: Workspaces.byId(chip.wsId)
 
       // Confronto per nome: HyprlandMonitor e' un oggetto, il nome e' l'identita' stabile.
       readonly property bool here: ws !== null && ws.monitor !== null
@@ -144,7 +126,7 @@ RowLayout {
       }
 
       TapHandler {
-        onTapped: root.goToWorkspace(chip.wsId)
+        onTapped: Workspaces.focus(chip.wsId)
       }
     }
   }
