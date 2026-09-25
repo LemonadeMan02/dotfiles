@@ -30,4 +30,12 @@ Singleton {
   function focus(id) {
     Hyprland.dispatch("hl.dsp.focus({ workspace = " + id + " })")
   }
+
+  // Sposta una finestra senza seguirla. Campo sbagliato = ignorato: sposterebbe quella attiva.
+  function moveWindow(address, id) {
+    if (!address) return
+    const a = address.startsWith("0x") ? address : "0x" + address
+    Hyprland.dispatch("hl.dsp.window.move({ workspace = " + id
+                      + ", follow = false, window = \"address:" + a + "\" })")
+  }
 }
