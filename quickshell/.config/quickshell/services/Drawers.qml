@@ -167,4 +167,12 @@ Singleton {
 
     onPressed: root.toggle("dashboard")
   }
+
+  GlobalShortcut {
+    appid: "quickshell"
+    name: "overviewToggle"
+    description: "Apre e chiude la panoramica dei workspace"
+
+    onPressed: root.toggle("overview")
+  }
 }

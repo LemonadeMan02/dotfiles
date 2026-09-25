@@ -34,6 +34,7 @@ hl.bind(mainMod .. " + B",      app(browser))     -- Browser
 -- Globali dichiarate in Drawers.qml come GlobalShortcut (appid "quickshell")
 hl.bind(mainMod .. " + Space", hl.dsp.global("quickshell:drawerToggle"))    -- Launcher
 hl.bind(mainMod .. " + D",     hl.dsp.global("quickshell:dashboardToggle")) -- Audio e sessione
+hl.bind(mainMod .. " + Tab",   hl.dsp.global("quickshell:overviewToggle"))  -- Panoramica dei workspace
 
 
 -------------------------
