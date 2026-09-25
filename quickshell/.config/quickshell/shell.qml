@@ -81,4 +81,26 @@ Scope {
       }
     }
   }
+
+  LazyLoader {
+    active: Drawers.isLoaded("overview")
+
+    Drawer {
+      name: "overview"
+      edge: "center"
+
+      // 5 miniature da 260 piu' gli spazi: da tenere allineato a tileW in Overview.qml.
+      panelWidth: 1360
+
+      // Escape per chiudere: servono i tasti appena aperto.
+      grabKeyboard: true
+
+      onFocusReady: overview.focusOverview()
+
+      Overview {
+        id: overview
+        Layout.fillWidth: true
+      }
+    }
+  }
 }
