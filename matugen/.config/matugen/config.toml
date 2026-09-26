@@ -15,7 +15,7 @@ set = true
 # Dalla 4.x l'immagine non viene piu' accodata: la posizioni tu col keyword
 command = "awww img --transition-type fade {{ image }}"
 
-# Tinte ANSI per il terminale: base Catppuccin, blend = spinte verso il colore sorgente
+# Tinte base Catppuccin, blend = spinte verso il colore sorgente; le usano kitty e Quickshell
 [config.custom_colors]
 red     = { color = "#f38ba8", blend = true }
 green   = { color = "#a6e3a1", blend = true }
@@ -23,6 +23,7 @@ yellow  = { color = "#f9e2af", blend = true }
 blue    = { color = "#89b4fa", blend = true }
 magenta = { color = "#f5c2e7", blend = true }
 cyan    = { color = "#94e2d5", blend = true }
+peach   = { color = "#fab387", blend = true }
 
 [templates.quickshell]
 input_path  = "~/.config/matugen/templates/quickshell.json"

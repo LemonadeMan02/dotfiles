@@ -20,10 +20,10 @@
     "onTertiary": "{{colors.on_tertiary.dark.hex}}",
     "onError":    "{{colors.on_error.dark.hex}}",
 
-    "blue":   "#89b4fa",
-    "green":  "#a6e3a1",
-    "yellow": "#f9e2af",
-    "peach":  "#fab387"
+    "blue":   "{{colors.blue.dark.hex}}",
+    "green":  "{{colors.green.dark.hex}}",
+    "yellow": "{{colors.yellow.dark.hex}}",
+    "peach":  "{{colors.peach.dark.hex}}"
   },
 
   "light": {
@@ -47,9 +47,9 @@
     "onTertiary": "{{colors.on_tertiary.light.hex}}",
     "onError":    "{{colors.on_error.light.hex}}",
 
-    "blue":   "#1e66f5",
-    "green":  "#40a02b",
-    "yellow": "#df8e1d",
-    "peach":  "#fe640b"
+    "blue":   "{{colors.blue.light.hex}}",
+    "green":  "{{colors.green.light.hex}}",
+    "yellow": "{{colors.yellow.light.hex}}",
+    "peach":  "{{colors.peach.light.hex}}"
   }
 }
