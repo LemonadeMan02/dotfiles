@@ -1,0 +1,3 @@
+# Nasconde l'applet delle stampe: senza system tray non ha dove mostrarsi
+[Desktop Entry]
+Hidden=true
