@@ -36,6 +36,11 @@ output_path = "~/.local/state/hypr/colors.lua"
 # Hyprland non osserva file fuori dalla sua config: il reload va chiesto
 post_hook   = "hyprctl reload"
 
+[templates.hyprlock]
+input_path  = "~/.config/matugen/templates/hyprlock-colors.conf"
+output_path = "~/.local/state/hypr/hyprlock-colors.conf"
+# Niente post_hook: hyprlock e' un processo nuovo a ogni blocco e rilegge la config
+
 [templates.kitty]
 input_path  = "~/.config/matugen/templates/kitty-colors.conf"
 output_path = "~/.local/state/kitty/colors.conf"

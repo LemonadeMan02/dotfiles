@@ -258,6 +258,7 @@ Questi file non sono versionati: si creano da soli o al primo uso.
 | `~/.local/state/quickshell/config.json` | Quickshell al primo avvio, con i default (tema scuro, colori dinamici, sfondi da `~/Wallpapers`) |
 | `~/.local/state/quickshell/colors.json` | matugen, al primo sfondo scelto |
 | `~/.local/state/hypr/colors.lua` | matugen, idem |
+| `~/.local/state/hypr/hyprlock-colors.conf` | matugen, idem |
 | `~/.local/state/kitty/colors.conf` | matugen, idem |
 
 ### Sfondi e colori
