@@ -26,6 +26,9 @@ PanelWindow {
   property int topRadius:    20
   property int bottomRadius: 20
 
+  // False: il contenuto galleggia sul desktop, senza il fondo del cassetto.
+  property bool showBackground: true
+
   // I launcher vogliono i tasti appena aperti, i pannelli da cliccare no.
   property bool grabKeyboard: false
 
@@ -114,7 +117,8 @@ PanelWindow {
           ? root.overshootRoom + root.surfaceH - root.panelH * root.reveal
           : root.panelH * (root.reveal - 1))
 
-  readonly property real panelX: root.centered ? root.overshootRoom : 0
+  // Aria laterale solo se il centrale ha larghezza propria: a tutto schermo sborderebbe.
+  readonly property real panelX: (root.centered && !root.fullWidth) ? root.overshootRoom : 0
 
   // Scala e opacita' solo al centro: i cassetti a bordo le lasciano a 1.
   readonly property real panelScale:   root.centered ? 0.85 + 0.15 * root.reveal : 1.0
@@ -184,7 +188,8 @@ PanelWindow {
     bottomLeftRadius:   root.bottomRadius
     bottomRightRadius:  root.bottomRadius
 
-    color: Theme.surface
+    // Trasparente e non invisibile: un item nascosto spegnerebbe panelHover e l'auto-close.
+    color: root.showBackground ? Theme.surface : "transparent"
     antialiasing: true
 
     transformOrigin: Item.Center

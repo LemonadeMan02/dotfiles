@@ -41,7 +41,7 @@ Singleton {
   readonly property string back:    "" // nf-md-arrow_left
   readonly property string search:  "" // nf-md-magnify
   readonly property string command: "" // nf-md-chevron_right
-  readonly property string app: "󱃶" // nf-md-application
+  readonly property string app: "󰣆" // nf-md-application
 
   // ── Meteo ───────────────────────────────────────────────────────────
   readonly property string wClear:       "󰖨" // nf-md-weather_sunny

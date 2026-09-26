@@ -71,14 +71,17 @@ Scope {
     Drawer {
       name: "wallpapers"
       edge: "center"
-      panelWidth: 900
+
+      // Striscia da bordo a bordo: le carte galleggiano sul desktop, senza fondo.
+      anchors.left: true
+      anchors.right: true
+      showBackground: false
 
       // Frecce e invio: servono i tasti appena aperto.
       grabKeyboard: true
 
-      // Nessun anchor: su layer-shell una superficie non ancorata a lati
-      // opposti viene centrata dal compositore. E' il posizionamento del
-      // cassetto centrale, non una dimenticanza.
+      // Ancorato solo ai lati: su layer-shell una superficie non ancorata
+      // a top e bottom viene centrata in verticale dal compositore.
 
       onFocusReady: picker.focusStrip()
 
