@@ -359,6 +359,12 @@ Config di Hyprland, nessun errore:
 hyprctl configerrors
 ```
 
+Confronto completo fra liste e sistema, in sola lettura: pacchetti in lista ma non installati, espliciti assenti dalle liste, pacchetti AUR nella lista ufficiale e viceversa. Esce con 1 se trova differenze:
+
+```fish
+./check-packages.sh
+```
+
 ## 13. Fonti
 
 - [Arch Wiki — pacman](https://wiki.archlinux.org/title/Pacman) e [pacman/Tips and tricks](https://wiki.archlinux.org/title/Pacman/Tips_and_tricks) (liste di pacchetti), `man pacman`
