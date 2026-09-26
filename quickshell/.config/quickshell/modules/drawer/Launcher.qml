@@ -159,7 +159,7 @@ ColumnLayout {
         visible: root.results.length === 0
         Layout.fillWidth: true
         Layout.margins: Theme.spacingL
-        text: "Nessun risultato"
+        text: "No results"
         color: Theme.muted
         font.family: Theme.fontFamily
         font.pixelSize: Theme.fontM
@@ -196,7 +196,7 @@ ColumnLayout {
     Layout.topMargin: Theme.spacingS
 
     icon: root.commandMode ? Icons.command : Icons.search
-    placeholder: root.commandMode ? "Comando..." : "Cerca applicazioni..."
+    placeholder: root.commandMode ? "Command..." : "Search applications..."
 
     // Ogni carattere scritto o cancellato tiene vivo il cassetto.
     onTextChanged: Drawers.poke()

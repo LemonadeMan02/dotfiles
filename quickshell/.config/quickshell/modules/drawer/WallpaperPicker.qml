@@ -197,7 +197,7 @@ ColumnLayout {
     visible: Wallpapers.count === 0
     Layout.fillWidth: true
     Layout.margins: Theme.spacingL
-    text: "Nessuna immagine in " + Wallpapers.dir
+    text: "No images in " + Wallpapers.dir
     color: Theme.muted
     font.family: Theme.fontFamily
     font.pixelSize: Theme.fontM

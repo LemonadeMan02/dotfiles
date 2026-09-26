@@ -291,7 +291,7 @@ Item {
               Text {
                 anchors.centerIn: parent
                 visible: tile.windows.length === 0
-                text: "Vuoto"
+                text: "Empty"
                 color: Theme.muted
                 font.family: Theme.fontFamily
                 font.pixelSize: Theme.fontS
