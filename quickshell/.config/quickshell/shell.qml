@@ -4,6 +4,7 @@ import QtQuick
 import QtQuick.Layouts
 import "./modules/bar"
 import "./modules/drawer"
+import "./modules/notifications"
 import "./services"
 
 Scope {
@@ -11,6 +12,8 @@ Scope {
   Component.onCompleted: ColorScheme.sync()
 
   Bar {}
+
+  NotificationPopups {}
 
   // Legati a "loaded", non a "current": le finestre devono restare in vita
   // per tutta l'animazione di uscita e smontarsi solo dopo.

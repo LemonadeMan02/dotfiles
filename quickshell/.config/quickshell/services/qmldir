@@ -13,3 +13,4 @@ singleton Wallpapers 1.0 Wallpapers.qml
 singleton Media 1.0 Media.qml
 singleton Workspaces 1.0 Workspaces.qml
 singleton ColorScheme 1.0 ColorScheme.qml
+singleton Notifications 1.0 Notifications.qml

@@ -21,3 +21,14 @@ hl.layer_rule({
     -- I drawer si animano da soli in Drawer.qml: il fade di Hyprland si sommerebbe
     no_anim = true,
 })
+
+hl.layer_rule({
+    name  = "quickshell-notifications",
+    match = { namespace = "^quickshell:notifications$" },
+
+    blur = true,
+    ignore_alpha = 0.3,
+
+    -- Le card entrano in dissolvenza da sole in NotificationPopups.qml
+    no_anim = true,
+})
