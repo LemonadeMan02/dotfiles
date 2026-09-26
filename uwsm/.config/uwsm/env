@@ -1,2 +1,10 @@
 # Esportate a tutta la sessione, servizi systemd compresi
 export XCURSOR_SIZE=24
+
+# Nvidia: see wiki.hypr.land/Nvidia e il README di nvidia-vaapi-driver
+# Decodifica video in hardware (VA-API) tramite libva-nvidia-driver
+export LIBVA_DRIVER_NAME=nvidia
+# OpenGL delle app Xwayland sul driver Nvidia; se rompe screenshare o Xwayland e' la prima da togliere
+export __GLX_VENDOR_LIBRARY_NAME=nvidia
+# Niente spinta di potenza CUDA durante la decodifica video (driver >= 580.105)
+export CUDA_DISABLE_PERF_BOOST=1
