@@ -14,6 +14,9 @@ local browser     = "firefox"
 -- Uscita ordinata: uwsm ferma i servizi della sessione e Hyprland per ultimo; niente dispatcher exit
 local exitCmd = "uwsm stop"
 
+-- Script personali (pacchetto Stow "scripts"): percorso esplicito, il PATH di Hyprland non lo garantisce
+local scripts = os.getenv("HOME") .. "/.local/bin/"
+
 -- Tasto Windows come modificatore principale
 local mainMod = "SUPER"
 
@@ -76,6 +79,16 @@ hl.bind(mainMod .. " + down",         hl.dsp.focus({ direction = "down" }))
 -- Sposta e ridimensiona con SUPER + tasto sinistro/destro trascinando
 hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(),   { mouse = true })
 hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
+
+
+--------------------
+---- SCREENSHOT ----
+--------------------
+
+-- Salvato in Immagini/Screenshots e copiato negli appunti; logica in scripts/.local/bin/screenshot
+hl.bind("Print",                  hl.dsp.exec_cmd(scripts .. "screenshot area"))   -- Area scelta col mouse
+hl.bind("SHIFT + Print",          hl.dsp.exec_cmd(scripts .. "screenshot screen")) -- Schermo col focus
+hl.bind(mainMod .. " + Print",    hl.dsp.exec_cmd(scripts .. "screenshot window")) -- Finestra attiva
 
 
 ---------------------------
