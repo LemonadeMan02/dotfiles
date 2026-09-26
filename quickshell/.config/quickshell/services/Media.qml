@@ -3,6 +3,7 @@ pragma Singleton
 
 import Quickshell
 import Quickshell.Io
+import Quickshell.Hyprland
 import Quickshell.Services.Mpris
 import QtQuick
 
@@ -33,12 +34,37 @@ Singleton {
     onTriggered: root.player.positionChanged()
   }
 
-  // Ingresso per i tasti multimediali: qs ipc call media <funzione>.
+  // Ingresso per script e terminale: qs ipc call media <funzione>.
   IpcHandler {
     target: "media"
 
     function playPause(): void { root.playPause() }
     function next():      void { root.next() }
     function previous():  void { root.previous() }
+  }
+
+  // Tasti multimediali: stessa via dei cassetti, nessun processo lanciato a ogni pressione.
+  GlobalShortcut {
+    appid: "quickshell"
+    name: "mediaPlayPause"
+    description: "Play/pausa del player scelto"
+
+    onPressed: root.playPause()
+  }
+
+  GlobalShortcut {
+    appid: "quickshell"
+    name: "mediaNext"
+    description: "Brano successivo"
+
+    onPressed: root.next()
+  }
+
+  GlobalShortcut {
+    appid: "quickshell"
+    name: "mediaPrevious"
+    description: "Brano precedente"
+
+    onPressed: root.previous()
   }
 }
