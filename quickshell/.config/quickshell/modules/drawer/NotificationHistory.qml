@@ -6,16 +6,16 @@ import Quickshell.Widgets
 import "../../services"
 
 
+// Sempre visibile: con la cronologia vuota l'interruttore deve restare raggiungibile.
 ColumnLayout {
   id: root
   spacing: Theme.spacingXs
 
-  // Niente cronologia, niente blocco: cosi' il separatore sopra non resta orfano.
-  visible: Notifications.history.length > 0
-
   // Oltre, la dashboard diventerebbe piu' alta dello schermo.
   readonly property int maxShown: 6
   readonly property int visualSize: 28
+
+  readonly property int count: Notifications.history.length
 
   // Diff invece di ricreazione: chiudere una voce non ricostruisce le altre.
   ScriptModel {
@@ -23,7 +23,7 @@ ColumnLayout {
     values: Notifications.history.slice(-root.maxShown).reverse()
   }
 
-  // Intestazione: titolo, conteggio, pulizia.
+  // Intestazione: titolo, conteggio, non disturbare.
   RowLayout {
     Layout.fillWidth: true
     Layout.leftMargin:  Theme.spacingS
@@ -40,37 +40,77 @@ ColumnLayout {
     }
 
     Text {
-      text: Notifications.history.length
+      visible: root.count > 0
+      text: root.count
       color: Theme.foregroundDim
       font.family: Theme.fontFamily
       font.pixelSize: Theme.fontS
       font.weight: Theme.weightBold
-      Layout.fillWidth: true
     }
 
+    Item { Layout.fillWidth: true }
+
     Text {
-      text: "Clear all"
-      color: clearHover.hovered ? Theme.accent : Theme.foregroundDim
+      text: "Do not disturb"
+      color: Notifications.dnd ? Theme.foreground : Theme.foregroundDim
       font.family: Theme.fontFamily
       font.pixelSize: Theme.fontS
-      font.weight: Theme.weightBold
+      font.weight: Theme.weightNormal
+      Layout.alignment: Qt.AlignVCenter
+    }
+
+    // Interruttore: carrello e pomello, stessi angoli smussati delle pill.
+    Rectangle {
+      id: dndSwitch
+      readonly property bool on: Notifications.dnd
+
+      implicitWidth:  36
+      implicitHeight: 20
+      radius: Theme.radiusS
+      antialiasing: true
+      color: dndSwitch.on ? Theme.accent : Theme.surfaceSolid
+      Layout.alignment: Qt.AlignVCenter
 
       Behavior on color {
         ColorAnimation { duration: Theme.durFast }
       }
 
+      Rectangle {
+        width:  14
+        height: 14
+        y: 3
+        x: dndSwitch.on ? dndSwitch.width - width - 3 : 3
+        radius: Theme.radiusS - 2
+        antialiasing: true
+        color: dndSwitch.on ? Theme.onAccent : Theme.foregroundDim
+
+        Behavior on x {
+          NumberAnimation { duration: Theme.durFast; easing.type: Easing.OutCubic }
+        }
+      }
+
       HoverHandler {
-        id: clearHover
         cursorShape: Qt.PointingHandCursor
       }
 
       TapHandler {
         onTapped: {
           Drawers.poke()
-          Notifications.clearAll()
+          Config.toggleDnd()
         }
       }
     }
+  }
+
+  Text {
+    visible: root.count === 0
+    text: "No notifications"
+    color: Theme.muted
+    font.family: Theme.fontFamily
+    font.pixelSize: Theme.fontS
+    font.weight: Theme.weightNormal
+    Layout.leftMargin: Theme.spacingS
+    Layout.bottomMargin: Theme.spacingXs
   }
 
   Repeater {
@@ -212,13 +252,46 @@ ColumnLayout {
     }
   }
 
-  Text {
-    visible: Notifications.history.length > root.maxShown
-    text: "+" + (Notifications.history.length - root.maxShown) + " more"
-    color: Theme.muted
-    font.family: Theme.fontFamily
-    font.pixelSize: Theme.fontXs
-    font.weight: Theme.weightNormal
-    Layout.leftMargin: Theme.spacingS
+  // Piede: quante ne restano fuori e pulizia.
+  RowLayout {
+    visible: root.count > 0
+    Layout.fillWidth: true
+    Layout.leftMargin:  Theme.spacingS
+    Layout.rightMargin: Theme.spacingS
+    Layout.topMargin:   Theme.spacingXs
+    spacing: Theme.spacingS
+
+    Text {
+      text: root.count > root.maxShown ? "+" + (root.count - root.maxShown) + " more" : ""
+      color: Theme.muted
+      font.family: Theme.fontFamily
+      font.pixelSize: Theme.fontXs
+      font.weight: Theme.weightNormal
+      Layout.fillWidth: true
+    }
+
+    Text {
+      text: "Clear all"
+      color: clearHover.hovered ? Theme.accent : Theme.foregroundDim
+      font.family: Theme.fontFamily
+      font.pixelSize: Theme.fontS
+      font.weight: Theme.weightBold
+
+      Behavior on color {
+        ColorAnimation { duration: Theme.durFast }
+      }
+
+      HoverHandler {
+        id: clearHover
+        cursorShape: Qt.PointingHandCursor
+      }
+
+      TapHandler {
+        onTapped: {
+          Drawers.poke()
+          Notifications.clearAll()
+        }
+      }
+    }
   }
 }

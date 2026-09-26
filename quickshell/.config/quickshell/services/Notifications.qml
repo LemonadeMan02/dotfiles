@@ -21,6 +21,9 @@ Singleton {
   // Cronologia: le vive, tranne quelle che chiedono di non essere conservate.
   readonly property var history: root.list.filter(n => !n.transient)
 
+  // Non disturbare: le nuove vanno dritte in cronologia. Il ?? copre la config non ancora letta.
+  readonly property bool dnd: Config.notifications?.dnd ?? false
+
   // Durata di un popup quando l'app non la chiede, in millisecondi.
   readonly property int defaultTimeout: 5000
 
@@ -115,8 +118,10 @@ Singleton {
       n.tracked = true
       n.closed.connect(() => root.forget(n.id))
 
-      // Sopravvissuta a un reload: gia' vista, va dritta in cronologia.
-      if (n.lastGeneration) root.retire(n)
+      // Gia' vista prima di un reload, o non disturbare attivo: niente popup.
+      // Le critiche bucano il non disturbare: esistono per non essere perse.
+      const critical = n.urgency === NotificationUrgency.Critical
+      if (n.lastGeneration || (root.dnd && !critical)) root.retire(n)
 
       // Tetto alla cronologia: la piu' vecchia esce, senza disturbare l'app.
       const h = root.history

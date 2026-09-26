@@ -10,8 +10,9 @@ Singleton {
   id: root
 
   // Il resto della shell legge Config.appearance.*, non tocca mai il FileView.
-  property alias appearance: adapter.appearance
-  property alias drawer:     adapter.drawer
+  property alias appearance:    adapter.appearance
+  property alias drawer:        adapter.drawer
+  property alias notifications: adapter.notifications
 
   // Scrittura differita. Il drag dello slider chiama il setter a ogni frame:
   // il timer riparte, il disco viene toccato una volta sola a fine gesto.
@@ -49,6 +50,15 @@ Singleton {
   function setWallpaper(path) {
     adapter.appearance.wallpaper = path
     root.save()
+  }
+
+  function setDnd(v) {
+    adapter.notifications.dnd = v
+    root.save()
+  }
+
+  function toggleDnd() {
+    root.setDnd(!adapter.notifications.dnd)
   }
 
   FileView {
@@ -97,6 +107,10 @@ Singleton {
       }
       property JsonObject drawer: JsonObject {
         property int autoCloseTimeout: 20000
+      }
+      property JsonObject notifications: JsonObject {
+        // Niente popup, solo cronologia; le critiche passano comunque.
+        property bool dnd: false
       }
     }
   }

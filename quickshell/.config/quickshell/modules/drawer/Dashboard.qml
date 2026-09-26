@@ -76,9 +76,7 @@ ColumnLayout {
     Layout.fillWidth: true
   }
 
-  // Compare e sparisce col blocco che separa.
   Rectangle {
-    visible: Notifications.history.length > 0
     Layout.fillWidth: true
     Layout.leftMargin:  Theme.spacingS
     Layout.rightMargin: Theme.spacingS
