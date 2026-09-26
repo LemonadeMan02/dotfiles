@@ -1,10 +1,11 @@
 // Theme.qml
 pragma Singleton
 
+import Quickshell
 import QtQuick
 
 
-QtObject {
+Singleton {
   id: root
 
   function withAlpha(col, a) {
