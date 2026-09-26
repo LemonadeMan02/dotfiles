@@ -76,6 +76,21 @@ ColumnLayout {
     Layout.fillWidth: true
   }
 
+  // Compare e sparisce col blocco che separa.
+  Rectangle {
+    visible: Notifications.history.length > 0
+    Layout.fillWidth: true
+    Layout.leftMargin:  Theme.spacingS
+    Layout.rightMargin: Theme.spacingS
+    implicitHeight: 1
+    color: Theme.border
+  }
+
+  // ── Notifiche ───────────────────────────────────────────────────────
+  NotificationHistory {
+    Layout.fillWidth: true
+  }
+
   Rectangle {
     Layout.fillWidth: true
     Layout.leftMargin:  Theme.spacingS

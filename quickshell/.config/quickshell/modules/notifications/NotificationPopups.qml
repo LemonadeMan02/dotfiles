@@ -42,13 +42,13 @@ PanelWindow {
   implicitWidth:  root.cardWidth
   implicitHeight: column.implicitHeight
 
-  // Senza notifiche la superficie non esiste: niente rettangolo invisibile che ruba i click.
+  // Senza popup la superficie non esiste: niente rettangolo invisibile che ruba i click.
   visible: popupModel.values.length > 0 && !root.paused
 
   // Diff invece di ricreazione: le card gia' a schermo tengono il loro timer.
   ScriptModel {
     id: popupModel
-    values: Notifications.list.slice(-root.maxShown).reverse()
+    values: Notifications.popups.slice(-root.maxShown).reverse()
   }
 
   ColumnLayout {
@@ -89,10 +89,11 @@ PanelWindow {
         }
 
         // Fermo col mouse sopra o con la dashboard aperta; timeout 0 = nessuna scadenza.
+        // Allo scadere la notifica non muore: esce dal popup e resta in cronologia.
         Timer {
           interval: Math.max(1, card.timeout)
           running: card.timeout > 0 && !root.paused && !hover.hovered
-          onTriggered: card.modelData.expire()
+          onTriggered: Notifications.retire(card.modelData)
         }
 
         RowLayout {

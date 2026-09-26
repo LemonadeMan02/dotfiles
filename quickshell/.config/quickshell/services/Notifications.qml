@@ -9,16 +9,53 @@ import QtQuick
 Singleton {
   id: root
 
-  // Notifiche vive, dalla piu' vecchia alla piu' recente. Scadute o chiuse escono da sole.
+  // Notifiche vive, dalla piu' vecchia alla piu' recente. Chiuse o scadute escono da sole.
   readonly property var list: server.trackedNotifications.values
+
+  // Id delle notifiche uscite dai popup ma ancora in cronologia. Riassegnato, mai mutato.
+  property var retired: ({})
+
+  // Popup a schermo: le vive che non sono ancora state ritirate.
+  readonly property var popups: root.list.filter(n => !root.retired[n.id])
+
+  // Cronologia: le vive, tranne quelle che chiedono di non essere conservate.
+  readonly property var history: root.list.filter(n => !n.transient)
 
   // Durata di un popup quando l'app non la chiede, in millisecondi.
   readonly property int defaultTimeout: 5000
+
+  // Oltre questo numero le piu' vecchie escono dalla cronologia.
+  readonly property int historyLimit: 50
 
   // Durata in ms; 0 = resta finche' non la chiudi. E' l'urgenza a dire cosa non va perso.
   function timeoutFor(n) {
     if (n?.urgency === NotificationUrgency.Critical) return 0
     return (n?.expireTimeout ?? 0) > 0 ? n.expireTimeout * 1000 : root.defaultTimeout
+  }
+
+  // Fine del popup: la transitoria scade davvero, le altre passano in cronologia.
+  function retire(n) {
+    if (!n) return
+    if (n.transient) {
+      n.expire()
+      return
+    }
+    const r = Object.assign({}, root.retired)
+    r[n.id] = true
+    root.retired = r
+  }
+
+  // Notifica chiusa per qualunque motivo: il suo id non serve piu'.
+  function forget(id) {
+    if (!root.retired[id]) return
+    const r = Object.assign({}, root.retired)
+    delete r[id]
+    root.retired = r
+  }
+
+  // "Clear all" e' una chiusura dell'utente: le app lo vengono a sapere.
+  function clearAll() {
+    for (const n of root.history.slice()) n.dismiss()
   }
 
   // Nome del tema, percorso o URL: sempre qualcosa che Image sa caricare, oppure "".
@@ -56,7 +93,7 @@ Singleton {
     return out
   }
 
-  // Click sulla card: l'azione di default se c'e', altrimenti chiusura esplicita.
+  // Click su una notifica: l'azione di default se c'e', altrimenti chiusura esplicita.
   function activate(n) {
     const a = root.defaultAction(n)
     if (a) a.invoke()
@@ -66,14 +103,24 @@ Singleton {
   NotificationServer {
     id: server
 
-    // Un reload a caldo non deve far ricomparire tutti i popup ancora aperti.
-    keepOnReload: false
+    // Con la cronologia un reload a caldo non deve perderla; i popup li evita lastGeneration.
+    keepOnReload: true
 
     // Annunciati alle app: senza, molte non mandano ne' pulsanti ne' immagini.
     actionsSupported: true
     imageSupported: true
 
-    // Senza tracked la notifica verrebbe scartata appena arrivata.
-    onNotification: (n) => { n.tracked = true }
+    onNotification: (n) => {
+      // Senza tracked la notifica verrebbe scartata appena arrivata.
+      n.tracked = true
+      n.closed.connect(() => root.forget(n.id))
+
+      // Sopravvissuta a un reload: gia' vista, va dritta in cronologia.
+      if (n.lastGeneration) root.retire(n)
+
+      // Tetto alla cronologia: la piu' vecchia esce, senza disturbare l'app.
+      const h = root.history
+      if (h.length > root.historyLimit) h[0].expire()
+    }
   }
 }
