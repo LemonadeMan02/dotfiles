@@ -37,8 +37,8 @@ xdg-desktop-portal-gtk  # tema chiaro/scuro alle app
 gsettings-desktop-schemas # già dipendenza di xdg-desktop-portal-gtk; lo schema lo usa ColorScheme.qml
 qt5-wayland
 qt6-wayland
-xdg-utils
-gnome-keyring
+xdg-utils               # xdg-open
+gnome-keyring           # gnome-keyring-daemon.socket, portachiavi per le app
 
 # ── Audio ──
 pipewire

@@ -55,12 +55,17 @@ In `/etc/pacman.conf` togli il `#` davanti alle due righe della sezione `[multil
 sudoedit /etc/pacman.conf
 ```
 
-Deve risultare così:
+Controlla il risultato:
 
 ```fish
 grep -A1 '^\[multilib\]' /etc/pacman.conf
-# [multilib]
-# Include = /etc/pacman.d/mirrorlist
+```
+
+Le due righe devono uscire senza `#` davanti:
+
+```
+[multilib]
+Include = /etc/pacman.d/mirrorlist
 ```
 
 Poi aggiorna i database e il sistema:
@@ -143,7 +148,7 @@ stow -n -v fish hypr kitty matugen quickshell starship uwsm   # prova, non tocca
 stow -v fish hypr kitty matugen quickshell starship uwsm
 ```
 
-fish scrive `fish_variables` dentro `~/.config/fish`, quindi nel repo: è in `.gitignore`.
+fish scrive `fish_variables` dentro `~/.config/fish`, quindi nel repo: è in `.gitignore`. Anche `funcsave` e `fish_config` (quando salva il prompt) scrivono in `~/.config/fish/functions`, cioè nel repo: quei file compaiono in `git status` e vanno committati o cancellati.
 
 ### Pacchetti con `--no-folding`
 
@@ -161,7 +166,7 @@ Non usare `stow */`: collegherebbe anche eventuali cartelle che non sono pacchet
 
 ### Conflitti
 
-Se un file esiste già in `~` (per esempio una config di default), la prova con `-n` lo segnala come conflitto (`existing target`) e Stow non collega niente del pacchetto. Sposta da parte la cartella intera (così Stow può collegarla come le altre) e ripeti:
+Se un file esiste già in `~` (per esempio una config di default), la prova con `-n` lo segnala come conflitto (`existing target`) e Stow non collega niente di quel comando: il conflitto annulla l'intera invocazione, anche per gli altri pacchetti elencati. Sposta da parte la cartella intera (così Stow può collegarla come le altre) e ripeti:
 
 ```fish
 mv ~/.config/kitty ~/.config/kitty.bak
@@ -203,6 +208,8 @@ sudo systemctl enable sddm.service
 
 SDDM verrà sostituito da greetd: la procedura non è ancora in questo README.
 
+`seatd` su questa macchina risulta abilitato, ma non serve: con SDDM la sessione passa da `systemd-logind`. Non si abilita.
+
 ## 7. Servizi utente
 
 Partono con la sessione grafica: uwsm avvia `graphical-session.target` e questi servizi sono legati a quel target (`WantedBy=` e `PartOf=graphical-session.target`), quindi si fermano e ripartono con la sessione.
@@ -217,7 +224,7 @@ Partono con la sessione grafica: uwsm avvia `graphical-session.target` e questi 
 Si abilitano dopo Stow (sezione 5), **senza** `--now`: fuori dalla sessione grafica non partirebbero (`Requisite=graphical-session.target`, e hypridle e hyprpolkitagent richiedono `WAYLAND_DISPLAY`).
 
 ```fish
-systemctl --user enable quickshell.service awww.service hypridle.service hyprpolkitagent.service
+systemctl --user enable quickshell.service awww.service hypridle.service hyprpolkitagent.service ssh-agent.socket
 ```
 
 Per PipeWire, WirePlumber, gnome-keyring e xdg-user-dirs non servono comandi: i loro pacchetti li abilitano per tutti gli utenti.
@@ -312,6 +319,7 @@ Questi pacchetti c'erano in passato e non vanno reinstallati: il loro lavoro ora
 | `dunst` | Quickshell (`services/Notifications.qml`) | sul bus D-Bus un solo processo può essere il server delle notifiche (`org.freedesktop.Notifications`); con dunst installato i due se lo contenderebbero, per esempio mentre Quickshell si riavvia |
 | `polkit-kde-agent` | `hyprpolkitagent` (servizio utente, sezione 7) | in una sessione si registra un solo agente polkit: due agenti si contendono le richieste di password |
 | `playerctl` | Quickshell (`services/Media.qml`) | i tasti multimediali sono `GlobalShortcut` di Quickshell che comandano il player via MPRIS; nessun processo esterno a ogni pressione |
+| `wofi` | launcher di Quickshell (SUPER+Space) | nessuna config lo usa più: sarebbe solo un secondo launcher |
 
 Se uno di questi arriva come dipendenza di un altro pacchetto, controlla che non parta. dunst in particolare non ha bisogno di essere avviato: si attiva da solo via D-Bus alla prima notifica, se in quel momento nessun altro è il server.
 
@@ -335,7 +343,7 @@ systemctl is-enabled sddm systemd-networkd systemd-resolved systemd-timesyncd bl
 Servizi utente (sezione 7), tutti `active`:
 
 ```fish
-systemctl --user is-active quickshell awww hypridle hyprpolkitagent
+systemctl --user is-active quickshell awww hypridle hyprpolkitagent ssh-agent.socket
 ```
 
 Symlink di Stow: il primo comando elenca quelli verso il repo, il secondo quelli verso il repo ma rotti (nessun output = nessuno rotto):
@@ -350,8 +358,6 @@ Config di Hyprland, nessun errore:
 ```fish
 hyprctl configerrors
 ```
-
-Per un confronto più completo fra liste e sistema c'è `check-packages.sh` nella radice del repo.
 
 ## 13. Fonti
 
