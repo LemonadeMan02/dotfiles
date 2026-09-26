@@ -2,6 +2,7 @@
 pragma Singleton
 
 import Quickshell
+import Quickshell.Io
 import Qt.labs.folderlistmodel
 import QtQuick
 
@@ -23,6 +24,20 @@ Singleton {
   property alias model: folder
   readonly property int count: folder.count
 
+  // Modalita' per matugen: kitty e Hyprland usano i colori .default, che la seguono.
+  readonly property string mode: (Config.appearance?.darkMode ?? true) ? "dark" : "light"
+
+  // Richiesta arrivata mentre matugen gira: rilanciata a fine giro con lo stato di allora.
+  property bool pending: false
+
+  // Vero dopo l'avvio: un cambio di mode mentre la config si carica non deve rilanciare matugen.
+  property bool started: false
+
+  Component.onCompleted: root.started = true
+
+  // Cambio chiaro/scuro: stessa immagine, palette dell'altra modalita'.
+  onModeChanged: if (root.started) root.regenerate()
+
   // FolderListModel espone i ruoli solo via get(): serve al picker per
   // sapere cosa sta evidenziando senza frugare nel delegate.
   function pathAt(i) {
@@ -35,8 +50,32 @@ Singleton {
   function apply(path) {
     if (!path) return
     Config.setWallpaper(path)
+    root.regenerate()
+  }
+
+  // Un giro alla volta: due matugen insieme scriverebbero gli stessi file a meta'.
+  function regenerate() {
+    if (root.current === "") return
+    if (proc.running) {
+      root.pending = true
+      return
+    }
     // Forma ad array: nessun quoting da sbagliare sui path con spazi.
-    Quickshell.execDetached(["matugen", "image", path])
+    proc.command = ["matugen", "image", root.current, "-m", root.mode]
+    proc.running = true
+  }
+
+  // Il comando si assegna al lancio: legato con un binding cambierebbe durante il giro.
+  Process {
+    id: proc
+
+    onExited: (exitCode, exitStatus) => {
+      if (exitCode !== 0) console.warn("Wallpapers: matugen uscito con codice", exitCode)
+      if (root.pending) {
+        root.pending = false
+        root.regenerate()
+      }
+    }
   }
 
   FolderListModel {
