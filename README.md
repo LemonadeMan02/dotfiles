@@ -224,7 +224,7 @@ Partono con la sessione grafica: uwsm avvia `graphical-session.target` e questi 
 Si abilitano dopo Stow (sezione 5), **senza** `--now`: fuori dalla sessione grafica non partirebbero (`Requisite=graphical-session.target`, e hypridle e hyprpolkitagent richiedono `WAYLAND_DISPLAY`).
 
 ```fish
-systemctl --user enable quickshell.service awww.service hypridle.service hyprpolkitagent.service ssh-agent.socket
+systemctl --user enable quickshell.service awww.service hypridle.service hyprpolkitagent.service
 ```
 
 Per PipeWire, WirePlumber, gnome-keyring e xdg-user-dirs non servono comandi: i loro pacchetti li abilitano per tutti gli utenti.
@@ -343,7 +343,7 @@ systemctl is-enabled sddm systemd-networkd systemd-resolved systemd-timesyncd bl
 Servizi utente (sezione 7), tutti `active`:
 
 ```fish
-systemctl --user is-active quickshell awww hypridle hyprpolkitagent ssh-agent.socket
+systemctl --user is-active quickshell awww hypridle hyprpolkitagent
 ```
 
 Symlink di Stow: il primo comando elenca quelli verso il repo, il secondo quelli verso il repo ma rotti (nessun output = nessuno rotto):
