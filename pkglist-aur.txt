@@ -1,0 +1,8 @@
+# Pacchetti AUR
+# Il primo avvio richiede di installare yay a mano:
+#   git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si
+# Da lì in poi, installazione:
+#   sed -e 's/#.*//' -e 's/[[:space:]]//g' -e '/^$/d' pkglist-aur.txt | yay -S --needed -
+
+# ── Helper AUR ──
+yay

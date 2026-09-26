@@ -1,0 +1,99 @@
+# Pacchetti dai repo ufficiali (serve [multilib] per Steam)
+# Installazione:
+#   sed -e 's/#.*//' -e 's/[[:space:]]//g' -e '/^$/d' pkglist.txt | sudo pacman -S --needed -
+
+# ── Base e bootstrap ──
+base-devel
+git
+stow
+
+# ── Nvidia ──
+nvidia-open
+libva-nvidia-driver     # VA-API su Nvidia, vedi uwsm/env
+egl-wayland             # già dipendenza di nvidia-utils: esplicito per wiki.hypr.land/Nvidia
+lib32-nvidia-utils      # driver Vulkan 32 bit per Steam, evita che pacman ne scelga un altro
+
+# ── Sessione e compositor ──
+hyprland
+uwsm
+sddm
+xdg-desktop-portal-hyprland
+hypridle
+hyprlock
+hyprpolkitagent
+
+# ── Shell desktop e colori ──
+quickshell
+matugen
+awww
+
+# ── Font ──
+ttf-jetbrains-mono      # Theme.qml e hyprlock.conf
+ttf-jetbrains-mono-nerd # kitty e icone
+
+# ── Portali e integrazione desktop ──
+xdg-desktop-portal      # già dipendenza dei portali -hyprland e -gtk: esplicito per chiarezza
+xdg-desktop-portal-gtk  # tema chiaro/scuro alle app
+gsettings-desktop-schemas # già dipendenza di xdg-desktop-portal-gtk; lo schema lo usa ColorScheme.qml
+qt5-wayland
+qt6-wayland
+xdg-utils
+gnome-keyring
+
+# ── Audio ──
+pipewire
+pipewire-pulse
+pipewire-alsa
+pipewire-jack
+wireplumber
+gst-plugin-pipewire
+
+# ── Bluetooth ──
+bluez
+bluez-utils
+
+# ── Stampa ──
+cups
+cups-pk-helper
+system-config-printer
+
+# ── Terminale e CLI ──
+kitty
+fish
+starship
+zoxide
+fzf
+eza
+bat
+less
+wget
+openssh
+
+# ── Screenshot ──
+grim
+slurp
+wl-clipboard
+jq                      # screenshot window/screen
+libnotify               # notify-send, scripts/.local/bin/screenshot
+xdg-user-dirs           # xdg-user-dir PICTURES
+
+# ── App (usate dalle config) ──
+firefox                 # SUPER+B, keybindings.lua
+dolphin                 # SUPER+E, keybindings.lua
+discord                 # autostart.lua
+spotify-launcher        # autostart.lua, player preferito in Media.qml
+steam                   # richiede [multilib]
+
+# ── App personali ──
+protontricks
+zed
+mpv
+imv
+htop
+vim
+nano
+
+# ── Diagnostica ──
+libva-utils             # vainfo
+wev
+smartmontools
