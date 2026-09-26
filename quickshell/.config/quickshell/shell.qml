@@ -1,11 +1,15 @@
 // shell.qml
 import Quickshell
+import QtQuick
 import QtQuick.Layouts
 import "./modules/bar"
 import "./modules/drawer"
 import "./services"
 
 Scope {
+  // I singleton nascono al primo uso: questo li avvia e riallinea la preferenza di sistema.
+  Component.onCompleted: ColorScheme.sync()
+
   Bar {}
 
   // Legati a "loaded", non a "current": le finestre devono restare in vita
