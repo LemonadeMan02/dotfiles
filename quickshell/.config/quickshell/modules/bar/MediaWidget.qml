@@ -55,9 +55,9 @@ RowLayout {
   }
 
   // Controlli raggruppati: il margine sinistro stacca il blocco dal testo,
-  // le tre icone restano strette tra loro.
+  // la spaziatura fra le icone viene dalla scala del Theme come tutte le altre.
   RowLayout {
-    spacing: Theme.spacingS + 10
+    spacing: Theme.spacingL
     Layout.leftMargin: Theme.spacingM
 
     // I tre pulsanti condividono struttura identica: un Text con hover e
