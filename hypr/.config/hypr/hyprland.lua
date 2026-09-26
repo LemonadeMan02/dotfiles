@@ -24,23 +24,6 @@ require("autostart")
 
 
 -----------------------
------ PERMISSIONS -----
------------------------
-
--- See https://wiki.hypr.land/Configuring/Advanced-and-Cool/Permissions/
--- Le modifiche ai permessi richiedono un riavvio di Hyprland, non un reload
-
--- hl.config({
---   ecosystem = {
---     enforce_permissions = true,
---   },
--- })
-
--- hl.permission("/usr/(bin|local/bin)/grim", "screencopy", "allow")
--- hl.permission("/usr/(lib|libexec|lib64)/xdg-desktop-portal-hyprland", "screencopy", "allow")
--- hl.permission("/usr/(bin|local/bin)/hyprpm", "plugin", "allow")
-
------------------------
 ---- LOOK AND FEEL ----
 -----------------------
 
@@ -54,8 +37,6 @@ hl.config({
         -- Colori dei bordi (attivo e inattivo) in theme.lua
         border_size = 2,
 
-        resize_on_border = false,
-
         -- Leggi la pagina Tearing del wiki prima di attivarlo
         allow_tearing = false,
 
@@ -66,9 +47,6 @@ hl.config({
         -- Uguale a Theme.radiusM: finestre e pill condividono la stessa curva
         rounding       = 10,
         rounding_power = 2,
-
-        active_opacity   = 1.0,
-        inactive_opacity = 1.0,
 
         -- Spento di proposito: con follow_mouse = 1 il dimming lampeggia al passaggio del mouse
         dim_inactive = false,
@@ -108,40 +86,10 @@ require("layerrules")
 -- Pin dei workspace ai monitor e relativi keybind in workspaces.lua
 require("workspaces")
 
--- "Smart gaps": niente gaps con una sola finestra; decommenta tutto per usarlo
--- hl.workspace_rule({ workspace = "w[tv1]", gaps_out = 0, gaps_in = 0 })
--- hl.workspace_rule({ workspace = "f[1]",   gaps_out = 0, gaps_in = 0 })
--- hl.window_rule({
---     name  = "no-gaps-wtv1",
---     match = { float = false, workspace = "w[tv1]" },
---     border_size = 0,
---     rounding    = 0,
--- })
--- hl.window_rule({
---     name  = "no-gaps-f1",
---     match = { float = false, workspace = "f[1]" },
---     border_size = 0,
---     rounding    = 0,
--- })
-
 -- See https://wiki.hypr.land/Configuring/Layouts/Dwindle-Layout/
 hl.config({
     dwindle = {
         preserve_split = true,
-    },
-})
-
--- See https://wiki.hypr.land/Configuring/Layouts/Master-Layout/
-hl.config({
-    master = {
-        new_status = "master",
-    },
-})
-
--- See https://wiki.hypr.land/Configuring/Layouts/Scrolling-Layout/
-hl.config({
-    scrolling = {
-        fullscreen_on_one_column = true,
     },
 })
 
@@ -183,25 +131,9 @@ hl.config({
     input = {
         kb_layout  = "gb",
         kb_variant = "extd",
-        kb_model   = "",
-        kb_options = "",
-        kb_rules   = "",
 
         follow_mouse = 1,
-
-        -- Da -1.0 a 1.0; 0 = nessuna modifica
-        sensitivity = 0,
-
-        touchpad = {
-            natural_scroll = false,
-        },
     },
-})
-
-hl.gesture({
-    fingers = 3,
-    direction = "horizontal",
-    action = "workspace"
 })
 
 -- Config per singolo dispositivo: see https://wiki.hypr.land/Configuring/Advanced-and-Cool/Devices/
@@ -223,13 +155,12 @@ require("keybindings")
 -- and https://wiki.hypr.land/Configuring/Basics/Workspace-Rules/
 
 -- Ignora le richieste di maximize delle app; i tuoi dispatcher funzionano comunque
-local suppressMaximizeRule = hl.window_rule({
+hl.window_rule({
     name  = "suppress-maximize-events",
     match = { class = ".*" },
 
     suppress_event = "maximize",
 })
--- suppressMaximizeRule:set_enabled(false)
 
 -- Corregge alcuni problemi di drag con XWayland
 hl.window_rule({
@@ -245,14 +176,6 @@ hl.window_rule({
 
     no_focus = true,
 })
-
--- Anche le layer rule restituiscono un handle
--- local overlayLayerRule = hl.layer_rule({
---     name  = "no-anim-overlay",
---     match = { namespace = "^my-overlay$" },
---     no_anim = true,
--- })
--- overlayLayerRule:set_enabled(false)
 
 -- Finestra di hyprland-run
 hl.window_rule({
