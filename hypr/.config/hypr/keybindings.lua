@@ -11,6 +11,9 @@ local terminal    = "kitty"
 local fileManager = "dolphin"
 local browser     = "firefox"
 
+-- Uscita ordinata: uwsm ferma i servizi della sessione e Hyprland per ultimo; niente dispatcher exit
+local exitCmd = "uwsm stop"
+
 -- Tasto Windows come modificatore principale
 local mainMod = "SUPER"
 
@@ -41,9 +44,7 @@ hl.bind(mainMod .. " + Tab",   hl.dsp.global("quickshell:overviewToggle"))  -- P
 ---- WINDOW CONTROL -----
 -------------------------
 
-local closeWindowBind = hl.bind(mainMod .. " + W", hl.dsp.window.close()) -- Chiude la finestra attiva
--- closeWindowBind:set_enabled(false)
-
+hl.bind(mainMod .. " + W", hl.dsp.window.close())                      -- Chiude la finestra attiva
 hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" })) -- Floating on/off
 hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())                     -- Pseudotiling on/off
 hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit"))               -- Split orizzontale/verticale (solo dwindle)
@@ -53,9 +54,7 @@ hl.bind(mainMod .. " + F",         hl.dsp.window.fullscreen({ mode = "maximized"
 -- Fullscreen reale: copre anche la barra
 hl.bind(mainMod .. " + SHIFT + F", hl.dsp.window.fullscreen({ mode = "fullscreen" }))
 
-hl.bind(mainMod .. " + M", hl.dsp.exec_cmd(
-    "command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'"
-)) -- Uscita dalla sessione
+hl.bind(mainMod .. " + M", hl.dsp.exec_cmd(exitCmd))                  -- Uscita dalla sessione
 hl.bind(mainMod .. " + L", hl.dsp.exec_cmd("loginctl lock-session")) -- Lock
 
 
