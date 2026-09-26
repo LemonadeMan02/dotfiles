@@ -22,7 +22,8 @@ M.secondary = {
 -- Ordine dei blocchi di workspace: il primo monitor ha 1-5, il secondo 6-10
 M.ordered = { M.primary, M.secondary }
 
--- Posti per monitor; da tenere uguale a WorkspacesWidget.qml
+-- Posti per monitor; da tenere uguale a perMonitor in quickshell/services/Workspaces.qml
+-- (e alla larghezza della panoramica in quickshell/shell.qml, calcolata per 5 miniature)
 M.workspaces_per_monitor = 5
 
 return M
