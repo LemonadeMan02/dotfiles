@@ -25,11 +25,13 @@ Item {
   // Una riga per monitor, da sinistra a destra come sulla scrivania.
   readonly property var monitors: Hyprland.monitors.values.slice().sort((a, b) => a.x - b.x)
 
-  // Trascinamento in corso: indirizzo vuoto = nessuno.
-  property string dragAddress: ""
+  // Trascinamento in corso: "" = nessuno, "window" = una finestra, "workspace" = uno scambio.
+  property string dragKind: ""
   property int dragFromWs: 0
+  property string dragAddress: ""
   property string dragIcon: ""
-  readonly property bool dragging: root.dragAddress !== ""
+  property string dragLabel: ""
+  readonly property bool dragging: root.dragKind !== ""
 
   // lastIpcObject non si aggiorna da solo: posizioni e classi vanno richieste a ogni apertura.
   Component.onCompleted: Hyprland.refreshToplevels()
@@ -62,13 +64,17 @@ Item {
     ghost.y = p.y - ghost.height / 2
   }
 
-  // Rilascio: sposta solo se sotto il fantasma c'e' un workspace diverso da quello di partenza.
+  // Rilascio: agisce solo se sotto il fantasma c'e' un workspace diverso da quello di partenza.
   function finishDrag() {
     const target = ghost.Drag.target
     if (target && target.wsId !== root.dragFromWs) {
-      Workspaces.moveWindow(root.dragAddress, target.wsId)
+      if (root.dragKind === "window")
+        Workspaces.moveWindow(root.dragAddress, target.wsId)
+      else
+        Workspaces.swap(root.dragFromWs, target.wsId)
       refreshLater.restart()
     }
+    root.dragKind = ""
     root.dragAddress = ""
     Drawers.poke()
   }
@@ -135,6 +141,9 @@ Item {
               clip: true
               color: hover.hovered ? Theme.surfaceHover : Theme.surfaceSolid
 
+              // La miniatura che si sta scambiando resta al suo posto, sbiadita.
+              opacity: (root.dragKind === "workspace" && root.dragFromWs === tile.wsId) ? 0.5 : 1.0
+
               // Bersaglio del trascinamento: contorno chiaro, distinto dall'accento dell'attivo.
               border.width: (drop.containsDrag || tile.active) ? 2 : 0
               border.color: drop.containsDrag ? Theme.foreground : Theme.accent
@@ -147,7 +156,7 @@ Item {
               DropArea {
                 id: drop
                 anchors.fill: parent
-                keys: ["window"]
+                keys: ["overview"]
                 readonly property int wsId: tile.wsId
               }
 
@@ -176,7 +185,8 @@ Item {
                   z: win.ipc?.floating ? 1 : 0
 
                   // L'originale resta al suo posto, sbiadito, finche' il fantasma e' in giro.
-                  opacity: root.dragAddress === win.modelData.address ? 0.3 : 1.0
+                  opacity: (root.dragKind === "window"
+                            && root.dragAddress === win.modelData.address) ? 0.3 : 1.0
 
                   radius: Theme.radiusS / 2
                   antialiasing: true
@@ -214,7 +224,6 @@ Item {
 
                   // target null: il rettangolo resta fermo, si muove il fantasma fuori dal ritaglio.
                   DragHandler {
-                    id: winDrag
                     target: null
                     enabled: win.modelData.address !== ""
                     cursorShape: Qt.ClosedHandCursor
@@ -225,6 +234,7 @@ Item {
                         root.dragIcon = win.iconSource
                         root.dragFromWs = tile.wsId
                         root.dragAddress = win.modelData.address
+                        root.dragKind = "window"
                       } else if (root.dragging) {
                         root.finishDrag()
                       }
@@ -234,14 +244,14 @@ Item {
                 }
               }
 
-              // Numero sopra le finestre: su una miniatura piena resterebbe coperto.
+              // Maniglia del workspace, sopra le finestre: trascinata su un'altra miniatura le scambia.
               Rectangle {
                 z: 2
                 anchors.left: parent.left
                 anchors.top: parent.top
                 anchors.margins: Theme.spacingS
                 width:  Math.max(height, badge.implicitWidth + Theme.spacingM)
-                height: badge.implicitHeight + Theme.spacingXs * 2
+                height: badge.implicitHeight + Theme.spacingS * 2
                 radius: Theme.radiusS
                 antialiasing: true
                 color: tile.active ? Theme.accent : Theme.surface
@@ -254,6 +264,27 @@ Item {
                   font.family: Theme.fontFamily
                   font.pixelSize: Theme.fontS
                   font.weight: Theme.weightBold
+                }
+
+                HoverHandler {
+                  cursorShape: Qt.OpenHandCursor
+                }
+
+                DragHandler {
+                  target: null
+                  cursorShape: Qt.ClosedHandCursor
+
+                  onActiveChanged: {
+                    if (active) {
+                      root.moveGhost(centroid.scenePosition)
+                      root.dragLabel = String(tile.index + 1)
+                      root.dragFromWs = tile.wsId
+                      root.dragKind = "workspace"
+                    } else if (root.dragging) {
+                      root.finishDrag()
+                    }
+                  }
+                  onCentroidChanged: if (active) root.moveGhost(centroid.scenePosition)
                 }
               }
 
@@ -302,22 +333,34 @@ Item {
     border.color: Theme.accent
 
     Drag.active: root.dragging
-    Drag.keys: ["window"]
+    Drag.keys: ["overview"]
     Drag.hotSpot.x: width / 2
     Drag.hotSpot.y: height / 2
 
+    // Scambio: il numero del workspace trascinato.
+    Text {
+      anchors.centerIn: parent
+      visible: root.dragKind === "workspace"
+      text: root.dragLabel
+      color: Theme.foreground
+      font.family: Theme.fontFamily
+      font.pixelSize: Theme.fontL
+      font.weight: Theme.weightBold
+    }
+
+    // Finestra: la sua icona, o il glifo generico.
     IconImage {
       id: ghostIcon
       anchors.centerIn: parent
       width:  Theme.iconM
       height: Theme.iconM
-      visible: root.dragIcon !== "" && status !== Image.Error
+      visible: root.dragKind === "window" && root.dragIcon !== "" && status !== Image.Error
       source: root.dragIcon
     }
 
     Text {
       anchors.centerIn: parent
-      visible: !ghostIcon.visible
+      visible: root.dragKind === "window" && !ghostIcon.visible
       text: Icons.app
       font.family: Theme.nerdFontFamily
       font.pixelSize: Theme.iconM
