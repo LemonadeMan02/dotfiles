@@ -71,7 +71,7 @@ Scope {
     Drawer {
       name: "today"
       edge: "top"
-      panelWidth: 380
+      panelWidth: 800
 
       // Solo il bordo alto: il compositore centra in orizzontale, sotto l'orologio.
       anchors.top: true

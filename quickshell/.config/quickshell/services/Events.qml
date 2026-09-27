@@ -15,6 +15,9 @@ Singleton {
   // Primo giorno della richiesta in corso: khal stampa una riga per giorno da qui.
   property var from: new Date()
 
+  // Richiesta arrivata mentre khal lavorava: ne resta solo l'ultima.
+  property var pending: null
+
   readonly property bool loading: proc.running
 
   function key(d) { return Qt.formatDate(d, "yyyy-MM-dd") }
@@ -23,10 +26,18 @@ Singleton {
 
   // Intervallo di giorni, estremi inclusi; nessun polling, lo chiama chi apre il pannello.
   function load(start, end) {
-    root.from = start
+    root.pending = { start: start, end: end }
+    if (!proc.running) root.next()
+  }
+
+  // Non interrompe khal: l'output di un processo terminato finirebbe sui giorni sbagliati.
+  function next() {
+    const r = root.pending
+    root.pending = null
+    root.from = r.start
     proc.exec(["khal", "list",
                "--json", "title", "--json", "start-time", "--json", "end-time", "--json", "all-day",
-               key(start), key(end)])
+               key(r.start), key(r.end)])
   }
 
   Process {
@@ -56,6 +67,10 @@ Singleton {
       }
     }
 
-    onExited: (code) => { if (code !== 0) console.warn("Events: khal uscito con codice", code) }
+    // exited arriva dopo streamFinished: a questo punto i dati sono gia' in byDate.
+    onExited: (code) => {
+      if (code !== 0) console.warn("Events: khal uscito con codice", code)
+      if (root.pending) root.next()
+    }
   }
 }
