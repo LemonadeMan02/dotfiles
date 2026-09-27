@@ -144,8 +144,8 @@ cd ~/dotfiles
 Qui Stow può collegare la cartella intera (per esempio `~/.config/hypr` → repo), perché ci scrivono solo queste config:
 
 ```fish
-stow -n -v fish hypr kitty matugen quickshell starship uwsm   # prova, non tocca niente
-stow -v fish hypr kitty matugen quickshell starship uwsm
+stow -n -v fish hypr khal kitty matugen quickshell starship uwsm vdirsyncer   # prova, non tocca niente
+stow -v fish hypr khal kitty matugen quickshell starship uwsm vdirsyncer
 ```
 
 fish scrive `fish_variables` dentro `~/.config/fish`, quindi nel repo: è in `.gitignore`. Anche `funcsave` e `fish_config` (quando salva il prompt) scrivono in `~/.config/fish/functions`, cioè nel repo: quei file compaiono in `git status` e vanno committati o cancellati.
@@ -216,7 +216,7 @@ Partono con la sessione grafica: uwsm avvia `graphical-session.target` e questi 
 
 | Servizio | Da dove | Cosa fa |
 |---|---|---|
-| `quickshell.service` | repo (`systemd/`) | barra, launcher, notifiche, dashboard |
+| `quickshell.service` | repo (`systemd/`) | barra, launcher, notifiche, dashboard, calendario, meteo |
 | `awww.service` | repo (`systemd/`) | demone dello sfondo |
 | `hypridle.service` | pacchetto `hypridle` | da inattivo: blocco con hyprlock a 5 min, monitor spenti a 5 min e mezzo (`hypridle.conf`) |
 | `hyprpolkitagent.service` | pacchetto `hyprpolkitagent` | finestra per le richieste di password polkit |
@@ -260,6 +260,34 @@ Questi file non sono versionati: si creano da soli o al primo uso.
 | `~/.local/state/hypr/colors.lua` | matugen, idem |
 | `~/.local/state/hypr/hyprlock-colors.conf` | matugen, idem |
 | `~/.local/state/kitty/colors.conf` | matugen, idem |
+| `~/.local/share/vdirsyncer/google-ical-url` | tu, a mano: vedi sotto |
+| `~/.local/share/calendars/google/` | vdirsyncer, a ogni sincronizzazione |
+| `~/.local/state/vdirsyncer/status/` | vdirsyncer, idem |
+
+### Google Calendar
+
+Il calendario arriva in sola lettura dall'indirizzo segreto iCal di Google: vdirsyncer lo scarica in `~/.local/share/calendars/google/`, khal lo legge, Quickshell interroga khal all'apertura del pannello dell'orologio.
+
+L'indirizzo si trova in Google Calendar → Impostazioni → il calendario → Integra calendario → **Indirizzo segreto in formato iCal**. Chi lo possiede legge il calendario: sta fuori dal repo e vdirsyncer lo legge con `url.fetch` (`vdirsyncer/.config/vdirsyncer/config`).
+
+```fish
+mkdir -p ~/.local/share/vdirsyncer ~/.local/share/calendars/google ~/.local/state/vdirsyncer
+read -s -P "URL iCal: " url; and printf '%s\n' $url > ~/.local/share/vdirsyncer/google-ical-url; and set -e url
+chmod 600 ~/.local/share/vdirsyncer/google-ical-url
+vdirsyncer discover google
+vdirsyncer sync
+khal list today 30d
+```
+
+Non metterlo in `~/.config/vdirsyncer`: quella cartella è un symlink al repo (sezione 5).
+
+Poi il timer del pacchetto, ogni 15 minuti. Non dipende dalla sessione grafica, quindi qui si usa `--now`:
+
+```fish
+systemctl --user enable --now vdirsyncer.timer
+```
+
+Un indirizzo iCal esporta un solo calendario: per altri calendari servono altri storage `http` in `vdirsyncer/.config/vdirsyncer/config`.
 
 ### Sfondi e colori
 
@@ -341,6 +369,13 @@ Servizi utente (sezione 7), tutti `active`:
 
 ```fish
 systemctl --user is-active quickshell awww hypridle hyprpolkitagent
+```
+
+Calendario (sezione 9): il timer `active`, khal che risponde con gli eventi:
+
+```fish
+systemctl --user is-active vdirsyncer.timer
+khal list today 7d
 ```
 
 Symlink di Stow: il primo comando elenca quelli verso il repo, il secondo quelli verso il repo ma rotti (nessun output = nessuno rotto):

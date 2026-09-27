@@ -29,7 +29,7 @@ awww
 
 # ── Calendario ──
 vdirsyncer              # Google Calendar → ~/.local/share/calendars, vdirsyncer.timer
-khal                    # legge il calendario locale
+khal                    # legge il calendario locale per il pannello dell'orologio
 
 # ── Font ──
 ttf-jetbrains-mono      # Theme.qml e hyprlock.conf
