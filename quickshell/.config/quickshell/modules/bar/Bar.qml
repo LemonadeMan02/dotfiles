@@ -79,7 +79,11 @@ Scope {
         onClicked: Drawers.toggle("today", panel.screen)
 
         ClockWidget {}
-        WeatherWidget {}
+
+        // Il meteo apre la sua pagina: il suo tap vince su quello della pill.
+        WeatherWidget {
+          onClicked: Drawers.toggle("weather", panel.screen)
+        }
       }
 
       // --- Gruppo destro: indicatori di sistema ---

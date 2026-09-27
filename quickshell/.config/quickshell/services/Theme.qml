@@ -15,6 +15,7 @@ Singleton {
   // ── 1. Primitive: le due palette Catppuccin, crude ──────────────────
   // Stessi nomi in entrambe: il livello semantico resta cieco alla variante.
   readonly property QtObject mocha: QtObject {
+
     readonly property color crust:    "#11111b"
     readonly property color mantle:   "#181825"
     readonly property color base:     "#1e1e2e"
@@ -159,6 +160,9 @@ Singleton {
   readonly property int fontS:  13
   readonly property int fontM:  15
   readonly property int fontL:  17
+  // Solo per numeri da leggere da lontano: orologio e temperatura della pagina meteo.
+  readonly property int fontXl:      32
+  readonly property int fontDisplay: 72
   readonly property int iconXs: 15
   readonly property int iconM:  22
   readonly property int iconL:  30

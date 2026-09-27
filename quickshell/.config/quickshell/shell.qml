@@ -84,6 +84,25 @@ Scope {
   }
 
   LazyLoader {
+    active: Drawers.isLoaded("weather")
+
+    Drawer {
+      name: "weather"
+      edge: "top"
+      panelWidth: 1100
+
+      // Come "today": solo il bordo alto, centrato sotto la pill dell'orologio.
+      anchors.top: true
+      margins.top: 6
+
+      WeatherPage {
+        Layout.fillWidth: true
+      }
+    }
+  }
+
+
+  LazyLoader {
     active: Drawers.isLoaded("wallpapers")
 
     Drawer {
