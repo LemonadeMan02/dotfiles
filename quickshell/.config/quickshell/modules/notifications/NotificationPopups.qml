@@ -23,8 +23,9 @@ PanelWindow {
   readonly property int cardWidth: 380
   readonly property int visualSize: 40
 
-  // Dashboard aperta sullo stesso schermo: stesso angolo, i popup si fanno da parte e aspettano.
-  readonly property bool paused: Drawers.isOpen("dashboard") && Drawers.screen === root.screen
+  // Dashboard (stesso angolo) o "today" (cronologia a vista) aperti sullo stesso schermo: i popup aspettano.
+  readonly property bool paused: (Drawers.isOpen("dashboard") || Drawers.isOpen("today"))
+                                 && Drawers.screen === root.screen
 
   WlrLayershell.namespace: "quickshell:notifications"
   WlrLayershell.layer: WlrLayer.Overlay
@@ -88,7 +89,7 @@ PanelWindow {
           NumberAnimation { duration: Theme.durSlow; easing.type: Easing.OutCubic }
         }
 
-        // Fermo col mouse sopra o con la dashboard aperta; timeout 0 = nessuna scadenza.
+        // Fermo col mouse sopra o in pausa; timeout 0 = nessuna scadenza.
         // Allo scadere la notifica non muore: esce dal popup e resta in cronologia.
         Timer {
           interval: Math.max(1, card.timeout)
