@@ -3,6 +3,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
+import "../common"
 import "../../services"
 
 
@@ -59,45 +60,12 @@ ColumnLayout {
       Layout.alignment: Qt.AlignVCenter
     }
 
-    // Interruttore: carrello e pomello, stessi angoli smussati delle pill.
-    Rectangle {
-      id: dndSwitch
-      readonly property bool on: Notifications.dnd
-
-      implicitWidth:  36
-      implicitHeight: 20
-      radius: Theme.radiusS
-      antialiasing: true
-      color: dndSwitch.on ? Theme.accent : Theme.surfaceSolid
+    Toggle {
+      checked: Notifications.dnd
       Layout.alignment: Qt.AlignVCenter
-
-      Behavior on color {
-        ColorAnimation { duration: Theme.durFast }
-      }
-
-      Rectangle {
-        width:  14
-        height: 14
-        y: 3
-        x: dndSwitch.on ? dndSwitch.width - width - 3 : 3
-        radius: Theme.radiusS - 2
-        antialiasing: true
-        color: dndSwitch.on ? Theme.onAccent : Theme.foregroundDim
-
-        Behavior on x {
-          NumberAnimation { duration: Theme.durFast; easing.type: Easing.OutCubic }
-        }
-      }
-
-      HoverHandler {
-        cursorShape: Qt.PointingHandCursor
-      }
-
-      TapHandler {
-        onTapped: {
-          Drawers.poke()
-          Config.toggleDnd()
-        }
+      onToggled: {
+        Drawers.poke()
+        Config.toggleDnd()
       }
     }
   }

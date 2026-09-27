@@ -73,6 +73,11 @@ Scope {
         fixedHeight: Theme.barHeight
         anchors.centerIn: parent
         spacing: Theme.spacingL
+        interactive: true
+
+        // Stesso schema della pill destra: lo schermo e' quello della barra cliccata.
+        onClicked: Drawers.toggle("today", panel.screen)
+
         ClockWidget {}
         WeatherWidget {}
       }
@@ -88,6 +93,18 @@ Scope {
           rightMargin: 10
         }
 
+        // Tray in pill propria: i suoi click non devono aprire il dashboard.
+        Pill {
+          fixedHeight: Theme.barHeight
+          paddingH: Theme.spacingS
+          visible: tray.count > 0
+
+          TrayWidget {
+            id: tray
+            window: panel
+          }
+        }
+
         Pill {
           fixedHeight: Theme.barHeight
           spacing: Theme.spacingS
@@ -96,6 +113,18 @@ Scope {
           // screen esplicito: su layer-shell il focusedMonitor puo' non seguire il mouse.
           onClicked: Drawers.toggle("dashboard", panel.screen)
 
+          // Nascosto finche' la prima lettura non arriva: niente chip vuoto all'avvio.
+          Chip {
+            id: kbChip
+            variant: "solid"
+            visible: Kb.code !== ""
+
+            KeyboardWidget {
+              fgNormal: kbChip.foreground
+              fgMuted:  kbChip.foregroundDim
+            }
+          }
+
           Chip {
             id: netChip
             variant: "light"
@@ -103,6 +132,18 @@ Scope {
             NetworkWidget {
               fgNormal: netChip.foreground
               fgMuted:  netChip.foregroundDim
+            }
+          }
+
+          // Solo con un dispositivo connesso: niente chip vuoto a cuffie spente.
+          Chip {
+            id: btChip
+            variant: "light"
+            visible: Bt.connected
+
+            BluetoothWidget {
+              fgNormal: btChip.foreground
+              fgMuted:  btChip.foregroundDim
             }
           }
 

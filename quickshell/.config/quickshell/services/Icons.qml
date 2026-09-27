@@ -61,4 +61,12 @@ Singleton {
 
     // ── Wallpapers ───────────────────────────────────────────────────────────
   readonly property string wallpaper: "󰸉" // nf-md-image
+
+   // ── Bluetooth ───────────────────────────────────────────────────────
+  readonly property string headphones:   "󰥰" // nf-md-headphones
+  readonly property string bluetooth:    "" // nf-md-bluetooth
+  readonly property string bluetoothOff: "󰂲" // nf-md-bluetooth_off
+
+  // ── Tastiera ────────────────────────────────────────────────────────
+  readonly property string keyboard: "" // nf-md-keyboard_outline
 }

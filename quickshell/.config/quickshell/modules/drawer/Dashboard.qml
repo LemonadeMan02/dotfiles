@@ -84,12 +84,14 @@ ColumnLayout {
     color: Theme.border
   }
 
-  // ── Notifiche ───────────────────────────────────────────────────────
-  NotificationHistory {
+  // ── Bluetooth ───────────────────────────────────────────────────────
+  BluetoothSection {
     Layout.fillWidth: true
   }
 
+  // Stessa condizione della sezione: senza adattatore non resta orfano.
   Rectangle {
+    visible: Bt.adapter !== null
     Layout.fillWidth: true
     Layout.leftMargin:  Theme.spacingS
     Layout.rightMargin: Theme.spacingS

@@ -66,22 +66,37 @@ Scope {
   }
 
   LazyLoader {
+    active: Drawers.isLoaded("today")
+
+    Drawer {
+      name: "today"
+      edge: "top"
+      panelWidth: 380
+
+      // Solo il bordo alto: il compositore centra in orizzontale, sotto l'orologio.
+      anchors.top: true
+      margins.top: 6
+
+      Today {
+        Layout.fillWidth: true
+      }
+    }
+  }
+
+  LazyLoader {
     active: Drawers.isLoaded("wallpapers")
 
     Drawer {
       name: "wallpapers"
       edge: "center"
-
-      // Striscia da bordo a bordo: le carte galleggiano sul desktop, senza fondo.
-      anchors.left: true
-      anchors.right: true
-      showBackground: false
+      panelWidth: 900
 
       // Frecce e invio: servono i tasti appena aperto.
       grabKeyboard: true
 
-      // Ancorato solo ai lati: su layer-shell una superficie non ancorata
-      // a top e bottom viene centrata in verticale dal compositore.
+      // Nessun anchor: su layer-shell una superficie non ancorata a lati
+      // opposti viene centrata dal compositore. E' il posizionamento del
+      // cassetto centrale, non una dimenticanza.
 
       onFocusReady: picker.focusStrip()
 

@@ -22,16 +22,16 @@ Singleton {
     let streak = 0
 
     for (let qi = 0; qi < q.length; qi++) {
-        const c = q[qi]
-        let found = -1
+      const c = q[qi]
+      let found = -1
 
-        // Punto di partenza: se la lettera e' qui, e' attaccata alla precedente.
-        const start = ti
+      // Punto di partenza: se la lettera e' qui, e' attaccata alla precedente.
+      const start = ti
 
-        while (ti < t.length) {
-          if (t[ti] === c) { found = ti; break }
-          ti++
-        }
+      while (ti < t.length) {
+        if (t[ti] === c) { found = ti; break }
+        ti++
+      }
 
       if (found === -1) return -1
 
@@ -81,7 +81,21 @@ Singleton {
     if (!entry) return
     // uwsm riconosce un desktop entry dal suffisso: deve esserci una volta sola
     const id = entry.id.endsWith(".desktop") ? entry.id : entry.id + ".desktop"
-    Quickshell.execDetached(["uwsm", "app", "--", id])
+
+    // ID conforme: uwsm legge la entry e gestisce Path=, Terminal= e field code
+    if (/^[A-Za-z0-9_][A-Za-z0-9_.-]*\.desktop$/.test(id)) {
+      Quickshell.execDetached(["uwsm", "app", "--", id])
+      return
+    }
+
+    // ID non conforme (es. giochi Steam con spazi): uwsm lo rifiuta, si passa l'Exec
+    const cmd = Array.from(entry.command).filter(arg => !/^%[a-zA-Z]$/.test(arg))
+    if (cmd.length === 0) {
+      console.warn(`Apps: nessun comando da lanciare per "${entry.id}"`)
+      return
+    }
+    console.info(`Apps: ID non valido per uwsm, uso l'Exec di "${entry.id}"`)
+    Quickshell.execDetached(["uwsm", "app", "--", ...cmd])
   }
 
   // DesktopEntry.icon e' un nome (es. "firefox"), non un percorso:
