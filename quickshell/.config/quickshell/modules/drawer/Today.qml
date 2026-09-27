@@ -4,30 +4,33 @@ import QtQuick.Layouts
 import "../../services"
 
 
-// Pannello dell'orologio: agenda, calendario e notifiche, il meteo nel passo successivo.
+// Pannello dell'orologio: calendario, agenda e notifiche, il meteo nel passo successivo.
 ColumnLayout {
   id: root
   spacing: Theme.spacingM
 
-  // Giorno scelto, condiviso da agenda e calendario: il cassetto nasce su oggi.
+  // Giorno scelto, condiviso da calendario e agenda: il cassetto nasce su oggi.
   property var selectedDay: new Date()
 
-  // ── Agenda e calendario ─────────────────────────────────────────────
+  // ── Calendario e agenda ─────────────────────────────────────────────
+  // Entrambi riempiono: Qt divide lo spazio in proporzione ai preferredWidth (3 : 2),
+  // indipendente dal contenuto, quindi la larghezza non cambia col mese.
   RowLayout {
     Layout.fillWidth: true
     spacing: Theme.spacingM
 
-    // Due quinti all'elenco, il resto alla griglia.
-    DayAgenda {
-      Layout.preferredWidth: (root.width - Theme.spacingM) * 2 / 5
-      Layout.fillHeight: true
-      day: root.selectedDay
+    MonthCalendar {
+      Layout.fillWidth: true
+      Layout.preferredWidth: 3
+      selected: root.selectedDay
       onPicked: (day) => root.selectedDay = day
     }
 
-    MonthCalendar {
+    DayAgenda {
       Layout.fillWidth: true
-      selected: root.selectedDay
+      Layout.preferredWidth: 2
+      Layout.fillHeight: true
+      day: root.selectedDay
       onPicked: (day) => root.selectedDay = day
     }
   }
