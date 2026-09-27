@@ -107,22 +107,39 @@ Singleton {
     node.audio.muted = !node.audio.muted
   }
 
-  // Catena di ripiego: i giochi Proton e i client WebRTC raramente hanno
-  // un application.name presentabile.
+  // .desktop dell'app che possiede lo stream. heuristicLookup confronta solo id e
+  // StartupWMClass, senza indovinare: "Discord" trova discord.desktop, un gioco Proton nulla.
+  function entryFor(node) {
+    if (!node) return null
+    const p = node.properties ?? ({})
+    for (const key of [p["application.process.binary"], p["application.name"]]) {
+      const entry = key ? DesktopEntries.heuristicLookup(key) : null
+      if (entry) return entry
+    }
+    return null
+  }
+
+  // Il nome del .desktop vince: Discord si presenta come "WEBRTC VoiceEngine".
+  // Poi la catena di ripiego, per giochi Proton e client WebRTC senza .desktop.
   function labelFor(node) {
     if (!node) return ""
     const p = node.properties ?? ({})
-    return p["application.name"]
+    return root.entryFor(node)?.name
+        || p["application.name"]
         || p["application.process.binary"]
         || node.description
         || node.name
   }
 
   // Nome di icona di sistema gia' risolto: "" se il tema non ce l'ha.
+  // Electron e Spotify non dichiarano application.icon-name: l'icona arriva dal .desktop.
   function iconNameFor(node) {
     if (!node) return ""
     const p = node.properties ?? ({})
-    const n = p["application.icon-name"] || p["application.process.binary"] || ""
+    const n = p["application.icon-name"]
+           || root.entryFor(node)?.icon
+           || p["application.process.binary"]
+           || ""
     return n ? Quickshell.iconPath(n, true) : ""
   }
 
