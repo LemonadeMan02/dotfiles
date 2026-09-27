@@ -1,0 +1,21 @@
+# Google Calendar in sola lettura: iCal segreto → vdir locale per khal
+[general]
+status_path = "~/.local/state/vdirsyncer/status/"
+
+[pair google]
+a = "google_remote"
+b = "google_local"
+# un solo calendario, niente scoperta delle collezioni
+collections = null
+# il remoto è la fonte di verità
+conflict_resolution = "a wins"
+
+[storage google_remote]
+type = "http"
+# URL segreto fuori dal repo
+url.fetch = ["command", "cat", "~/.local/share/vdirsyncer/google-ical-url"]
+
+[storage google_local]
+type = "filesystem"
+path = "~/.local/share/calendars/google/"
+fileext = ".ics"

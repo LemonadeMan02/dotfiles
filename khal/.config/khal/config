@@ -1,0 +1,17 @@
+# Calendari locali scritti da vdirsyncer
+[calendars]
+[[google]]
+path = ~/.local/share/calendars/google/
+readonly = True
+
+[locale]
+# Formati ISO: output prevedibile da leggere in QML
+timeformat = %H:%M
+dateformat = %Y-%m-%d
+longdateformat = %Y-%m-%d
+datetimeformat = %Y-%m-%d %H:%M
+longdatetimeformat = %Y-%m-%d %H:%M
+firstweekday = 0
+
+[default]
+highlight_event_days = True
