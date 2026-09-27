@@ -153,7 +153,7 @@ Scope {
 
           Chip {
             id: volChip
-            variant: "accent"
+            variant: "solid"
             interactive: true
 
             VolumeWidget {
@@ -164,7 +164,7 @@ Scope {
 
           Chip {
             id: powerChip
-            variant: "accent"
+            variant: "solid"
             interactive: true
 
             PowerWidget {
