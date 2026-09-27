@@ -56,12 +56,10 @@ ColumnLayout {
     Drawers.poke()
   }
 
-  // Eventi delle 42 celle, piu' il giorno scelto se sei su un altro mese: serve all'agenda.
+  // Eventi delle 42 celle, piu' giorno scelto e oggi se sono fuori: servono ad agenda e intestazione.
   function reload() {
-    const first = root.cells[0]
-    const last = root.cells[41]
-    const sel = root.selected
-    Events.load(sel < first ? sel : first, sel > last ? sel : last)
+    const days = [root.cells[0], root.cells[41], root.selected, clock.date]
+    Events.load(new Date(Math.min(...days)), new Date(Math.max(...days)))
   }
 
   // Si ricarica all'apertura e a ogni cambio di mese.
@@ -194,10 +192,10 @@ ColumnLayout {
 
         radius: Theme.radiusS
         antialiasing: true
-        // Oggi pieno in accento; il giorno scelto, se diverso, su fondo solido.
-        color: cell.today  ? Theme.accent
-             : cell.chosen ? Theme.surfaceSolid
-                           : "transparent"
+        // Oggi pieno in accento; il giorno scelto, se diverso, bordato in accento.
+        color: cell.today ? Theme.accent : "transparent"
+        border.width: cell.chosen && !cell.today ? 2 : 0
+        border.color: Theme.accent
 
         HoverHandler {
           cursorShape: Qt.PointingHandCursor
@@ -218,7 +216,8 @@ ColumnLayout {
                               : Theme.muted
           font.family: Theme.fontFamily
           font.pixelSize: Theme.fontM
-          font.weight: cell.today ? Theme.weightBold : Theme.weightNormal
+          // Grassetto dove c'e' qualcosa: i giorni pieni si notano anche senza guardare le barrette.
+          font.weight: cell.today || cell.hasEvents ? Theme.weightBold : Theme.weightNormal
         }
 
         // Segno degli eventi: barretta arrotondata sotto il numero, non un cerchio.

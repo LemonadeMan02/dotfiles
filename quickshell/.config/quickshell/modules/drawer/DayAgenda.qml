@@ -1,6 +1,7 @@
 // DayAgenda.qml
 import QtQuick
 import QtQuick.Layouts
+import Quickshell
 import "../../services"
 
 
@@ -14,6 +15,15 @@ ColumnLayout {
   signal picked(var day)
 
   readonly property var events: Events.eventsOn(root.day)
+
+  SystemClock {
+    id: clock
+    precision: SystemClock.Minutes
+  }
+
+  // Solo sul giorno di oggi ha senso dire "passato" o "in corso".
+  readonly property bool isToday: root.day.toDateString() === clock.date.toDateString()
+  readonly property string now: Qt.formatTime(clock.date, "hh:mm")
 
   function step(n) {
     root.picked(new Date(root.day.getFullYear(), root.day.getMonth(), root.day.getDate() + n))
@@ -30,7 +40,7 @@ ColumnLayout {
     // Click sulla data: torna a oggi.
     Text {
       Layout.fillWidth: true
-      text: root.day.toLocaleDateString(Qt.locale(), "dddd d MMMM")
+      text: root.isToday ? "Today" : root.day.toLocaleDateString(Qt.locale(), "dddd d MMMM")
       elide: Text.ElideRight
       color: titleHover.hovered ? Theme.accent : Theme.foreground
       font.family: Theme.fontFamily
@@ -106,7 +116,7 @@ ColumnLayout {
     text: Events.loading ? "Loading…" : "No events"
     color: Theme.muted
     font.family: Theme.fontFamily
-    font.pixelSize: Theme.fontS
+    font.pixelSize: Theme.fontM
     horizontalAlignment: Text.AlignHCenter
     verticalAlignment: Text.AlignVCenter
   }
@@ -126,10 +136,16 @@ ColumnLayout {
       id: entry
       required property var modelData
 
+      // Oggi: finito = spento, in corso = invertito. Gli altri giorni tutti normali.
+      readonly property bool past: root.isToday && !entry.modelData.allDay && entry.modelData.end <= root.now
+      readonly property bool ongoing: root.isToday && !entry.modelData.allDay
+                                      && entry.modelData.start <= root.now && !entry.past
+
       width: ListView.view.width
       implicitHeight: body.implicitHeight + Theme.spacingM * 2
       radius: Theme.radiusS
-      color: Theme.surfaceSolid
+      color: entry.ongoing ? Theme.surfaceLight : Theme.surfaceSolid
+      opacity: entry.past ? 0.5 : 1
 
       // x/width espliciti: il Rectangle e' un delegate, non un layout.
       ColumnLayout {
@@ -141,10 +157,12 @@ ColumnLayout {
 
         Text {
           Layout.fillWidth: true
-          text: entry.modelData.allDay ? "All day" : entry.modelData.start + " – " + entry.modelData.end
-          color: Theme.accent
+          text: entry.ongoing ? "Now · until " + entry.modelData.end
+              : entry.modelData.allDay ? "All day"
+              : entry.modelData.start + " – " + entry.modelData.end
+          color: entry.ongoing ? Theme.onLight : Theme.accent
           font.family: Theme.fontFamily
-          font.pixelSize: Theme.fontS
+          font.pixelSize: Theme.fontM
           font.weight: Theme.weightBold
         }
 
@@ -153,10 +171,10 @@ ColumnLayout {
           Layout.fillWidth: true
           text: entry.modelData.title
           wrapMode: Text.Wrap
-          color: Theme.foreground
+          color: entry.ongoing ? Theme.onLight : Theme.foreground
           font.family: Theme.fontFamily
-          font.pixelSize: Theme.fontM
-          font.weight: Theme.weightNormal
+          font.pixelSize: Theme.fontL
+          font.weight: Theme.weightBold
         }
       }
     }
