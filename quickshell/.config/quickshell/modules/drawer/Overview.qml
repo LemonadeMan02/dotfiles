@@ -105,9 +105,11 @@ Item {
         readonly property real logicalW: row.modelData.width / Math.max(0.1, row.modelData.scale)
 
         // Il modello dal JSON di Hyprland: non cambia, quindi lastIpcObject non invecchia.
+        // Con un solo schermo non distingue niente: via. Con due, chiaro solo quello col focus.
         Text {
+          visible: root.monitors.length > 1
           text: row.modelData.lastIpcObject?.model ?? row.modelData.name
-          color: Theme.foregroundDim
+          color: row.modelData.focused ? Theme.foreground : Theme.muted
           font.family: Theme.fontFamily
           font.pixelSize: Theme.fontXs
           font.weight: Theme.weightBold
@@ -130,6 +132,11 @@ Item {
                                              && row.modelData.activeWorkspace.id === tile.wsId
               readonly property var windows: tile.ws ? tile.ws.toplevels.values : []
 
+              // Stessa scala della barra: focused > urgente > attivo altrove > occupato > vuoto.
+              readonly property bool focused: tile.active && row.modelData.focused
+              readonly property bool urgent: tile.ws !== null && tile.ws.urgent && !tile.focused
+              readonly property bool empty: tile.windows.length === 0
+
               // Da coordinate logiche di Hyprland a pixel della miniatura.
               readonly property real k: tile.width / Math.max(1, row.logicalW)
 
@@ -139,14 +146,23 @@ Item {
               radius: Theme.radiusS
               antialiasing: true
               clip: true
-              color: hover.hovered ? Theme.surfaceHover : Theme.surfaceSolid
+              // Vuoto = posto libero: niente fondo, solo il contorno. Il pieno si stacca da solo.
+              color: (hover.hovered || drop.containsDrag) ? Theme.surfaceHover
+                   : tile.empty                           ? "transparent"
+                                                          : Theme.surfaceSolid
 
               // La miniatura che si sta scambiando resta al suo posto, sbiadita.
               opacity: (root.dragKind === "workspace" && root.dragFromWs === tile.wsId) ? 0.5 : 1.0
 
-              // Bersaglio del trascinamento: contorno chiaro, distinto dall'accento dell'attivo.
-              border.width: (drop.containsDrag || tile.active) ? 2 : 0
-              border.color: drop.containsDrag ? Theme.foreground : Theme.accent
+              // Una sola cornice in accento, quella dove sei: le altre non gli rubano l'occhio.
+              // Il bersaglio del trascinamento vince su tutto, in chiaro per non confondersi.
+              border.width: (drop.containsDrag || tile.focused || tile.urgent) ? 2
+                          : tile.empty                                        ? 1
+                                                                              : 0
+              border.color: drop.containsDrag ? Theme.foreground
+                          : tile.focused      ? Theme.accent
+                          : tile.urgent       ? Theme.urgent
+                                              : Theme.border
 
               Behavior on color {
                 ColorAnimation { duration: Theme.durFast }
@@ -190,7 +206,7 @@ Item {
 
                   radius: Theme.radiusS / 2
                   antialiasing: true
-                  color: Theme.withAlpha(Theme.foreground, 0.10)
+                  color: Theme.withAlpha(Theme.foreground, winHover.hovered ? 0.20 : 0.10)
                   border.width: win.modelData.activated ? 2 : 1
                   border.color: win.modelData.activated ? Theme.accent : Theme.border
 
@@ -219,6 +235,7 @@ Item {
                   }
 
                   HoverHandler {
+                    id: winHover
                     cursorShape: Qt.OpenHandCursor
                   }
 
@@ -254,19 +271,33 @@ Item {
                 height: badge.implicitHeight + Theme.spacingS * 2
                 radius: Theme.radiusS
                 antialiasing: true
-                color: tile.active ? Theme.accent : Theme.surface
+
+                // Pieno solo dove sei o dove si chiede attenzione; sul vuoto il numero non ha fondo.
+                color: tile.focused       ? Theme.accent
+                     : tile.urgent        ? Theme.urgent
+                     : badgeHover.hovered ? Theme.surfaceHover
+                     : tile.empty         ? "transparent"
+                                          : Theme.surface
+
+                // A schermo sull'altro monitor: contorno, come nella barra.
+                border.width: tile.active && !tile.focused ? 2 : 0
+                border.color: Theme.accent
 
                 Text {
                   id: badge
                   anchors.centerIn: parent
                   text: tile.index + 1
-                  color: tile.active ? Theme.onAccent : Theme.foreground
+                  color: tile.focused                ? Theme.onAccent
+                       : tile.urgent                 ? Theme.onUrgent
+                       : tile.empty && !tile.active  ? Theme.muted
+                                                     : Theme.foreground
                   font.family: Theme.fontFamily
                   font.pixelSize: Theme.fontS
                   font.weight: Theme.weightBold
                 }
 
                 HoverHandler {
+                  id: badgeHover
                   cursorShape: Qt.OpenHandCursor
                 }
 
@@ -286,16 +317,6 @@ Item {
                   }
                   onCentroidChanged: if (active) root.moveGhost(centroid.scenePosition)
                 }
-              }
-
-              Text {
-                anchors.centerIn: parent
-                visible: tile.windows.length === 0
-                text: "Empty"
-                color: Theme.muted
-                font.family: Theme.fontFamily
-                font.pixelSize: Theme.fontS
-                font.weight: Theme.weightNormal
               }
 
               HoverHandler {
