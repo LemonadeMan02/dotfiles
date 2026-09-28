@@ -177,18 +177,6 @@ hl.window_rule({
     no_focus = true,
 })
 
--- Firefox ci mette qualche frame a ridisegnarsi alla nuova misura (4K, scala 1.25).
--- Con l'animazione Hyprland adatta il fotogramma vecchio al riquadro in movimento
--- e a meta' corsa arriva quello nuovo: la pagina scatta mentre il bordo scorre.
--- Senza animazione il cambio avviene una volta sola, subito.
--- Solo da affiancata: Picture-in-Picture e finestre flottanti restano animate.
-hl.window_rule({
-    name  = "firefox-no-anim",
-    match = { class = "^firefox$", float = false },
-
-    no_anim = true,
-})
-
 -- Finestra di hyprland-run
 hl.window_rule({
     name  = "move-hyprland-run",
