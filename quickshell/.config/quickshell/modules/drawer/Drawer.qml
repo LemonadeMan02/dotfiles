@@ -48,9 +48,13 @@ PanelWindow {
   readonly property bool centered:   root.edge === "center"
   readonly property bool fromBottom: root.edge === "bottom"
 
-  // Aria oltre la quota di riposo. Per i cassetti a bordo serve al rimbalzo
-  // della traslazione; per quello centrale al sovradimensionamento della scala.
-  readonly property int overshootRoom: 28
+  // Rimbalzo solo per i cassetti a bordo: li' si legge come un cassetto che
+  // arriva a fine corsa. Al centro si scala un pannello grande, e sforare lo
+  // fa sembrare un giocattolo: meglio una frenata morbida.
+  readonly property bool bounce: !root.centered
+
+  // Aria oltre la quota di riposo, per il rimbalzo della traslazione.
+  readonly property int overshootRoom: root.bounce ? 28 : 0
 
   // ── Dimensioni ──────────────────────────────────────────────────────
   // Ancorato a sinistra e destra: il pannello riempie lo schermo.
@@ -77,11 +81,9 @@ PanelWindow {
   property real surfaceH: 0
   onPanelFullHChanged: root.surfaceH = Math.max(root.surfaceH, root.panelFullH)
 
-  // Il cassetto centrale galleggia: gli serve aria su tutti e quattro i lati.
-  // Quelli a bordo ne hanno solo da un lato.
-  implicitWidth:  root.panelWidth + (root.centered ? root.overshootRoom * 2 : 0)
-  implicitHeight: root.surfaceH + (root.centered ? root.overshootRoom * 2
-                                                 : root.overshootRoom)
+  // Aria solo dal lato del rimbalzo; il centrale non sfora e non ne ha.
+  implicitWidth:  root.panelWidth
+  implicitHeight: root.surfaceH + root.overshootRoom
 
   // Durata dell'entrata. Piu' lunga di durSlow: il rimbalzo ha bisogno di
   // tempo per leggersi, sotto i 250ms diventa uno scatto.
@@ -95,16 +97,12 @@ PanelWindow {
   // 0 = pannello fuori dalla superficie, 1 = a riposo. OutBack va oltre 1.
   property real reveal: shown ? 1 : 0
 
-  // Il rimbalzo della scala e' compresso dal fattore che lo moltiplica
-  // (0.15), quindi qui serve una corsa molto piu' larga per vedersi.
-  readonly property real revealOvershoot: root.centered ? 2.2 : 1.1
-
   Behavior on reveal {
     NumberAnimation {
       duration: root.animDuration
-      easing.type: Easing.OutBack
+      easing.type: root.bounce ? Easing.OutBack : Easing.OutQuint
       // Default 1.70158: troppo, servirebbe il doppio di overshootRoom.
-      easing.overshoot: root.revealOvershoot
+      easing.overshoot: 1.1
     }
   }
 
@@ -112,19 +110,15 @@ PanelWindow {
   // In basso: incollato al fondo, esce traslando verso il basso. In alto:
   // incollato al bordo superiore. Al centro: centrato, fermo.
   readonly property real panelY: root.centered
-      ? root.overshootRoom + (root.surfaceH - root.panelH) / 2
+      ? (root.surfaceH - root.panelH) / 2
       : (root.fromBottom
           ? root.overshootRoom + root.surfaceH - root.panelH * root.reveal
           : root.panelH * (root.reveal - 1))
 
-  // Aria laterale solo se il centrale ha larghezza propria: a tutto schermo sborderebbe.
-  readonly property real panelX: (root.centered && !root.fullWidth) ? root.overshootRoom : 0
-
   // Scala e opacita' solo al centro: i cassetti a bordo le lasciano a 1.
-  readonly property real panelScale:   root.centered ? 0.85 + 0.15 * root.reveal : 1.0
-  // Il clamp e' esplicito anche se Qt lo farebbe: reveal supera 1 e leggere
-  // "opacity: 1.15" in un log e' un falso allarme evitabile.
-  readonly property real panelOpacity: root.centered ? Math.min(1, root.reveal) : 1.0
+  // Parte da vicino: senza rimbalzo basta un accenno di zoom per dare la direzione.
+  readonly property real panelScale:   root.centered ? 0.92 + 0.08 * root.reveal : 1.0
+  readonly property real panelOpacity: root.centered ? root.reveal : 1.0
 
   // Intersezione fra pannello e superficie: il resto resta click-through.
   readonly property real maskY: Math.max(0, root.panelY)
@@ -178,7 +172,6 @@ PanelWindow {
   }
 
   Rectangle {
-    x: root.panelX
     y: root.panelY
     width:  root.drawW
     height: root.panelH
@@ -212,7 +205,6 @@ PanelWindow {
   Item {
     id: body
 
-    x: root.panelX
     y: root.panelY
     width:  root.drawW
     height: root.panelH
@@ -243,7 +235,6 @@ PanelWindow {
   // Regione d'input sulla sola porzione visibile: l'aria del rimbalzo e la
   // superficie in piu' restano click-through.
   mask: Region {
-    x: root.panelX
     y: root.maskY
     width:  root.drawW
     height: root.maskH

@@ -18,7 +18,91 @@ Item {
   // Chiamata da chi ospita l'overview quando la finestra ha il focus Wayland: prima si perderebbe.
   function focusOverview() { root.forceActiveFocus() }
 
-  Keys.onEscapePressed: Drawers.close()
+  // ── Tastiera ────────────────────────────────────────────────────────
+  // Miniatura scelta: riga (monitor, nell'ordine di root.monitors) e colonna.
+  property int selRow: 0
+  property int selCol: 0
+
+  // L'anello compare solo dal primo tasto: chi usa il mouse non ne ha bisogno.
+  property bool keyboardActive: false
+
+  // Tastierino per keycode, gli stessi di workspaces.lua: col NumLock spento
+  // Qt chiama quei tasti Key_End, Key_Down...
+  readonly property var keypadCodes: [87, 88, 89, 83, 84]
+
+  // Si parte da dove sei: il workspace a schermo sul monitor col focus.
+  function selectFocused() {
+    const r = Math.max(0, root.monitors.findIndex(m => m.focused))
+    const m = root.monitors[r] ?? null
+    const ws = m?.activeWorkspace ?? null
+    root.selRow = r
+    root.selCol = (m && ws) ? Math.max(0, Math.min(Workspaces.perMonitor - 1,
+                                                   ws.id - Workspaces.baseFor(m)))
+                            : 0
+    root.keyboardActive = false
+  }
+
+  // Frecce: dentro la riga si gira in tondo, fra le righe si passa di monitor.
+  function moveSelection(dRow, dCol) {
+    const rows = root.monitors.length
+    const n = Workspaces.perMonitor
+    if (rows === 0 || n === 0) return
+    root.keyboardActive = true
+    root.selRow = (root.selRow + dRow + rows) % rows
+    root.selCol = (root.selCol + dCol + n) % n
+    Drawers.poke()
+  }
+
+  // Tab: in fila attraverso tutte le miniature, dalla fine di una riga all'inizio della successiva.
+  function step(delta) {
+    const n = Workspaces.perMonitor
+    const total = root.monitors.length * n
+    if (total === 0) return
+    const i = ((root.selRow * n + root.selCol + delta) % total + total) % total
+    root.keyboardActive = true
+    root.selRow = Math.floor(i / n)
+    root.selCol = i % n
+    Drawers.poke()
+  }
+
+  function selectedWs() {
+    const m = root.monitors[root.selRow] ?? null
+    return m ? Workspaces.baseFor(m) + root.selCol : 0
+  }
+
+  // Chiudi prima: il focus grab sopravvivrebbe al cambio di workspace.
+  function go(wsId) {
+    if (wsId <= 0) return
+    Drawers.close()
+    Workspaces.focus(wsId)
+  }
+
+  // Numeri come SUPER+numero: riga dei numeri 1-5, tastierino 6-10. Frecce, Tab e Invio per scegliere.
+  Keys.onPressed: (event) => {
+    const n = Workspaces.perMonitor
+    const pad = root.keypadCodes.indexOf(event.nativeScanCode)
+
+    if (pad !== -1 && pad < n) {
+      root.go(n + pad + 1)
+    } else if (!(event.modifiers & Qt.KeypadModifier)
+               && event.key >= Qt.Key_1 && event.key < Qt.Key_1 + n) {
+      root.go(event.key - Qt.Key_1 + 1)
+    } else {
+      switch (event.key) {
+        case Qt.Key_Left:    root.moveSelection(0, -1); break
+        case Qt.Key_Right:   root.moveSelection(0, 1);  break
+        case Qt.Key_Up:      root.moveSelection(-1, 0); break
+        case Qt.Key_Down:    root.moveSelection(1, 0);  break
+        case Qt.Key_Tab:     root.step(1);              break
+        case Qt.Key_Backtab: root.step(-1);             break
+        case Qt.Key_Return:
+        case Qt.Key_Enter:   root.go(root.selectedWs()); break
+        case Qt.Key_Escape:  Drawers.close();           break
+        default: return
+      }
+    }
+    event.accepted = true
+  }
 
   // Una riga per monitor, da sinistra a destra come sulla scrivania.
   readonly property var monitors: Hyprland.monitors.values.slice().sort((a, b) => a.x - b.x)
@@ -75,7 +159,10 @@ Item {
   signal recapture()
 
   // lastIpcObject non si aggiorna da solo: posizioni e classi vanno richieste a ogni apertura.
-  Component.onCompleted: Hyprland.refreshToplevels()
+  Component.onCompleted: {
+    Hyprland.refreshToplevels()
+    root.selectFocused()
+  }
 
   // Riapertura a meta' uscita: il componente non rinasce, onCompleted non gira di nuovo.
   Connections {
@@ -84,6 +171,7 @@ Item {
       if (!Drawers.isOpen("overview")) return
       Hyprland.refreshToplevels()
       root.recapture()
+      root.selectFocused()
     }
   }
 
@@ -136,6 +224,7 @@ Item {
       delegate: ColumnLayout {
         id: row
         required property var modelData
+        required property int index
 
         Layout.alignment: Qt.AlignHCenter
         spacing: Theme.spacingS
@@ -178,6 +267,11 @@ Item {
               readonly property bool focused: tile.active && row.modelData.focused
               readonly property bool urgent: tile.ws !== null && tile.ws.urgent && !tile.focused
               readonly property bool empty: tile.windows.length === 0
+
+              // Scelta con la tastiera; row.index e non index: quello e' la colonna.
+              readonly property bool selected: root.keyboardActive
+                                               && root.selRow === row.index
+                                               && root.selCol === tile.index
 
               // Da coordinate logiche di Hyprland a pixel della miniatura.
               readonly property real k: tile.width / Math.max(1, row.logicalW)
@@ -236,13 +330,13 @@ Item {
                   asynchronous: true
                 }
 
-                // Velo: fitto sul vuoto, leggero sul pieno, quasi via sotto il mouse e sul bersaglio.
+                // Velo: fitto sul vuoto, leggero sul pieno, quasi via dove punti, col mouse o coi tasti.
                 Rectangle {
                   anchors.fill: parent
                   color: Theme.withAlpha(Theme.scrim,
-                                         (hover.hovered || drop.containsDrag) ? 0.15
-                                         : tile.empty                         ? 0.6
-                                                                              : 0.35)
+                                         (hover.hovered || drop.containsDrag || tile.selected) ? 0.15
+                                         : tile.empty                                          ? 0.6
+                                                                                               : 0.35)
 
                   Behavior on color {
                     ColorAnimation { duration: Theme.durFast }
@@ -509,18 +603,28 @@ Item {
                 }
               }
 
+              // Anello della selezione da tastiera, fuori dalla miniatura: le cornici di dentro
+              // dicono focus, urgenza e bersaglio, e non si devono confondere con lui.
+              Rectangle {
+                z: 3
+                anchors.fill: parent
+                anchors.margins: -3
+                visible: tile.selected
+                radius: Theme.radiusS + 3
+                antialiasing: true
+                color: "transparent"
+                border.width: 2
+                border.color: Theme.foreground
+              }
+
               HoverHandler {
                 id: hover
                 cursorShape: Qt.PointingHandCursor
               }
 
-              // Chiudi prima: il focus grab sopravvivrebbe al cambio di workspace.
               // Un trascinamento oltre la soglia annulla il tap: niente cambio involontario.
               TapHandler {
-                onTapped: {
-                  Drawers.close()
-                  Workspaces.focus(tile.wsId)
-                }
+                onTapped: root.go(tile.wsId)
               }
             }
           }
