@@ -55,14 +55,33 @@ Singleton {
     Hyprland.dispatch("hl.dsp.focus({ workspace = " + id + " })")
   }
 
+  // Selettore di Hyprland per una finestra; "" se l'indirizzo non e' ancora noto.
+  // HyprlandToplevel.address e' esadecimale senza 0x, e "0" finche' Hyprland non l'ha detto.
+  function windowSelector(address) {
+    if (!address || address === "0") return ""
+    return "address:" + (address.startsWith("0x") ? address : "0x" + address)
+  }
+
+  // Focus su una finestra precisa: se sta su un altro workspace, Hyprland ci porta anche li'.
+  function focusWindow(address) {
+    const w = root.windowSelector(address)
+    if (w) Hyprland.dispatch("hl.dsp.focus({ window = \"" + w + "\" })")
+  }
+
+  // Chiusura cortese, come SUPER+W: l'app puo' ancora chiedere conferma.
+  function closeWindow(address) {
+    const w = root.windowSelector(address)
+    if (w) Hyprland.dispatch("hl.dsp.window.close({ window = \"" + w + "\" })")
+  }
+
   // Sposta una finestra senza seguirla. Campo sbagliato = ignorato: sposterebbe quella attiva.
   // Un id numerico va scritto nudo, un nome come "special:swap" tra virgolette.
   function moveWindow(address, target) {
-    if (!address) return
-    const a = address.startsWith("0x") ? address : "0x" + address
+    const w = root.windowSelector(address)
+    if (!w) return
     const ws = typeof target === "number" ? String(target) : "\"" + target + "\""
     Hyprland.dispatch("hl.dsp.window.move({ workspace = " + ws
-                      + ", follow = false, window = \"address:" + a + "\" })")
+                      + ", follow = false, window = \"" + w + "\" })")
   }
 
   // Tre tempi con un appoggio nascosto: ogni workspace riceve le finestre quando e' gia' vuoto,

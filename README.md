@@ -321,7 +321,7 @@ Due monitor identificati per descrizione (`desc:Dell Inc. AW3225QF`, `desc:LG El
 hyprctl monitors all
 ```
 
-Da `monitors.ordered` dipendono anche i workspace: 5 per monitor, 1-5 sul primo e 6-10 sul secondo. Con un numero diverso di monitor vanno adattati `monitors.ordered`, i set di tasti in `hypr/.config/hypr/workspaces.lua` (riga dei numeri per il primo, tastierino per il secondo) e, se cambia il numero di workspace per monitor, anche `perMonitor` in `quickshell/.config/quickshell/services/Workspaces.qml` e la larghezza della panoramica (`panelWidth` in `quickshell/.config/quickshell/shell.qml`, calcolata per 5 miniature: vedi il commento lì).
+Da `monitors.ordered` dipendono anche i workspace: 5 per monitor, 1-5 sul primo e 6-10 sul secondo. Con un numero diverso di monitor vanno adattati `monitors.ordered`, i set di tasti in `hypr/.config/hypr/workspaces.lua` (riga dei numeri per il primo, tastierino per il secondo) e, se cambia il numero di workspace per monitor, anche `perMonitor` in `quickshell/.config/quickshell/services/Workspaces.qml`. La panoramica si adatta da sola: le miniature si misurano sullo schermo su cui si apre.
 
 ### Interfaccia di rete
 

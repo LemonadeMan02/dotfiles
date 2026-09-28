@@ -137,8 +137,9 @@ Scope {
       name: "overview"
       edge: "center"
 
-      // 5 miniature da 260 piu' gli spazi: da tenere allineato a tileW in Overview.qml.
-      panelWidth: 1360
+      // Dal contenuto: le miniature si misurano sullo schermo in Overview.qml.
+      // I due spacingM sono i margini che Drawer mette attorno al contenuto.
+      panelWidth: overview.implicitWidth + Theme.spacingM * 2
 
       // Escape per chiudere: servono i tasti appena aperto.
       grabKeyboard: true

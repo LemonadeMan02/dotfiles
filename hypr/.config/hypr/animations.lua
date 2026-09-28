@@ -8,22 +8,25 @@ hl.curve("linear",         { type = "bezier", points = { {0, 0},       {1, 1}   
 hl.curve("almostLinear",   { type = "bezier", points = { {0.5, 0.5},   {0.75, 1}    } })
 hl.curve("quick",          { type = "bezier", points = { {0.15, 0},    {0.1, 1}     } })
 
--- Sottosmorzata (rapporto ~0.78): supera il bersaglio di poco e rientra
 hl.curve("easy",           { type = "spring", mass = 1, stiffness = 238.1191, dampening = 24.21279333 })
--- Critica e rigida: dampening = 2 * sqrt(stiffness * mass); arriva presto e senza overshoot
-hl.curve("snap",           { type = "spring", mass = 1, stiffness = 400, dampening = 40 })
 
--- Stessa velocita' per entrata e riassetto: le due finestre arrivano insieme
-local winSpeed = 4.1
+-- Le spring ignorano speed: la durata viene da stiffness, damping e mass (hyprutils).
+-- Hyprland lo vuole comunque maggiore di zero.
+local springSpeed = 1
 
-hl.animation({ leaf = "global",        enabled = true,  speed = 10,       bezier = "default" })
-hl.animation({ leaf = "border",        enabled = true,  speed = 5.39,     bezier = "easeOutQuint" })
+-- Riassetto e ridimensionamento a durata fissa, non spring. Durante la corsa Hyprland adatta
+-- l'ultimo fotogramma dell'app al riquadro in movimento: la spring critica di prima impiegava
+-- ~600ms per fermarsi del tutto, qui la corsa finisce netta a 400ms.
+local moveSpeed = 4
+
+hl.animation({ leaf = "global",        enabled = true,  speed = 10,          bezier = "default" })
+hl.animation({ leaf = "border",        enabled = true,  speed = 5.39,        bezier = "easeOutQuint" })
 
 -- Finestre gia' presenti: si ridistribuiscono senza oscillare
-hl.animation({ leaf = "windows",       enabled = true,  speed = winSpeed, spring = "snap" })
-hl.animation({ leaf = "windowsMove",   enabled = true,  speed = winSpeed, spring = "snap" })
+hl.animation({ leaf = "windows",       enabled = true,  speed = moveSpeed,   bezier = "easeOutQuint" })
+hl.animation({ leaf = "windowsMove",   enabled = true,  speed = moveSpeed,   bezier = "easeOutQuint" })
 -- Entrata: slide con rimbalzo su un solo asse
-hl.animation({ leaf = "windowsIn",     enabled = true,  speed = winSpeed, spring = "easy",         style = "slide" })
+hl.animation({ leaf = "windowsIn",     enabled = true,  speed = springSpeed, spring = "easy",         style = "slide" })
 -- Uscita: stessa direzione dell'entrata, breve e lineare
 hl.animation({ leaf = "windowsOut",    enabled = true,  speed = 1.49,     bezier = "linear",       style = "slide" })
 

@@ -120,6 +120,9 @@ Singleton {
   readonly property color surfaceSolid:  c.surface0
   readonly property color border:        withAlpha(c.surface1, 0.50)
 
+  // Velo sopra le immagini, come gli sfondi nelle miniature: scurisce col tema scuro, schiarisce col chiaro.
+  readonly property color scrim:         c.crust
+
   readonly property color foreground:    c.text
   readonly property color foregroundDim: c.subtext0
   readonly property color muted:         c.overlay0
