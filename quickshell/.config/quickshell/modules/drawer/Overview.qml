@@ -145,7 +145,7 @@ Item {
   }
 
   // Sfondo applicato: ogni miniatura lo mostra velato, come un desktop in piccolo.
-  readonly property string wallpaper: Wallpapers.current !== "" ? "file://" + Wallpapers.current : ""
+  readonly property string wallpaper: Wallpapers.currentUrl
 
   // Trascinamento in corso: "" = nessuno, "window" = una finestra, "workspace" = uno scambio.
   property string dragKind: ""
@@ -322,10 +322,8 @@ Item {
                   source: root.wallpaper
                   fillMode: Image.PreserveAspectCrop
 
-                  // Stessa misura in tutta la riga: la cache decodifica l'immagine una volta sola.
-                  // 1.5 basta per la scala 1.25 del Dell, come nel carosello degli sfondi.
-                  sourceSize.width:  Math.round(root.tileW * 1.5)
-                  sourceSize.height: Math.round(tile.implicitHeight * 1.5)
+                  // La copia piccola che Wallpapers tiene gia' decodificata: si vede subito.
+                  sourceSize: Wallpapers.thumbSize
 
                   asynchronous: true
                 }

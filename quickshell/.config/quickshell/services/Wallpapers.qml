@@ -18,6 +18,22 @@ Singleton {
   }
 
   readonly property string current: Config.appearance?.wallpaper ?? ""
+  readonly property string currentUrl: root.current !== "" ? "file://" + root.current : ""
+
+  // Misura della copia piccola usata dalle miniature dell'overview: basta fino a ~500px
+  // logici a scala 1.25. Fissa, non dallo schermo: la chiave della cache deve coincidere.
+  readonly property size thumbSize: Qt.size(960, 540)
+
+  // Copia piccola tenuta sempre decodificata. L'overview nasce e muore a ogni apertura:
+  // senza questo riferimento Qt butta l'immagine e ogni volta ridecodifica un PNG 4K.
+  // Stessi source, sourceSize e fillMode dell'overview: la trova in cache, pronta.
+  Image {
+    visible: false
+    source: root.currentUrl
+    sourceSize: root.thumbSize
+    fillMode: Image.PreserveAspectCrop
+    asynchronous: true
+  }
 
   // Il modello esce crudo: il carosello lo da' direttamente a una ListView
   // invece di copiarlo in un array che andrebbe tenuto in sincronia.

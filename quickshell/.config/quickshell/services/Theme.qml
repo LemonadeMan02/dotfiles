@@ -15,7 +15,6 @@ Singleton {
   // ── 1. Primitive: le due palette Catppuccin, crude ──────────────────
   // Stessi nomi in entrambe: il livello semantico resta cieco alla variante.
   readonly property QtObject mocha: QtObject {
-
     readonly property color crust:    "#11111b"
     readonly property color mantle:   "#181825"
     readonly property color base:     "#1e1e2e"
@@ -120,8 +119,9 @@ Singleton {
   readonly property color surfaceSolid:  c.surface0
   readonly property color border:        withAlpha(c.surface1, 0.50)
 
-  // Velo sopra le immagini, come gli sfondi nelle miniature: scurisce col tema scuro, schiarisce col chiaro.
-  readonly property color scrim:         c.crust
+  // Velo sopra le immagini, come gli sfondi nelle miniature: nero con entrambi i temi.
+  // Non c.crust: col tema chiaro matugen lo genera bianco puro e lo sfondo sparisce.
+  readonly property color scrim:         "#000000"
 
   readonly property color foreground:    c.text
   readonly property color foregroundDim: c.subtext0
