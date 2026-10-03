@@ -24,4 +24,12 @@ sudo cp -r quickshell /etc/greetd/quickshell
 # Leggibili dall'utente greeter qualunque sia l'umask
 sudo chmod -R a+rX /etc/greetd
 
+# Sfondo e colori della sessione: li scrive greeter-sync come te, li legge il greeter
+sudo install -d -m 755 -o "$(id -un)" -g "$(id -gn)" /var/lib/greeter-theme
+if [ -x "$HOME/.local/bin/greeter-sync" ]; then
+  "$HOME/.local/bin/greeter-sync"
+else
+  echo "greeter-sync non trovato: stow -v --no-folding scripts systemd" >&2
+fi
+
 echo "Greeter installato in /etc/greetd"

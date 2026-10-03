@@ -216,6 +216,8 @@ Poi abilita greetd, **senza** `--now` (partirebbe subito sopra la console; si us
 sudo systemctl enable greetd.service
 ```
 
+Lo script crea anche `/var/lib/greeter-theme`, di tuo proprietà: lì `greeter-sync` (pacchetto `scripts`) copia lo sfondo e `colors.json` della sessione, che il greeter mostra sfocato e con gli stessi colori, sempre nella variante scura. Lo rilancia `greeter-sync.path` (sezione 7) a ogni cambio di sfondo o di colori dinamici.
+
 Log del greeter: `journalctl -b -u greetd`, `journalctl -b -t greeter-hyprland`, `journalctl -b -t greeter-quickshell`.
 
 Se il greeter non parte: Ctrl+Alt+F3, login in TTY, e `uwsm start hyprland.desktop` avvia la sessione da lì.
@@ -232,12 +234,16 @@ Partono con la sessione grafica: uwsm avvia `graphical-session.target` e questi 
 | `awww.service` | repo (`systemd/`) | demone dello sfondo |
 | `hypridle.service` | pacchetto `hypridle` | da inattivo: blocco con hyprlock a 5 min, monitor spenti a 5 min e mezzo (`hypridle.conf`) |
 | `hyprpolkitagent.service` | pacchetto `hyprpolkitagent` | finestra per le richieste di password polkit |
+| `greeter-sync.path` | repo (`systemd/`) | a ogni cambio di sfondo o colori lancia `greeter-sync`, che li copia per il greeter (sezione 6) |
 
 Si abilitano dopo Stow (sezione 5), **senza** `--now`: fuori dalla sessione grafica non partirebbero (`Requisite=graphical-session.target`, e hypridle e hyprpolkitagent richiedono `WAYLAND_DISPLAY`).
 
 ```fish
 systemctl --user enable quickshell.service awww.service hypridle.service hyprpolkitagent.service
+systemctl --user enable --now greeter-sync.path
 ```
+
+`greeter-sync.path` fa eccezione: osserva solo due file, non dipende dalla sessione grafica e parte subito.
 
 Per PipeWire, WirePlumber, gnome-keyring e xdg-user-dirs non servono comandi: i loro pacchetti li abilitano per tutti gli utenti.
 
@@ -383,7 +389,7 @@ systemctl is-enabled greetd systemd-networkd systemd-resolved systemd-timesyncd 
 Servizi utente (sezione 7), tutti `active`:
 
 ```fish
-systemctl --user is-active quickshell awww hypridle hyprpolkitagent
+systemctl --user is-active quickshell awww hypridle hyprpolkitagent greeter-sync.path
 ```
 
 Calendario (sezione 9): il timer `active`, khal che risponde con gli eventi:

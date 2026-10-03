@@ -3,6 +3,7 @@ import Quickshell
 import Quickshell.Wayland
 import Quickshell.Services.Greetd
 import QtQuick
+import QtQuick.Effects
 import "services"
 
 
@@ -33,6 +34,15 @@ ShellRoot {
 
   // Gli id dentro Variants non si vedono da qui: il campo ascolta questo segnale per la scossa
   signal rejected()
+
+  // Spegni e riavvia. In prova solo il log: dal desktop spegnerebbe davvero
+  function power(cmd) {
+    if (testMode) {
+      console.log("greeter: prova, non eseguo", JSON.stringify(cmd))
+      return
+    }
+    Quickshell.execDetached(cmd)
+  }
 
   function reset() {
     busy = false
@@ -154,6 +164,61 @@ ShellRoot {
       WlrLayershell.keyboardFocus: !win.isMain ? WlrKeyboardFocus.None
                                  : root.testMode ? WlrKeyboardFocus.OnDemand
                                  : WlrKeyboardFocus.Exclusive
+
+      // Sfondo della sessione sfocato e scurito, come hyprlock; senza copia resta il colore pieno.
+      // Decodificato a meta' misura: sotto la sfocatura non si vede, e due schermi pesano meno
+      Image {
+        id: wall
+        anchors.fill: parent
+        source: Theme.wallpaperUrl
+        sourceSize: Qt.size(win.width / 2, win.height / 2)
+        fillMode: Image.PreserveAspectCrop
+        asynchronous: true
+        visible: false
+      }
+
+      Item {
+        anchors.fill: parent
+        // Entra in dissolvenza a decodifica finita, invece di comparire a scatto
+        opacity: wall.status === Image.Ready ? 1 : 0
+
+        Behavior on opacity { NumberAnimation { duration: Theme.durSlow } }
+
+        MultiEffect {
+          anchors.fill: parent
+          source: wall
+          blurEnabled: true
+          blur: 1.0
+          blurMax: 48
+          // Senza, i bordi sfocati sfumano verso il trasparente
+          autoPaddingEnabled: false
+        }
+
+        Rectangle {
+          anchors.fill: parent
+          color: Theme.scrim
+          opacity: Theme.scrimOpacity
+        }
+      }
+
+      // Riavvia e spegni in basso a destra, solo sullo schermo principale
+      Row {
+        visible: win.isMain
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.margins: Theme.spacingL * 2
+        spacing: Theme.spacingM
+
+        PowerButton {
+          icon: "\uead2" // nf-md-restart
+          onActivated: root.power(["systemctl", "reboot"])
+        }
+
+        PowerButton {
+          icon: "\uf011" // nf-md-power
+          onActivated: root.power(["systemctl", "poweroff"])
+        }
+      }
 
       Column {
         visible: win.isMain
