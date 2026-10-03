@@ -19,6 +19,7 @@ cd "$(dirname "$0")"
 
 sed "s/@USER@/$(id -un)/" greetd/config.toml | sudo tee /etc/greetd/config.toml >/dev/null
 sudo install -Dm644 greetd/hyprland.lua /etc/greetd/hyprland.lua
+sudo install -Dm755 greetd/greeter.sh /etc/greetd/greeter.sh
 sudo rm -rf /etc/greetd/quickshell
 sudo cp -r quickshell /etc/greetd/quickshell
 # Leggibili dall'utente greeter qualunque sia l'umask

@@ -7,6 +7,6 @@
 vt = 1
 
 [default_session]
-# GREETER_USER arriva a Quickshell attraverso Hyprland; systemd-cat manda l'output nel journal
-command = "systemd-cat -t greeter-hyprland env GREETER_USER=@USER@ Hyprland -c /etc/greetd/hyprland.lua"
+# Pulisce la console e avvia Hyprland col greeter: vedi greeter.sh
+command = "/etc/greetd/greeter.sh @USER@"
 user = "greeter"

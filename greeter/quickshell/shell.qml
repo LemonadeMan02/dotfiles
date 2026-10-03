@@ -16,8 +16,9 @@ ShellRoot {
   // Utente da autenticare: lo passa il comando di greetd, niente campo nome
   readonly property string user: Quickshell.env("GREETER_USER") ?? ""
 
-  // Dopo il login: la stessa sessione "Hyprland (uwsm-managed)" di SDDM
-  readonly property var sessionCommand: ["uwsm", "start", "hyprland.desktop"]
+  // Dopo il login: la stessa sessione "Hyprland (uwsm-managed)" di SDDM.
+  // UWSM_SILENT_START: uwsm non scrive i suoi messaggi sulla console mentre la sessione parte
+  readonly property var sessionCommand: ["env", "UWSM_SILENT_START=1", "uwsm", "start", "hyprland.desktop"]
 
   // Prova: fuori da greetd, o con GREETER_TEST=1 sotto fakegreet. Tastiera non esclusiva, Esc chiude
   readonly property bool testMode: !Greetd.available || Quickshell.env("GREETER_TEST") === "1"
@@ -29,6 +30,8 @@ ShellRoot {
   property string message: ""      // riga sotto il campo
   property string prompt: "Password"
   property bool echo: false
+  // Login riuscito: gli schermi sfumano nel nero prima di lasciare il posto alla sessione
+  property bool leaving: false
   // Password scritta prima che greetd la chieda: va spedita al primo prompt
   property var answer: null
 
@@ -46,6 +49,8 @@ ShellRoot {
 
   function reset() {
     busy = false
+    // Lancio fallito (onError dopo readyToLaunch): il greeter torna visibile
+    leaving = false
     awaiting = false
     answer = null
     prompt = "Password"
@@ -134,9 +139,17 @@ ShellRoot {
     function onReadyToLaunch() {
       console.log("greeter: avvio", JSON.stringify(root.sessionCommand))
       root.message = "Avvio della sessione…"
-      // Quickshell esce da solo a sessione avviata
-      Greetd.launch(root.sessionCommand)
+      root.leaving = true
+      launchTimer.start()
     }
+  }
+
+  // Il lancio aspetta la fine della dissolvenza: dopo restano solo console e sessione, nere
+  Timer {
+    id: launchTimer
+    interval: Theme.durSlow
+    // Quickshell esce da solo a sessione avviata
+    onTriggered: Greetd.launch(root.sessionCommand)
   }
 
   SystemClock {
@@ -156,7 +169,8 @@ ShellRoot {
       screen: modelData
       anchors { top: true; bottom: true; left: true; right: true }
       exclusionMode: ExclusionMode.Ignore
-      color: Theme.background
+      // Nero come la console e Hyprland prima del primo fotogramma: lo sfondo entra da qui
+      color: "black"
 
       WlrLayershell.layer: WlrLayer.Overlay
       WlrLayershell.namespace: "greeter"
@@ -179,25 +193,37 @@ ShellRoot {
 
       Item {
         anchors.fill: parent
-        // Entra in dissolvenza a decodifica finita, invece di comparire a scatto
-        opacity: wall.status === Image.Ready ? 1 : 0
+        // Entra in dissolvenza a decodifica finita (o fallita, senza copia), invece di comparire a scatto
+        opacity: wall.status === Image.Ready || wall.status === Image.Error ? 1 : 0
 
         Behavior on opacity { NumberAnimation { duration: Theme.durSlow } }
 
-        MultiEffect {
-          anchors.fill: parent
-          source: wall
-          blurEnabled: true
-          blur: 1.0
-          blurMax: 48
-          // Senza, i bordi sfocati sfumano verso il trasparente
-          autoPaddingEnabled: false
-        }
-
+        // Ripiego senza sfondo: il colore pieno
         Rectangle {
           anchors.fill: parent
-          color: Theme.scrim
-          opacity: Theme.scrimOpacity
+          visible: wall.status !== Image.Ready
+          color: Theme.background
+        }
+
+        Item {
+          anchors.fill: parent
+          visible: wall.status === Image.Ready
+
+          MultiEffect {
+            anchors.fill: parent
+            source: wall
+            blurEnabled: true
+            blur: 1.0
+            blurMax: 48
+            // Senza, i bordi sfocati sfumano verso il trasparente
+            autoPaddingEnabled: false
+          }
+
+          Rectangle {
+            anchors.fill: parent
+            color: Theme.scrim
+            opacity: Theme.scrimOpacity
+          }
         }
       }
 
@@ -342,6 +368,16 @@ ShellRoot {
           font.pixelSize: Theme.fontM
           font.weight: Theme.weightNormal
         }
+      }
+
+      // Sopra tutto: al login il greeter sfuma nel nero, senza stacco verso la sessione
+      Rectangle {
+        anchors.fill: parent
+        color: "black"
+        opacity: root.leaving ? 1 : 0
+        visible: opacity > 0
+
+        Behavior on opacity { NumberAnimation { duration: Theme.durSlow } }
       }
     }
   }

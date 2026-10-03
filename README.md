@@ -218,6 +218,29 @@ sudo systemctl enable greetd.service
 
 Lo script crea anche `/var/lib/greeter-theme`, di tuo proprietà: lì `greeter-sync` (pacchetto `scripts`) copia lo sfondo e `colors.json` della sessione, che il greeter mostra sfocato e con gli stessi colori, sempre nella variante scura. Lo rilancia `greeter-sync.path` (sezione 7) a ogni cambio di sfondo o di colori dinamici.
 
+Fra boot, greeter e sessione lo schermo resta nero, senza scritte:
+
+- `greeter.sh`, il comando di greetd, svuota la console del VT1 e ne nasconde il cursore prima di avviare il greeter: è la console che si vede per un attimo fra la chiusura del greeter e l'avvio della sessione;
+- la sessione parte con `UWSM_SILENT_START=1`, quindi uwsm non scrive i suoi messaggi sulla console;
+- il greeter entra dal nero e al login sfuma nel nero prima di lanciare la sessione.
+
+Le scritte del kernel e di systemd durante il boot invece si tolgono dalla riga di comando del kernel, che sta nel bootloader e quindi fuori dal repo (vedi [Arch Wiki — Silent boot](https://wiki.archlinux.org/title/Silent_boot)). I parametri da aggiungere:
+
+```
+quiet loglevel=3 systemd.show_status=auto rd.udev.log_level=3 vt.global_cursor_default=0
+```
+
+- **systemd-boot**: in fondo alla riga `options` della voce in `/boot/loader/entries/*.conf`. Vale dal riavvio.
+- **GRUB**: dentro `GRUB_CMDLINE_LINUX_DEFAULT` in `/etc/default/grub`, poi `sudo grub-mkconfig -o /boot/grub/grub.cfg`.
+
+Controllo dopo il riavvio:
+
+```fish
+cat /proc/cmdline
+```
+
+Se restano i messaggi di `fsck`, in `/etc/mkinitcpio.conf` gli `HOOKS` usano ancora `udev` invece di `systemd`: vedi la stessa pagina della wiki prima di cambiarli, perché cambiano anche altri hook. Il menu del bootloader si salta con `timeout 0` in `/boot/loader/loader.conf` (systemd-boot; Spazio all'avvio lo fa ricomparire) o `GRUB_TIMEOUT=0` (GRUB).
+
 Log del greeter: `journalctl -b -u greetd`, `journalctl -b -t greeter-hyprland`, `journalctl -b -t greeter-quickshell`.
 
 Se il greeter non parte: Ctrl+Alt+F3, login in TTY, e `uwsm start hyprland.desktop` avvia la sessione da lì.
