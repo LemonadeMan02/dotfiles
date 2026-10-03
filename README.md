@@ -6,7 +6,7 @@ Config del desktop Hyprland, gestite con [GNU Stow](https://www.gnu.org/software
 
 Da un'Arch Linux appena installata allo stato attuale:
 
-- sessione **Hyprland** avviata da **uwsm**, login con **SDDM**;
+- sessione **Hyprland** avviata da **uwsm**, login con **greetd** e un greeter Quickshell;
 - **Quickshell** come barra, launcher, notifiche e dashboard;
 - colori generati da **matugen** a partire dallo sfondo (**awww**), condivisi da Quickshell, Hyprland e kitty;
 - terminale **kitty** con **fish** e **starship** (la login shell resta bash);
@@ -14,7 +14,7 @@ Da un'Arch Linux appena installata allo stato attuale:
 - rete con **systemd-networkd** e **systemd-resolved** (niente NetworkManager);
 - audio con **PipeWire**, più Bluetooth e stampa.
 
-Pacchetti Stow nel repo: `autostart fish hypr kitty matugen quickshell scripts starship systemd uwsm`.
+Pacchetti Stow nel repo: `autostart fish hypr kitty matugen quickshell scripts starship systemd uwsm`. `greeter/` non è un pacchetto Stow: va in `/etc/greetd` (sezione 6).
 
 Non copre l'installazione di Arch: partizioni, bootloader, kernel, microcode e firmware si scelgono durante l'installazione e dipendono dalla macchina.
 
@@ -200,15 +200,27 @@ Bluetooth, stampa e TRIM settimanale degli SSD:
 sudo systemctl enable --now bluetooth.service cups.socket cups.path cups.service fstrim.timer
 ```
 
-Login grafico, **senza** `--now` (partirebbe subito sopra la console; si usa dal riavvio, sezione 8):
+### Login grafico: greetd
+
+greetd lancia, come utente `greeter`, un Hyprland minimale (`greeter/greetd/hyprland.lua`) che mostra il greeter Quickshell (`greeter/quickshell`). Dopo la password avvia `uwsm start hyprland.desktop`, la stessa sessione che con SDDM si chiamava **Hyprland (uwsm-managed)**.
+
+Stow lavora solo nella home: i file del greeter si copiano in `/etc/greetd` con lo script, da rilanciare dopo ogni modifica sotto `greeter/` (vale dal login successivo). Va lanciato senza `sudo`: il tuo utente diventa quello del login.
 
 ```fish
-sudo systemctl enable sddm.service
+./greeter/install.sh
 ```
 
-SDDM verrà sostituito da greetd: la procedura non è ancora in questo README.
+Poi abilita greetd, **senza** `--now` (partirebbe subito sopra la console; si usa dal riavvio, sezione 8):
 
-`seatd` su questa macchina risulta abilitato, ma non serve: con SDDM la sessione passa da `systemd-logind`. Non si abilita.
+```fish
+sudo systemctl enable greetd.service
+```
+
+Log del greeter: `journalctl -b -u greetd`, `journalctl -b -t greeter-hyprland`, `journalctl -b -t greeter-quickshell`.
+
+Se il greeter non parte: Ctrl+Alt+F3, login in TTY, e `uwsm start hyprland.desktop` avvia la sessione da lì.
+
+`seatd` su questa macchina risulta abilitato, ma non serve: la sessione passa da `systemd-logind`. Non si abilita.
 
 ## 7. Servizi utente
 
@@ -239,7 +251,7 @@ Riavvia:
 systemctl reboot
 ```
 
-Nella schermata di SDDM scegli la sessione **Hyprland (uwsm-managed)**, non "Hyprland": solo la prima avvia Hyprland tramite uwsm, che carica `~/.config/uwsm/env` e attiva `graphical-session.target`, e quindi i servizi della sezione 7. SDDM ricorda l'ultima sessione scelta.
+Nel greeter basta la password: la sessione è sempre Hyprland tramite uwsm, che carica `~/.config/uwsm/env` e attiva `graphical-session.target`, e quindi i servizi della sezione 7.
 
 Per controllare che la sessione sia quella giusta, da kitty:
 
@@ -321,6 +333,8 @@ Due monitor identificati per descrizione (`desc:Dell Inc. AW3225QF`, `desc:LG El
 hyprctl monitors all
 ```
 
+Il greeter ha una copia degli stessi due monitor in `greeter/greetd/hyprland.lua` (la tua home non è leggibile dall'utente `greeter`): va tenuta uguale, poi `./greeter/install.sh`. Lo schermo con orologio e password è `mainScreen` in `greeter/quickshell/shell.qml`, per nome del connettore (`DP-1`).
+
 Da `monitors.ordered` dipendono anche i workspace: 5 per monitor, 1-5 sul primo e 6-10 sul secondo. Con un numero diverso di monitor vanno adattati `monitors.ordered`, i set di tasti in `hypr/.config/hypr/workspaces.lua` (riga dei numeri per il primo, tastierino per il secondo) e, se cambia il numero di workspace per monitor, anche `perMonitor` in `quickshell/.config/quickshell/services/Workspaces.qml`. La panoramica si adatta da sola: le miniature si misurano sullo schermo su cui si apre.
 
 ### Interfaccia di rete
@@ -333,7 +347,7 @@ Niente da fare: `quickshell/.config/quickshell/services/Net.qml` usa l'interfacc
 
 ### Tastiera — `hypr/.config/hypr/hyprland.lua`
 
-`kb_layout = "gb"` con `kb_variant = "extd"`. Vale solo dentro Hyprland: console e SDDM usano il layout di sistema (`localectl`).
+`kb_layout = "gb"` con `kb_variant = "extd"`, ripetuto in `greeter/greetd/hyprland.lua` perché la password si scriva con gli stessi tasti. Vale solo dentro Hyprland: la console usa il layout di sistema (`localectl`).
 
 ## 11. Pacchetti sostituiti
 
@@ -343,6 +357,7 @@ Questi pacchetti c'erano in passato e non vanno reinstallati: il loro lavoro ora
 |---|---|---|
 | `dunst` | Quickshell (`services/Notifications.qml`) | sul bus D-Bus un solo processo può essere il server delle notifiche (`org.freedesktop.Notifications`); con dunst installato i due se lo contenderebbero, per esempio mentre Quickshell si riavvia |
 | `polkit-kde-agent` | `hyprpolkitagent` (servizio utente, sezione 7) | in una sessione si registra un solo agente polkit: due agenti si contendono le richieste di password |
+| `sddm` | greetd (sezione 6) | entrambi si registrano come `display-manager.service`: abilitato uno, l'altro non parte o se ne contende il VT |
 | `playerctl` | Quickshell (`services/Media.qml`) | i tasti multimediali sono `GlobalShortcut` di Quickshell che comandano il player via MPRIS; nessun processo esterno a ogni pressione |
 | `wofi` | launcher di Quickshell (SUPER+Space) | nessuna config lo usa più: sarebbe solo un secondo launcher |
 
@@ -362,7 +377,7 @@ sed -e 's/#.*//' -e 's/[[:space:]]//g' -e '/^$/d' pkglist-aur.txt | pacman -T -
 Servizi di sistema (sezione 6), tutti `enabled`:
 
 ```fish
-systemctl is-enabled sddm systemd-networkd systemd-resolved systemd-timesyncd bluetooth cups.socket cups.path cups.service fstrim.timer
+systemctl is-enabled greetd systemd-networkd systemd-resolved systemd-timesyncd bluetooth cups.socket cups.path cups.service fstrim.timer
 ```
 
 Servizi utente (sezione 7), tutti `active`:
@@ -404,6 +419,7 @@ Confronto completo fra liste e sistema, in sola lettura: pacchetti in lista ma n
 - [Arch Wiki — Dotfiles](https://wiki.archlinux.org/title/Dotfiles), [manuale di GNU Stow](https://www.gnu.org/software/stow/manual/), `man stow`
 - [Arch Wiki — systemd/User](https://wiki.archlinux.org/title/Systemd/User)
 - [Arch Wiki — Universal Wayland Session Manager](https://wiki.archlinux.org/title/Universal_Wayland_Session_Manager)
+- [Arch Wiki — greetd](https://wiki.archlinux.org/title/Greetd), `man 5 greetd`, [Quickshell — Greetd](https://quickshell.org/docs/types/Quickshell.Services.Greetd/Greetd)
 - [Arch Wiki — NVIDIA](https://wiki.archlinux.org/title/NVIDIA)
 - [Arch Wiki — systemd-networkd](https://wiki.archlinux.org/title/Systemd-networkd) e [systemd-resolved](https://wiki.archlinux.org/title/Systemd-resolved)
 - [wiki.hypr.land](https://wiki.hypr.land/), in particolare [Nvidia](https://wiki.hypr.land/Nvidia/)

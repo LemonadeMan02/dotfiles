@@ -16,7 +16,7 @@ lib32-nvidia-utils      # driver Vulkan 32 bit per Steam, evita che pacman ne sc
 # ── Sessione e compositor ──
 hyprland
 uwsm
-sddm
+greetd                  # login: greeter Quickshell in greeter/, README sezione 6
 xdg-desktop-portal-hyprland
 hypridle
 hyprlock
