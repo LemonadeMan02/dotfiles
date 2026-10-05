@@ -23,6 +23,14 @@ hl.layer_rule({
 })
 
 hl.layer_rule({
+    name  = "session-intro",
+    match = { namespace = "^session-intro$" },
+
+    -- Deve coprire dal primo fotogramma: con la dissolvenza si vedrebbe il desktop che carica
+    no_anim = true,
+})
+
+hl.layer_rule({
     name  = "quickshell-notifications",
     match = { namespace = "^quickshell:notifications$" },
 

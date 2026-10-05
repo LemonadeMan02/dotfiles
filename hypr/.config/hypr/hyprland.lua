@@ -103,6 +103,8 @@ hl.config({
         force_default_wallpaper  = 0,
         disable_hyprland_logo    = true,
         disable_splash_rendering = true,
+        -- Nero come il greeter che sfuma e l'animazione d'ingresso: nessun grigio fra i due
+        background_color         = 0xff000000,
 
         -- Se hyprlock crasha la sessione resta bloccata: cosi' si puo' rilanciare da TTY
         allow_session_lock_restore = true,

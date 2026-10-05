@@ -144,10 +144,11 @@ ShellRoot {
     }
   }
 
-  // Il lancio aspetta la fine della dissolvenza: dopo restano solo console e sessione, nere
+  // Il lancio aspetta la fine della dissolvenza: dopo restano solo console e sessione, nere.
+  // La sessione riparte dal nero con lo stesso sfondo sfocato (quickshell/.config/quickshell/intro)
   Timer {
     id: launchTimer
-    interval: Theme.durSlow
+    interval: Theme.durLeave
     // Quickshell esce da solo a sessione avviata
     onTriggered: Greetd.launch(root.sessionCommand)
   }
@@ -250,6 +251,12 @@ ShellRoot {
         visible: win.isMain
         anchors.centerIn: parent
         spacing: Theme.spacingM
+        // Al login orologio e campo si allontanano per primi, poi lo sfondo va nel nero
+        opacity: root.leaving ? 0 : 1
+        scale: root.leaving ? 0.94 : 1
+
+        Behavior on opacity { NumberAnimation { duration: Theme.durSlow } }
+        Behavior on scale { NumberAnimation { duration: Theme.durSlow; easing.type: Easing.InCubic } }
 
         Text {
           anchors.horizontalCenter: parent.horizontalCenter
@@ -377,7 +384,7 @@ ShellRoot {
         opacity: root.leaving ? 1 : 0
         visible: opacity > 0
 
-        Behavior on opacity { NumberAnimation { duration: Theme.durSlow } }
+        Behavior on opacity { NumberAnimation { duration: Theme.durLeave; easing.type: Easing.InQuad } }
       }
     }
   }

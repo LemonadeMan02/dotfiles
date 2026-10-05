@@ -6,6 +6,8 @@ After=graphical-session.target
 Requisite=graphical-session.target
 
 [Service]
+# Parte sotto l'animazione d'ingresso, non prima; "-": se manca lo script parte lo stesso
+ExecStartPre=-%h/.local/bin/session-intro wait
 ExecStart=/usr/bin/awww-daemon
 Restart=on-failure
 

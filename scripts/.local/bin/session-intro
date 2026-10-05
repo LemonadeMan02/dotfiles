@@ -1,0 +1,26 @@
+#!/bin/sh
+# Animazione d'ingresso della sessione (quickshell/.config/quickshell/intro).
+# Senza argomenti la lancia Hyprland all'avvio (autostart.lua): copre gli schermi
+# mentre partono sfondo e barra, poi li svela.
+# "session-intro wait" e' l'ExecStartPre di awww e quickshell: partono solo quando
+# la copertura e' a schermo, cosi' non si vedono comparire prima dell'animazione.
+set -u
+
+flag="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/session-intro"
+
+if [ "${1:-}" = wait ]; then
+  # Fuori dall'avvio della sessione (riavvio del servizio) il segnale non c'e': si parte subito.
+  # Al massimo 3 secondi, poi si parte comunque
+  for _ in $(seq 30); do
+    [ -e "$flag" ] || exit 0
+    hyprctl layers -j 2>/dev/null |
+      jq -e 'any(.. | objects; .namespace? == "session-intro")' >/dev/null && exit 0
+    sleep 0.1
+  done
+  exit 0
+fi
+
+# Il segnale vive quanto l'animazione: se Quickshell fallisce, awww e quickshell non aspettano
+touch "$flag"
+quickshell -p "${XDG_CONFIG_HOME:-$HOME/.config}/quickshell/intro"
+rm -f "$flag"

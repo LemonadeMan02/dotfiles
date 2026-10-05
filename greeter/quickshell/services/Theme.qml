@@ -99,6 +99,8 @@ Singleton {
 
   readonly property int durFast: 120
   readonly property int durSlow: 220
+  // Uscita al login: il greeter sfuma nel nero prima di lanciare la sessione
+  readonly property int durLeave: 450
 
   readonly property string fontFamily:     "JetBrains Mono"
   readonly property string nerdFontFamily: "JetBrainsMono Nerd Font"

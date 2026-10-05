@@ -222,7 +222,10 @@ Fra boot, greeter e sessione lo schermo resta nero, senza scritte:
 
 - `greeter.sh`, il comando di greetd, svuota la console del VT1 e ne nasconde il cursore prima di avviare il greeter: è la console che si vede per un attimo fra la chiusura del greeter e l'avvio della sessione;
 - la sessione parte con `UWSM_SILENT_START=1`, quindi uwsm non scrive i suoi messaggi sulla console;
-- il greeter entra dal nero e al login sfuma nel nero prima di lanciare la sessione.
+- il greeter entra dal nero e al login sfuma nel nero (prima orologio e campo, poi lo sfondo) prima di lanciare la sessione;
+- nella sessione, `session-intro` (pacchetto `scripts`, lanciato da `autostart.lua`) apre `quickshell/.config/quickshell/intro`: copre gli schermi di nero, mostra lo stesso sfondo sfocato del greeter e, quando sotto sono comparsi sfondo e barra, lo mette a fuoco e si dissolve sul desktop. `awww.service` e `quickshell.service` partono solo quando la copertura è a schermo (`ExecStartPre=… session-intro wait`, al massimo 3 secondi), così non si vedono caricare.
+
+Un attimo di nero fra greeter e sessione resta: greetd avvia la sessione solo dopo la chiusura del greeter, e Hyprland deve ripartire da zero.
 
 Le scritte del kernel e di systemd durante il boot invece si tolgono dalla riga di comando del kernel, che sta nel bootloader e quindi fuori dal repo (vedi [Arch Wiki — Silent boot](https://wiki.archlinux.org/title/Silent_boot)). I parametri da aggiungere:
 
