@@ -103,9 +103,10 @@ Rectangle {
       }
 
       // Riga sempre presente anche vuota: il layout non salta quando compare l'errore.
+      // Lo spazio di ripiego serve: un Text vuoto e' alto zero e la Column lo salta.
       Text {
         anchors.horizontalCenter: parent.horizontalCenter
-        text: root.busy ? "Checking…" : root.errorText
+        text: root.busy ? "Checking…" : (root.errorText || " ")
         // Rosso: semantica riservata agli errori
         color: root.errorText !== "" && !root.busy ? Theme.urgent : Theme.foregroundDim
         font.family: Theme.fontFamily
