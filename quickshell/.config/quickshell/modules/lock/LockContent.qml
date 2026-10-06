@@ -101,8 +101,9 @@ Rectangle {
         placeholder: "Password"
         echoMode: TextInput.Password
         enabled: !root.busy
-        // Unico elemento interattivo: in evidenza, rosso solo con l'errore.
-        ringColor: root.failed ? Theme.urgent : Theme.surfaceAccent
+        // Unico elemento interattivo: contorno nel colore del testo, come orologio
+        // e data; rosso solo con l'errore.
+        ringColor: root.failed ? Theme.urgent : Theme.foreground
 
         // Translate e non x: la Column non se ne accorge e il layout resta fermo.
         // Tre oscillazioni che si smorzano fino a zero.
