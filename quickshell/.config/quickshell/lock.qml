@@ -10,13 +10,13 @@ import "./services"
 ShellRoot {
   id: root
 
-  // SOLO PER I PRIMI TEST: sblocco automatico dopo 30 s.
-  // Se qualcosa va storto non resti chiuso fuori. Da mettere a false dopo.
   property bool devMode: false
 
   // Condiviso tra i monitor: ogni superficie ha il suo campo, il testo e' uno solo.
   property string currentText: ""
   property string errorText: ""
+  // File segnale: qs-lock.service lo aspetta prima di risultare avviato,
+  // cosi' barra e sfondo (Before= nel servizio) partono a schermo gia' coperto
   readonly property string readyFile: Quickshell.env("XDG_RUNTIME_DIR") + "/qs-lock.ready"
 
   function tryUnlock() {
@@ -51,21 +51,10 @@ ShellRoot {
     }
   }
 
-  Timer {
-    running: root.devMode
-    interval: 30000
-    onTriggered: root.unlock()
-  }
-
-  Timer {
-    id: quitTimer
-    interval: 300
-    onTriggered: Qt.quit()
-  }
-
   WlSessionLock {
     id: lock
     locked: true
+    // secure: il compositore conferma che tutti i monitor sono coperti
     onSecureChanged: if (secure) Quickshell.execDetached(["touch", root.readyFile])
 
     // Delegato: il compositore ne crea una per ogni monitor.
