@@ -14,9 +14,14 @@ ShellRoot {
       id: content
       anchors.fill: parent
       text: ""
-      // Invio con il campo pieno simula una password errata.
+      // Invio simula una password errata. errorText si svuota prima, come in
+      // lock.qml: senza cambio di valore dal secondo errore non scuoterebbe.
       onEdited: t => content.text = t
-      onSubmitted: { content.text = ""; content.errorText = "Wrong password" }
+      onSubmitted: {
+        content.errorText = ""
+        content.text = ""
+        content.errorText = "Wrong password"
+      }
     }
   }
 }

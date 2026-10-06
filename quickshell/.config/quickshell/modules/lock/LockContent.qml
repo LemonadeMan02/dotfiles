@@ -17,6 +17,12 @@ Rectangle {
   signal edited(string text)
   signal submitted()
 
+  // Errore da mostrare: durante il controllo PAM vince "Checking…".
+  readonly property bool failed: root.errorText !== "" && !root.busy
+
+  // Avanzamento della scossa, da 0 a 1: a riposo vale 1 e lo spostamento e' nullo.
+  property real shakeProgress: 1
+
   // Si vede solo se lo sfondo manca o non si e' ancora caricato.
   color: Theme.scrim
 
@@ -95,6 +101,14 @@ Rectangle {
         placeholder: "Password"
         echoMode: TextInput.Password
         enabled: !root.busy
+        // Unico elemento interattivo: in evidenza, rosso solo con l'errore.
+        ringColor: root.failed ? Theme.urgent : Theme.surfaceAccent
+
+        // Translate e non x: la Column non se ne accorge e il layout resta fermo.
+        // Tre oscillazioni che si smorzano fino a zero.
+        transform: Translate {
+          x: Theme.spacingL * Math.sin(root.shakeProgress * Math.PI * 6) * (1 - root.shakeProgress)
+        }
 
         text: root.text
         onTextChanged: root.edited(text)
@@ -108,13 +122,25 @@ Rectangle {
         anchors.horizontalCenter: parent.horizontalCenter
         text: root.busy ? "Checking…" : (root.errorText || " ")
         // Rosso: semantica riservata agli errori
-        color: root.errorText !== "" && !root.busy ? Theme.urgent : Theme.foregroundDim
+        color: root.failed ? Theme.urgent : Theme.foregroundDim
         font.family: Theme.fontFamily
         font.pixelSize: Theme.fontS
         font.weight: Theme.weightBold
       }
     }
   }
+
+  NumberAnimation {
+    id: shake
+    target: root
+    property: "shakeProgress"
+    from: 0
+    to: 1
+    duration: Theme.durSlow * 2
+  }
+
+  // lock.qml svuota errorText a ogni tentativo: ogni errore e' un cambio e scuote.
+  onErrorTextChanged: if (root.errorText !== "") shake.restart()
 
   // Disabilitato durante il controllo PAM il campo perde il focus: va ridato.
   onBusyChanged: if (!root.busy) field.forceFocus()

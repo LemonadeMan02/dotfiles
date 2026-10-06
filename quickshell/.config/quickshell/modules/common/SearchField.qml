@@ -11,6 +11,9 @@ Rectangle {
   property string icon: ""
   // Il lock lo usa come campo password.
   property alias echoMode: input.echoMode
+  // Contorno e icona colorati: il lock lo usa per evidenziare il campo e per
+  // segnalare l'errore. Trasparente (default, launcher) = nessun contorno.
+  property color ringColor: "transparent"
 
   // Navigazione e conferma: la lista sta fuori, quindi i tasti che la
   // riguardano escono di qui come segnali.
@@ -26,6 +29,8 @@ Rectangle {
   radius: Theme.radiusS
   antialiasing: true
   color: Theme.surfaceSolid
+  border.width: root.ringColor.a > 0 ? 2 : 0
+  border.color: root.ringColor
 
   Text {
     id: iconText
@@ -35,7 +40,7 @@ Rectangle {
     text: root.icon
     font.family: Theme.nerdFontFamily
     font.pixelSize: Theme.iconXs
-    color: Theme.foregroundDim
+    color: root.ringColor.a > 0 ? root.ringColor : Theme.foregroundDim
   }
 
   TextInput {
