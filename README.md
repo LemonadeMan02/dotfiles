@@ -213,6 +213,8 @@ I file di sistema stanno in `system/`, con gli stessi percorsi che hanno sotto `
 ```fish
 sudo install -Dm644 system/etc/pam.d/qs-lock /etc/pam.d/qs-lock
 sudo install -Dm644 system/etc/systemd/system/getty@tty1.service.d/autologin.conf /etc/systemd/system/getty@tty1.service.d/autologin.conf
+sudo install -Dm644 system/etc/cmdline.d/silent.conf /etc/cmdline.d/silent.conf
+sudo install -Dm644 system/etc/mkinitcpio.conf.d/hooks.conf /etc/mkinitcpio.conf.d/hooks.conf
 sudo systemctl daemon-reload
 ```
 
@@ -223,6 +225,28 @@ In `.bash_profile`, `uwsm check may-start` avvia la sessione solo su tty1 e solo
 Se la sessione non parte: Ctrl+Alt+F3, login, e `uwsm start hyprland.desktop`. Log: `journalctl -b -u getty@tty1`, `journalctl --user -b -u qs-lock`.
 
 Se il lock smette di rispondere: da un altro TTY, `systemctl --user restart qs-lock.service` riaggancia un lock nuovo alla sessione, che resta bloccata nel frattempo (serve `allow_session_lock_restore` in `hyprland.lua`, già attivo).
+
+### Avvio silenzioso
+
+Dal menu di GRUB al lock senza scritte né loghi. GRUB avvia una UKI (`/boot/EFI/Linux/arch-linux.efi`): kernel, initramfs e riga di comando stanno in un unico file generato da mkinitcpio, quindi `GRUB_CMDLINE_LINUX_DEFAULT` in `/etc/default/grub` non ha effetto.
+
+| Cosa | Dove |
+|---|---|
+| kernel e systemd zitti (`quiet`, `systemd.show_status=false`) | `/etc/cmdline.d/silent.conf`, unito da mkinitcpio a `/etc/kernel/cmdline` |
+| fsck senza output: initramfs con `systemd` invece di `udev` | `/etc/mkinitcpio.conf.d/hooks.conf` |
+| niente logo Arch di `systemd-stub` | `default_options` senza `--splash` in `/etc/mkinitcpio.d/linux.preset` (non versionato) |
+| niente `/etc/issue` né riga di autologin | opzioni di agetty in `autologin.conf` |
+| niente "Last login" | `~/.hushlogin` (pacchetto `bash`) |
+| niente messaggi di uwsm | stdout in `/dev/null` in `.bash_profile` |
+
+Dopo aver copiato i due file sopra, si toglie lo splash e si rigenera la UKI:
+
+```fish
+sudo sed -i 's|^default_options=.*|default_options=""|' /etc/mkinitcpio.d/linux.preset
+sudo mkinitcpio -P
+```
+
+Con lo stato di systemd nascosto, le unità fallite si vedono solo con `systemctl --failed` e nel journal.
 
 `seatd` su questa macchina risulta abilitato, ma non serve: la sessione passa da `systemd-logind`. Non si abilita.
 
