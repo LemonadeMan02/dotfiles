@@ -10,8 +10,6 @@ import "./services"
 ShellRoot {
   id: root
 
-  property bool devMode: false
-
   // Condiviso tra i monitor: ogni superficie ha il suo campo, il testo e' uno solo.
   property string currentText: ""
   property string errorText: ""
@@ -49,6 +47,13 @@ ShellRoot {
         root.currentText = ""
       }
     }
+  }
+
+  // Uscita ritardata: vedi unlock().
+  Timer {
+    id: quitTimer
+    interval: 300
+    onTriggered: Qt.quit()
   }
 
   WlSessionLock {
