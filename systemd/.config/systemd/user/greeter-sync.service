@@ -1,7 +1,0 @@
-# Lanciato da greeter-sync.path; log in journalctl --user -u greeter-sync
-[Unit]
-Description=Copia sfondo e colori per il greeter
-
-[Service]
-Type=oneshot
-ExecStart=%h/.local/bin/greeter-sync
