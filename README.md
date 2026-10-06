@@ -246,6 +246,12 @@ systemctl --user enable qs-lock.service quickshell.service awww.service hypridle
 
 Per PipeWire, WirePlumber, gnome-keyring e xdg-user-dirs non servono comandi: i loro pacchetti li abilitano per tutti gli utenti.
 
+L'agente SSH no: senza un display manager nessuno lo avvia, e ssh chiede la passphrase a ogni uso. Si usa quello di gcr (dipendenza di gnome-keyring), attivato dal socket; `SSH_AUTH_SOCK` lo esporta `~/.config/uwsm/env`. Questo si abilita subito, con `--now`: è solo un socket.
+
+```fish
+systemctl --user enable --now gcr-ssh-agent.socket
+```
+
 Log di un servizio: `journalctl --user -u quickshell`.
 
 ## 8. Primo login
