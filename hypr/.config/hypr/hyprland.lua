@@ -104,7 +104,8 @@ hl.config({
         disable_hyprland_logo    = true,
         disable_splash_rendering = true,
 
-        -- Se hyprlock crasha la sessione resta bloccata: cosi' si puo' rilanciare da TTY
+        -- Se il lock crasha la sessione resta bloccata: cosi' un nuovo lock si riaggancia
+        -- (systemctl --user restart qs-lock.service da un altro TTY)
         allow_session_lock_restore = true,
     },
 })

@@ -18,7 +18,6 @@ hyprland
 uwsm
 xdg-desktop-portal-hyprland
 hypridle
-hyprlock
 hyprpolkitagent
 
 # ── Shell desktop e colori ──
@@ -31,7 +30,7 @@ vdirsyncer              # Google Calendar → ~/.local/share/calendars, vdirsync
 khal                    # legge il calendario locale per il pannello dell'orologio
 
 # ── Font ──
-ttf-jetbrains-mono      # Theme.qml e hyprlock.conf
+ttf-jetbrains-mono      # Theme.qml
 ttf-jetbrains-mono-nerd # kitty e icone
 
 # ── Portali e integrazione desktop ──
