@@ -3,6 +3,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import "../../services"
+import "../common"
 
 
 // Eventi del giorno scelto, con frecce per il giorno prima e quello dopo.
@@ -132,51 +133,12 @@ ColumnLayout {
 
     onMovementStarted: Drawers.poke()
 
-    delegate: Rectangle {
-      id: entry
+    delegate: EventEntry {
       required property var modelData
-
-      // Oggi: finito = spento, in corso = invertito. Gli altri giorni tutti normali.
-      readonly property bool past: root.isToday && !entry.modelData.allDay && entry.modelData.end <= root.now
-      readonly property bool ongoing: root.isToday && !entry.modelData.allDay
-                                      && entry.modelData.start <= root.now && !entry.past
-
       width: ListView.view.width
-      implicitHeight: body.implicitHeight + Theme.spacingM * 2
-      radius: Theme.radiusS
-      color: entry.ongoing ? Theme.surfaceLight : Theme.surfaceSolid
-      opacity: entry.past ? 0.5 : 1
-
-      // x/width espliciti: il Rectangle e' un delegate, non un layout.
-      ColumnLayout {
-        id: body
-        x: Theme.spacingM
-        y: Theme.spacingM
-        width: entry.width - Theme.spacingM * 2
-        spacing: Theme.spacingXs
-
-        Text {
-          Layout.fillWidth: true
-          text: entry.ongoing ? "Now · until " + entry.modelData.end
-              : entry.modelData.allDay ? "All day"
-              : entry.modelData.start + " – " + entry.modelData.end
-          color: entry.ongoing ? Theme.onLight : Theme.accent
-          font.family: Theme.fontFamily
-          font.pixelSize: Theme.fontM
-          font.weight: Theme.weightBold
-        }
-
-        // Titoli lunghi vanno a capo: leggerli e' lo scopo del pannello.
-        Text {
-          Layout.fillWidth: true
-          text: entry.modelData.title
-          wrapMode: Text.Wrap
-          color: entry.ongoing ? Theme.onLight : Theme.foreground
-          font.family: Theme.fontFamily
-          font.pixelSize: Theme.fontL
-          font.weight: Theme.weightBold
-        }
-      }
+      event: modelData
+      isToday: root.isToday
+      now: root.now
     }
   }
 }
