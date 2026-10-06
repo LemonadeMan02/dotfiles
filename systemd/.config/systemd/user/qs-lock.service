@@ -7,6 +7,7 @@ Documentation=https://quickshell.org/docs/types/Quickshell.Wayland/WlSessionLock
 PartOf=graphical-session.target
 After=graphical-session.target
 Requisite=graphical-session.target
+# Barra e sfondo partono solo dopo il lock: al boot nessun lampo di desktop
 Before=quickshell.service awww.service
 
 [Service]
@@ -18,7 +19,6 @@ ExecStartPost=-/usr/bin/timeout 5 /bin/sh -c 'until [ -e %t/qs-lock.ready ]; do 
 ExecStopPost=/usr/bin/rm -f %t/qs-lock.ready
 Restart=on-failure
 RestartSec=0
-
 
 [Install]
 WantedBy=graphical-session.target
