@@ -1,0 +1,24 @@
+# Lock screen: si avvia a ogni blocco e termina allo sblocco.
+# Se crasha riparte da solo e si riaggancia alla sessione ancora bloccata
+# (serve allow_session_lock_restore in hyprland.lua).
+[Unit]
+Description=Quickshell lock screen
+Documentation=https://quickshell.org/docs/types/Quickshell.Wayland/WlSessionLock/
+PartOf=graphical-session.target
+After=graphical-session.target
+Requisite=graphical-session.target
+Before=quickshell.service awww.service
+
+[Service]
+# Il file segnale lo crea lock.qml quando Hyprland conferma il blocco
+ExecStartPre=/usr/bin/rm -f %t/qs-lock.ready
+ExecStart=/usr/bin/quickshell -p %h/.config/quickshell/lock.qml
+# Avviato solo a blocco confermato; dopo 5 s si prosegue comunque (il - ignora il timeout)
+ExecStartPost=-/usr/bin/timeout 5 /bin/sh -c 'until [ -e %t/qs-lock.ready ]; do sleep 0.05; done'
+ExecStopPost=/usr/bin/rm -f %t/qs-lock.ready
+Restart=on-failure
+RestartSec=0
+
+
+[Install]
+WantedBy=graphical-session.target

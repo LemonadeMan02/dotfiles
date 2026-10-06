@@ -1,0 +1,5 @@
+#%PAM-1.0
+# Lock screen Quickshell: stessa auth del login (come hyprlock),
+# più lo sblocco di gnome-keyring al primo unlock dopo l autologin
+auth      include   login
+-auth     optional  pam_gnome_keyring.so
