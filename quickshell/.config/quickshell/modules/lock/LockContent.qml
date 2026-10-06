@@ -57,77 +57,117 @@ Rectangle {
     color: Theme.withAlpha(Theme.scrim, 0.25)
   }
 
-  // Scheda centrale: stessa superficie delle pill, il testo segue il tema.
-  Rectangle {
+  // Scheda di sblocco e impegni di oggi, centrate insieme e alte uguali.
+  Row {
     anchors.centerIn: parent
-    width: content.implicitWidth + Theme.spacingL * 4
-    height: content.implicitHeight + Theme.spacingL * 4
-    radius: Theme.radiusM
-    antialiasing: true
-    color: Theme.surface
-    border.color: Theme.border
+    spacing: Theme.spacingL
 
-    Column {
-      id: content
-      anchors.centerIn: parent
-      spacing: Theme.spacingM
+    // Scheda di sblocco: stessa superficie delle pill, il testo segue il tema.
+    Rectangle {
+      id: unlockCard
+      width: content.implicitWidth + Theme.spacingL * 4
+      height: content.implicitHeight + Theme.spacingL * 4
+      radius: Theme.radiusM
+      antialiasing: true
+      color: Theme.surface
+      border.color: Theme.border
 
-      Text {
-        anchors.horizontalCenter: parent.horizontalCenter
-        text: Time.time
-        color: Theme.foreground
-        font.family: Theme.fontFamily
-        font.pixelSize: Theme.fontDisplay
-        font.weight: Theme.weightBold
-      }
+      Column {
+        id: content
+        anchors.centerIn: parent
+        spacing: Theme.spacingM
 
-      Text {
-        anchors.horizontalCenter: parent.horizontalCenter
-        text: Time.date
-        color: Theme.foregroundDim
-        font.family: Theme.fontFamily
-        font.pixelSize: Theme.fontL
-        font.weight: Theme.weightNormal
-        font.capitalization: Font.Capitalize
-      }
-
-      // Distacco tra cosa si legge e cosa si usa.
-      Item { width: 1; height: Theme.spacingL }
-
-      SearchField {
-        id: field
-        width: 320
-        icon: Icons.lock
-        placeholder: "Password"
-        echoMode: TextInput.Password
-        enabled: !root.busy
-        // Unico elemento interattivo: contorno nel colore del testo, come orologio
-        // e data; rosso solo con l'errore.
-        ringColor: root.failed ? Theme.urgent : Theme.foreground
-
-        // Translate e non x: la Column non se ne accorge e il layout resta fermo.
-        // Tre oscillazioni che si smorzano fino a zero.
-        transform: Translate {
-          x: Theme.spacingL * Math.sin(root.shakeProgress * Math.PI * 6) * (1 - root.shakeProgress)
+        Text {
+          anchors.horizontalCenter: parent.horizontalCenter
+          text: Time.time
+          color: Theme.foreground
+          font.family: Theme.fontFamily
+          font.pixelSize: Theme.fontDisplay
+          font.weight: Theme.weightBold
         }
 
-        text: root.text
-        onTextChanged: root.edited(text)
-        onAccepted: root.submitted()
-        onCancelled: field.clear()
-      }
+        Text {
+          anchors.horizontalCenter: parent.horizontalCenter
+          text: Time.date
+          color: Theme.foregroundDim
+          font.family: Theme.fontFamily
+          font.pixelSize: Theme.fontL
+          font.weight: Theme.weightNormal
+          font.capitalization: Font.Capitalize
+        }
 
-      // Riga sempre presente anche vuota: il layout non salta quando compare l'errore.
-      // Lo spazio di ripiego serve: un Text vuoto e' alto zero e la Column lo salta.
-      Text {
-        anchors.horizontalCenter: parent.horizontalCenter
-        text: root.busy ? "Checking…" : (root.errorText || " ")
-        // Rosso: semantica riservata agli errori
-        color: root.failed ? Theme.urgent : Theme.foregroundDim
-        font.family: Theme.fontFamily
-        font.pixelSize: Theme.fontS
-        font.weight: Theme.weightBold
+        // Opacita' e non visible: lo spazio resta, e la scheda non cresce quando
+        // il meteo arriva (al boot la rete puo' non esserci ancora).
+        Row {
+          anchors.horizontalCenter: parent.horizontalCenter
+          spacing: Theme.spacingM
+          opacity: Weather.ready ? 1 : 0
+
+          Behavior on opacity {
+            NumberAnimation { duration: Theme.durSlow }
+          }
+
+          Text {
+            anchors.verticalCenter: parent.verticalCenter
+            text: Weather.icon
+            color: Theme.foregroundDim
+            font.family: Theme.nerdFontFamily
+            font.pixelSize: Theme.iconXs
+          }
+
+          Text {
+            anchors.verticalCenter: parent.verticalCenter
+            text: Math.round(Weather.temperature) + "°C · " + Weather.description
+            color: Theme.foregroundDim
+            font.family: Theme.fontFamily
+            font.pixelSize: Theme.fontM
+            font.weight: Theme.weightNormal
+          }
+        }
+
+        // Distacco tra cosa si legge e cosa si usa.
+        Item { width: 1; height: Theme.spacingL }
+
+        SearchField {
+          id: field
+          width: 320
+          icon: Icons.lock
+          placeholder: "Password"
+          echoMode: TextInput.Password
+          enabled: !root.busy
+          // Unico elemento interattivo: contorno nel colore del testo, come orologio
+          // e data; rosso solo con l'errore.
+          ringColor: root.failed ? Theme.urgent : Theme.foreground
+
+          // Translate e non x: la Column non se ne accorge e il layout resta fermo.
+          // Tre oscillazioni che si smorzano fino a zero.
+          transform: Translate {
+            x: Theme.spacingL * Math.sin(root.shakeProgress * Math.PI * 6) * (1 - root.shakeProgress)
+          }
+
+          text: root.text
+          onTextChanged: root.edited(text)
+          onAccepted: root.submitted()
+          onCancelled: field.clear()
+        }
+
+        // Riga sempre presente anche vuota: il layout non salta quando compare l'errore.
+        // Lo spazio di ripiego serve: un Text vuoto e' alto zero e la Column lo salta.
+        Text {
+          anchors.horizontalCenter: parent.horizontalCenter
+          text: root.busy ? "Checking…" : (root.errorText || " ")
+          // Rosso: semantica riservata agli errori
+          color: root.failed ? Theme.urgent : Theme.foregroundDim
+          font.family: Theme.fontFamily
+          font.pixelSize: Theme.fontS
+          font.weight: Theme.weightBold
+        }
       }
+    }
+
+    TodayCard {
+      width: unlockCard.width
+      height: unlockCard.height
     }
   }
 
