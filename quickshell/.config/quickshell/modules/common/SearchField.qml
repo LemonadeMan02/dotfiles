@@ -9,6 +9,8 @@ Rectangle {
   property alias text: input.text
   property string placeholder: ""
   property string icon: ""
+  // Il lock lo usa come campo password.
+  property alias echoMode: input.echoMode
 
   // Navigazione e conferma: la lista sta fuori, quindi i tasti che la
   // riguardano escono di qui come segnali.

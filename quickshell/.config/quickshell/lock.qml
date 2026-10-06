@@ -6,6 +6,7 @@ import Quickshell.Wayland
 import Quickshell.Services.Pam
 import QtQuick
 import "./services"
+import "./modules/lock"
 
 ShellRoot {
   id: root
@@ -64,49 +65,13 @@ ShellRoot {
 
     // Delegato: il compositore ne crea una per ogni monitor.
     WlSessionLockSurface {
-      Rectangle {
+      LockContent {
         anchors.fill: parent
-        color: "#1e1e2e"
-
-        Column {
-          anchors.centerIn: parent
-          spacing: Theme.spacingM
-
-          Rectangle {
-            width: 360
-            height: 48
-            radius: Theme.radiusS
-            color: "#313244"
-
-            TextInput {
-              id: input
-              anchors.fill: parent
-              anchors.margins: Theme.spacingM
-              verticalAlignment: TextInput.AlignVCenter
-              horizontalAlignment: TextInput.AlignHCenter
-              focus: true
-              enabled: !pam.active
-              echoMode: TextInput.Password
-              color: "#cdd6f4"
-              font.family: "JetBrainsMono Nerd Font"
-              font.pixelSize: 18
-
-              text: root.currentText
-              onTextChanged: root.currentText = text
-              onAccepted: root.tryUnlock()
-            }
-          }
-
-          Text {
-            anchors.horizontalCenter: parent.horizontalCenter
-            text: pam.active ? "Checking…" : root.errorText
-            // Rosso: semantica riservata agli errori
-            color: root.errorText !== "" && !pam.active ? "#f38ba8" : "#a6adc8"
-            font.family: "JetBrainsMono Nerd Font"
-            font.weight: Theme.weightBold
-            font.pixelSize: 14
-          }
-        }
+        text: root.currentText
+        errorText: root.errorText
+        busy: pam.active
+        onEdited: t => root.currentText = t
+        onSubmitted: root.tryUnlock()
       }
     }
   }
