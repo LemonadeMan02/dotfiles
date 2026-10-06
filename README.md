@@ -6,7 +6,7 @@ Config del desktop Hyprland, gestite con [GNU Stow](https://www.gnu.org/software
 
 Da un'Arch Linux appena installata allo stato attuale:
 
-- sessione **Hyprland** avviata da **uwsm**, login con **greetd** e un greeter Quickshell;
+- sessione **Hyprland** avviata da **uwsm**, con autologin su tty1 e un lock Quickshell come schermata di login;
 - **Quickshell** come barra, launcher, notifiche e dashboard;
 - colori generati da **matugen** a partire dallo sfondo (**awww**), condivisi da Quickshell, Hyprland e kitty;
 - terminale **kitty** con **fish** e **starship** (la login shell resta bash);
@@ -14,7 +14,7 @@ Da un'Arch Linux appena installata allo stato attuale:
 - rete con **systemd-networkd** e **systemd-resolved** (niente NetworkManager);
 - audio con **PipeWire**, più Bluetooth e stampa.
 
-Pacchetti Stow nel repo: `autostart fish hypr kitty matugen quickshell scripts starship systemd uwsm`. `greeter/` non è un pacchetto Stow: va in `/etc/greetd` (sezione 6).
+Pacchetti Stow nel repo: `autostart bash fish hypr kitty matugen quickshell scripts starship systemd uwsm`. `system/` non è un pacchetto Stow: i suoi file si copiano in `/etc` (sezione 6).
 
 Non copre l'installazione di Arch: partizioni, bootloader, kernel, microcode e firmware si scelgono durante l'installazione e dipendono dalla macchina.
 
@@ -144,9 +144,11 @@ cd ~/dotfiles
 Qui Stow può collegare la cartella intera (per esempio `~/.config/hypr` → repo), perché ci scrivono solo queste config:
 
 ```fish
-stow -n -v fish hypr khal kitty matugen quickshell starship uwsm vdirsyncer   # prova, non tocca niente
-stow -v fish hypr khal kitty matugen quickshell starship uwsm vdirsyncer
+stow -n -v bash fish hypr khal kitty matugen quickshell starship uwsm vdirsyncer   # prova, non tocca niente
+stow -v bash fish hypr khal kitty matugen quickshell starship uwsm vdirsyncer
 ```
+
+Su un'installazione nuova `/etc/skel` ha già creato `~/.bash_profile` e `~/.bashrc`: spostali da parte prima di Stow (`mv ~/.bash_profile ~/.bash_profile.bak`, idem per `.bashrc`), altrimenti la prova segnala un conflitto.
 
 fish scrive `fish_variables` dentro `~/.config/fish`, quindi nel repo: è in `.gitignore`. Anche `funcsave` e `fish_config` (quando salva il prompt) scrivono in `~/.config/fish/functions`, cioè nel repo: quei file compaiono in `git status` e vanno committati o cancellati.
 
@@ -200,27 +202,27 @@ Bluetooth, stampa e TRIM settimanale degli SSD:
 sudo systemctl enable --now bluetooth.service cups.socket cups.path cups.service fstrim.timer
 ```
 
-### Login grafico: greetd
+### Login: autologin e lock Quickshell
 
-greetd lancia, come utente `greeter`, un Hyprland minimale (`greeter/greetd/hyprland.lua`) che mostra il greeter Quickshell (`greeter/quickshell`). Dopo la password avvia `uwsm start hyprland.desktop`, la stessa sessione che con SDDM si chiamava **Hyprland (uwsm-managed)**.
+Nessun display manager: getty fa l'autologin su tty1, `~/.bash_profile` (pacchetto `bash`) avvia `uwsm start hyprland.desktop`, e la prima cosa che parte nella sessione è il lock Quickshell (`qs-lock.service`, sezione 7). Un solo compositor dal boot al desktop, quindi nessun cambio di modalità dei monitor tra login e sessione.
 
-Stow lavora solo nella home: i file del greeter si copiano in `/etc/greetd` con lo script, da rilanciare dopo ogni modifica sotto `greeter/` (vale dal login successivo). Va lanciato senza `sudo`: il tuo utente diventa quello del login.
+La password del lock passa da PAM (`/etc/pam.d/qs-lock`), che sblocca anche gnome-keyring: le app trovano i loro segreti come dopo un login normale.
 
-```fish
-./greeter/install.sh
-```
-
-Poi abilita greetd, **senza** `--now` (partirebbe subito sopra la console; si usa dal riavvio, sezione 8):
+I file di sistema stanno in `system/`, con gli stessi percorsi che hanno sotto `/`. Non è un pacchetto Stow: si **copiano**, perché un file letto da root non deve essere un symlink verso la home, dove l'utente può modificarlo. Dopo ogni modifica sotto `system/` si ripete il relativo `install`.
 
 ```fish
-sudo systemctl enable greetd.service
+sudo install -Dm644 system/etc/pam.d/qs-lock /etc/pam.d/qs-lock
+sudo install -Dm644 system/etc/systemd/system/getty@tty1.service.d/autologin.conf /etc/systemd/system/getty@tty1.service.d/autologin.conf
+sudo systemctl daemon-reload
 ```
 
-Lo script crea anche `/var/lib/greeter-theme`, di tuo proprietà: lì `greeter-sync` (pacchetto `scripts`) copia lo sfondo e `colors.json` della sessione, che il greeter mostra sfocato e con gli stessi colori, sempre nella variante scura. Lo rilancia `greeter-sync.path` (sezione 7) a ogni cambio di sfondo o di colori dinamici.
+`autologin.conf` contiene il nome utente: su un'altra macchina va cambiato prima dell'`install` (sezione 10).
 
-Log del greeter: `journalctl -b -u greetd`, `journalctl -b -t greeter-hyprland`, `journalctl -b -t greeter-quickshell`.
+In `.bash_profile`, `uwsm check may-start` avvia la sessione solo su tty1 e solo se non ce n'è già una grafica: gli altri TTY e SSH restano shell normali.
 
-Se il greeter non parte: Ctrl+Alt+F3, login in TTY, e `uwsm start hyprland.desktop` avvia la sessione da lì.
+Se la sessione non parte: Ctrl+Alt+F3, login, e `uwsm start hyprland.desktop`. Log: `journalctl -b -u getty@tty1`, `journalctl --user -b -u qs-lock`.
+
+Se il lock smette di rispondere: da un altro TTY, `systemctl --user restart qs-lock.service` riaggancia un lock nuovo alla sessione, che resta bloccata nel frattempo (serve `allow_session_lock_restore` in `hyprland.lua`, già attivo).
 
 `seatd` su questa macchina risulta abilitato, ma non serve: la sessione passa da `systemd-logind`. Non si abilita.
 
@@ -232,18 +234,15 @@ Partono con la sessione grafica: uwsm avvia `graphical-session.target` e questi 
 |---|---|---|
 | `quickshell.service` | repo (`systemd/`) | barra, launcher, notifiche, dashboard, calendario, meteo |
 | `awww.service` | repo (`systemd/`) | demone dello sfondo |
-| `hypridle.service` | pacchetto `hypridle` | da inattivo: blocco con hyprlock a 5 min, monitor spenti a 5 min e mezzo (`hypridle.conf`) |
+| `qs-lock.service` | repo (`systemd/`) | lock screen: parte con la sessione (fa da schermata di login) e a ogni blocco, termina allo sblocco; barra e sfondo aspettano che lo schermo sia coperto (`Before=`) |
+| `hypridle.service` | pacchetto `hypridle` | da inattivo: blocco con `qs-lock` a 5 min, monitor spenti a 5 min e mezzo (`hypridle.conf`) |
 | `hyprpolkitagent.service` | pacchetto `hyprpolkitagent` | finestra per le richieste di password polkit |
-| `greeter-sync.path` | repo (`systemd/`) | a ogni cambio di sfondo o colori lancia `greeter-sync`, che li copia per il greeter (sezione 6) |
 
 Si abilitano dopo Stow (sezione 5), **senza** `--now`: fuori dalla sessione grafica non partirebbero (`Requisite=graphical-session.target`, e hypridle e hyprpolkitagent richiedono `WAYLAND_DISPLAY`).
 
 ```fish
-systemctl --user enable quickshell.service awww.service hypridle.service hyprpolkitagent.service
-systemctl --user enable --now greeter-sync.path
+systemctl --user enable qs-lock.service quickshell.service awww.service hypridle.service hyprpolkitagent.service
 ```
-
-`greeter-sync.path` fa eccezione: osserva solo due file, non dipende dalla sessione grafica e parte subito.
 
 Per PipeWire, WirePlumber, gnome-keyring e xdg-user-dirs non servono comandi: i loro pacchetti li abilitano per tutti gli utenti.
 
@@ -257,7 +256,7 @@ Riavvia:
 systemctl reboot
 ```
 
-Nel greeter basta la password: la sessione è sempre Hyprland tramite uwsm, che carica `~/.config/uwsm/env` e attiva `graphical-session.target`, e quindi i servizi della sezione 7.
+Il PC arriva da solo al lock: dopo la password la sessione è già Hyprland tramite uwsm, che carica `~/.config/uwsm/env` e attiva `graphical-session.target`, e quindi i servizi della sezione 7.
 
 Per controllare che la sessione sia quella giusta, da kitty:
 
@@ -339,8 +338,6 @@ Due monitor identificati per descrizione (`desc:Dell Inc. AW3225QF`, `desc:LG El
 hyprctl monitors all
 ```
 
-Il greeter ha una copia degli stessi due monitor in `greeter/greetd/hyprland.lua` (la tua home non è leggibile dall'utente `greeter`): va tenuta uguale, poi `./greeter/install.sh`. Lo schermo con orologio e password è `mainScreen` in `greeter/quickshell/shell.qml`, per nome del connettore (`DP-1`).
-
 Da `monitors.ordered` dipendono anche i workspace: 5 per monitor, 1-5 sul primo e 6-10 sul secondo. Con un numero diverso di monitor vanno adattati `monitors.ordered`, i set di tasti in `hypr/.config/hypr/workspaces.lua` (riga dei numeri per il primo, tastierino per il secondo) e, se cambia il numero di workspace per monitor, anche `perMonitor` in `quickshell/.config/quickshell/services/Workspaces.qml`. La panoramica si adatta da sola: le miniature si misurano sullo schermo su cui si apre.
 
 ### Interfaccia di rete
@@ -353,7 +350,11 @@ Niente da fare: `quickshell/.config/quickshell/services/Net.qml` usa l'interfacc
 
 ### Tastiera — `hypr/.config/hypr/hyprland.lua`
 
-`kb_layout = "gb"` con `kb_variant = "extd"`, ripetuto in `greeter/greetd/hyprland.lua` perché la password si scriva con gli stessi tasti. Vale solo dentro Hyprland: la console usa il layout di sistema (`localectl`).
+`kb_layout = "gb"` con `kb_variant = "extd"`, che vale anche per la password del lock. Vale solo dentro Hyprland: la console usa il layout di sistema (`localectl`).
+
+### Utente dell'autologin — `system/etc/systemd/system/getty@tty1.service.d/autologin.conf`
+
+`--autologin lemonademan`: va il tuo utente, prima dell'`install` della sezione 6.
 
 ## 11. Pacchetti sostituiti
 
@@ -363,7 +364,7 @@ Questi pacchetti c'erano in passato e non vanno reinstallati: il loro lavoro ora
 |---|---|---|
 | `dunst` | Quickshell (`services/Notifications.qml`) | sul bus D-Bus un solo processo può essere il server delle notifiche (`org.freedesktop.Notifications`); con dunst installato i due se lo contenderebbero, per esempio mentre Quickshell si riavvia |
 | `polkit-kde-agent` | `hyprpolkitagent` (servizio utente, sezione 7) | in una sessione si registra un solo agente polkit: due agenti si contendono le richieste di password |
-| `sddm` | greetd (sezione 6) | entrambi si registrano come `display-manager.service`: abilitato uno, l'altro non parte o se ne contende il VT |
+| `sddm`, `greetd` | autologin su tty1 e lock Quickshell (sezione 6) | un display manager abilitato occupa tty1 al posto di getty: l'autologin non parte e si torna a due compositor con lo stacco fra login e sessione |
 | `playerctl` | Quickshell (`services/Media.qml`) | i tasti multimediali sono `GlobalShortcut` di Quickshell che comandano il player via MPRIS; nessun processo esterno a ogni pressione |
 | `wofi` | launcher di Quickshell (SUPER+Space) | nessuna config lo usa più: sarebbe solo un secondo launcher |
 
@@ -383,13 +384,14 @@ sed -e 's/#.*//' -e 's/[[:space:]]//g' -e '/^$/d' pkglist-aur.txt | pacman -T -
 Servizi di sistema (sezione 6), tutti `enabled`:
 
 ```fish
-systemctl is-enabled greetd systemd-networkd systemd-resolved systemd-timesyncd bluetooth cups.socket cups.path cups.service fstrim.timer
+systemctl is-enabled getty@tty1 systemd-networkd systemd-resolved systemd-timesyncd bluetooth cups.socket cups.path cups.service fstrim.timer
 ```
 
-Servizi utente (sezione 7), tutti `active`:
+Servizi utente (sezione 7), tutti `active`, tranne `qs-lock` che è `enabled` ma si chiude allo sblocco:
 
 ```fish
-systemctl --user is-active quickshell awww hypridle hyprpolkitagent greeter-sync.path
+systemctl --user is-active quickshell awww hypridle hyprpolkitagent
+systemctl --user is-enabled qs-lock
 ```
 
 Calendario (sezione 9): il timer `active`, khal che risponde con gli eventi:
@@ -425,7 +427,7 @@ Confronto completo fra liste e sistema, in sola lettura: pacchetti in lista ma n
 - [Arch Wiki — Dotfiles](https://wiki.archlinux.org/title/Dotfiles), [manuale di GNU Stow](https://www.gnu.org/software/stow/manual/), `man stow`
 - [Arch Wiki — systemd/User](https://wiki.archlinux.org/title/Systemd/User)
 - [Arch Wiki — Universal Wayland Session Manager](https://wiki.archlinux.org/title/Universal_Wayland_Session_Manager)
-- [Arch Wiki — greetd](https://wiki.archlinux.org/title/Greetd), `man 5 greetd`, [Quickshell — Greetd](https://quickshell.org/docs/types/Quickshell.Services.Greetd/Greetd)
+- [Arch Wiki — Getty](https://wiki.archlinux.org/title/Getty) (autologin), [Quickshell — WlSessionLock](https://quickshell.org/docs/types/Quickshell.Wayland/WlSessionLock/), [Quickshell — PamContext](https://quickshell.org/docs/types/Quickshell.Services.Pam/PamContext/)
 - [Arch Wiki — NVIDIA](https://wiki.archlinux.org/title/NVIDIA)
 - [Arch Wiki — systemd-networkd](https://wiki.archlinux.org/title/Systemd-networkd) e [systemd-resolved](https://wiki.archlinux.org/title/Systemd-resolved)
 - [wiki.hypr.land](https://wiki.hypr.land/), in particolare [Nvidia](https://wiki.hypr.land/Nvidia/)
