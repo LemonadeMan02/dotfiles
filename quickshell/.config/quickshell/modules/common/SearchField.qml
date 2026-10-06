@@ -9,6 +9,9 @@ Rectangle {
   property alias text: input.text
   property string placeholder: ""
   property string icon: ""
+  // Per il campo password del lock: il resto della shell usa i default.
+  property alias echoMode: input.echoMode
+  property alias readOnly: input.readOnly
 
   // Navigazione e conferma: la lista sta fuori, quindi i tasti che la
   // riguardano escono di qui come segnali.

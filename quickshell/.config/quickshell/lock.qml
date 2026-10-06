@@ -5,7 +5,9 @@ import Quickshell
 import Quickshell.Wayland
 import Quickshell.Services.Pam
 import QtQuick
+import QtQuick.Effects
 import "./services"
+import "./modules/common"
 
 ShellRoot {
   id: root
@@ -16,6 +18,16 @@ ShellRoot {
   // File segnale: qs-lock.service lo aspetta prima di risultare avviato,
   // cosi' barra e sfondo (Before= nel servizio) partono a schermo gia' coperto
   readonly property string readyFile: Quickshell.env("XDG_RUNTIME_DIR") + "/qs-lock.ready"
+
+  // Da Config e non da Wallpapers: quel singleton scansiona la cartella e puo'
+  // lanciare matugen, qui basta il path dell'immagine che awww sta mostrando.
+  readonly property string wallpaperUrl: {
+    const w = Config.appearance?.wallpaper ?? ""
+    return w !== "" ? "file://" + w : ""
+  }
+
+  // Gli id dentro il delegato non si vedono da qui: i campi ascoltano questo per la scossa.
+  signal rejected()
 
   function tryUnlock() {
     if (pam.active || root.currentText === "") return
@@ -45,6 +57,7 @@ ShellRoot {
       } else {
         root.errorText = "Wrong password"
         root.currentText = ""
+        root.rejected()
       }
     }
   }
@@ -63,48 +76,125 @@ ShellRoot {
 
     // Delegato: il compositore ne crea una per ogni monitor.
     WlSessionLockSurface {
-      Rectangle {
+      // Colore pieno finche' lo sfondo non e' decodificato, o se non ce n'e' uno.
+      color: Theme.c.base
+
+      // Misura fissa e non dello schermo: i due monitor chiedono la stessa
+      // immagine e Qt la decodifica una volta sola. Sotto la sfocatura basta.
+      Image {
+        id: wall
         anchors.fill: parent
-        color: "#1e1e2e"
+        source: root.wallpaperUrl
+        sourceSize: Qt.size(1920, 1080)
+        fillMode: Image.PreserveAspectCrop
+        asynchronous: true
+        visible: false
+      }
 
-        Column {
-          anchors.centerIn: parent
-          spacing: Theme.spacingM
+      Item {
+        anchors.fill: parent
+        // Entra in dissolvenza a decodifica finita, invece di comparire a scatto
+        opacity: wall.status === Image.Ready ? 1 : 0
 
-          Rectangle {
-            width: 360
-            height: 48
-            radius: Theme.radiusS
-            color: "#313244"
+        Behavior on opacity { NumberAnimation { duration: Theme.durSlow } }
 
-            TextInput {
-              id: input
-              anchors.fill: parent
-              anchors.margins: Theme.spacingM
-              verticalAlignment: TextInput.AlignVCenter
-              horizontalAlignment: TextInput.AlignHCenter
-              focus: true
-              enabled: !pam.active
-              echoMode: TextInput.Password
-              color: "#cdd6f4"
-              font.family: "JetBrainsMono Nerd Font"
-              font.pixelSize: 18
+        MultiEffect {
+          anchors.fill: parent
+          source: wall
+          blurEnabled: true
+          blur: 1.0
+          blurMax: 48
+          // Senza, i bordi sfocati sfumano verso il trasparente
+          autoPaddingEnabled: false
+        }
 
-              text: root.currentText
-              onTextChanged: root.currentText = text
-              onAccepted: root.tryUnlock()
-            }
+        // Velo col fondo del tema, non Theme.scrim: nero sotto un testo scuro
+        // sarebbe illeggibile col tema chiaro.
+        Rectangle {
+          anchors.fill: parent
+          color: Theme.withAlpha(Theme.c.base, 0.55)
+        }
+      }
+
+      Column {
+        anchors.centerIn: parent
+        spacing: Theme.spacingM
+
+        Text {
+          anchors.horizontalCenter: parent.horizontalCenter
+          text: Time.time
+          color: Theme.foreground
+          font.family: Theme.fontFamily
+          font.pixelSize: Theme.fontDisplay
+          font.weight: Theme.weightBold
+        }
+
+        Text {
+          anchors.horizontalCenter: parent.horizontalCenter
+          text: Time.date
+          color: Theme.foregroundDim
+          font.family: Theme.fontFamily
+          font.pixelSize: Theme.fontL
+          font.weight: Theme.weightNormal
+        }
+
+        // Stacco fra data e campo
+        Item { width: 1; height: Theme.spacingL * 3 }
+
+        SearchField {
+          id: field
+          anchors.horizontalCenter: parent.horizontalCenter
+          width: 360
+          implicitHeight: 48
+
+          icon: Icons.lock
+          placeholder: "Password"
+          echoMode: TextInput.Password
+          // readOnly e non enabled: disabilitato perderebbe il focus durante il controllo
+          readOnly: pam.active
+
+          // Bordo interattivo nel colore d'accento; rosso solo per l'errore
+          border.width: 2
+          border.color: root.errorText !== "" ? Theme.urgent : Theme.surfaceAccent
+
+          Behavior on border.color { ColorAnimation { duration: Theme.durFast } }
+
+          text: root.currentText
+          onTextChanged: {
+            root.currentText = text
+            // Il rosso resta finche' non si ricomincia a scrivere
+            if (text !== "") root.errorText = ""
+          }
+          onAccepted: root.tryUnlock()
+          onCancelled: root.currentText = ""
+
+          Component.onCompleted: field.forceFocus()
+
+          // Scossa al rifiuto, solo in orizzontale
+          SequentialAnimation {
+            id: shake
+            loops: 2
+            NumberAnimation { target: field; property: "anchors.horizontalCenterOffset"; to: -10; duration: 40 }
+            NumberAnimation { target: field; property: "anchors.horizontalCenterOffset"; to: 10; duration: 80 }
+            NumberAnimation { target: field; property: "anchors.horizontalCenterOffset"; to: 0; duration: 40 }
           }
 
-          Text {
-            anchors.horizontalCenter: parent.horizontalCenter
-            text: pam.active ? "Checking…" : root.errorText
-            // Rosso: semantica riservata agli errori
-            color: root.errorText !== "" && !pam.active ? "#f38ba8" : "#a6adc8"
-            font.family: "JetBrainsMono Nerd Font"
-            font.weight: Theme.weightBold
-            font.pixelSize: 14
+          Connections {
+            target: root
+            function onRejected() { shake.restart() }
           }
+        }
+
+        // Altezza fissa: comparendo il messaggio non sposta orologio e campo
+        Text {
+          anchors.horizontalCenter: parent.horizontalCenter
+          height: Theme.fontM * 2
+          verticalAlignment: Text.AlignVCenter
+          text: pam.active ? "Checking…" : root.errorText
+          color: root.errorText !== "" && !pam.active ? Theme.urgent : Theme.foregroundDim
+          font.family: Theme.fontFamily
+          font.pixelSize: Theme.fontM
+          font.weight: Theme.weightBold
         }
       }
     }
