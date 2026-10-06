@@ -16,6 +16,9 @@ Rectangle {
 
   signal edited(string text)
   signal submitted()
+  // Le azioni le esegue chi istanzia: l'anteprima non deve spegnere il PC.
+  signal rebootRequested()
+  signal shutdownRequested()
 
   // Errore da mostrare: durante il controllo PAM vince "Checking…".
   readonly property bool failed: root.errorText !== "" && !root.busy
@@ -168,6 +171,30 @@ Rectangle {
     TodayCard {
       width: unlockCard.width
       height: unlockCard.height
+    }
+  }
+
+  // Riavvio e spegnimento: tieni premuto come nella Dashboard, un click per
+  // sbaglio sulla schermata di login non deve spegnere il PC.
+  Row {
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    anchors.margins: Theme.spacingL * 2
+    spacing: Theme.spacingM
+
+    IconButton {
+      icon: Icons.restart
+      holdToConfirm: true
+      onActivated: root.rebootRequested()
+    }
+
+    IconButton {
+      icon: Icons.shutdown
+      holdToConfirm: true
+      // Azione distruttiva: e' l'unico caso in cui urgent non significa errore.
+      hoverColor: Theme.urgent
+      onFillColor: Theme.onUrgent
+      onActivated: root.shutdownRequested()
     }
   }
 

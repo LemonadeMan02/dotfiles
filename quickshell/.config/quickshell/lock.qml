@@ -72,6 +72,8 @@ ShellRoot {
         busy: pam.active
         onEdited: t => root.currentText = t
         onSubmitted: root.tryUnlock()
+        onRebootRequested: Session.reboot()
+        onShutdownRequested: Session.shutdown()
       }
     }
   }

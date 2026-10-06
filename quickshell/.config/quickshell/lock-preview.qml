@@ -22,6 +22,9 @@ ShellRoot {
         content.text = ""
         content.errorText = "Wrong password"
       }
+      // Solo un messaggio: nell'anteprima i tasti non devono spegnere niente.
+      onRebootRequested: console.log("lock-preview: reboot")
+      onShutdownRequested: console.log("lock-preview: shutdown")
     }
   }
 }
