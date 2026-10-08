@@ -302,6 +302,7 @@ Questi file non sono versionati: si creano da soli o al primo uso.
 | `~/.local/state/kitty/colors.conf` | matugen, idem |
 | `~/.local/state/qt6ct/colors.conf`, `~/.config/qt6ct/qt6ct.conf` | matugen, idem (tema Qt di Dolphin) |
 | `~/.config/kdeglobals`, `~/.local/share/color-schemes/Matugen.colors` | matugen, idem (colori e icone di Dolphin) |
+| `~/.local/share/user-places.xbel` | Dolphin al primo avvio; le cartelle utente le aggiunge `dolphin-places` (vedi sotto) |
 | `~/.local/share/vdirsyncer/google-ical-url` | tu, a mano: vedi sotto |
 | `~/.local/share/calendars/google/` | vdirsyncer, a ogni sincronizzazione |
 | `~/.local/state/vdirsyncer/status/` | vdirsyncer, idem |
@@ -351,6 +352,11 @@ Tema scuro con i colori di matugen, icone Breeze con le cartelle nel colore prim
 - **Apri con → Altra applicazione**: l'elenco delle app viene dal menu di `archlinux-xdg-menu`. uwsm imposta `XDG_MENU_PREFIX=hyprland-`, per cui non esiste nessun menu: wrapper e drop-in lo portano ad `arch-`.
 - **Cambio di sfondo**: le finestre già aperte tengono i colori vecchi, quelle nuove prendono i nuovi. Se Dolphin è partito via D-Bus resta aperto in background: `systemctl --user restart plasma-dolphin`.
 - **Impostazioni** (`dolphin/.config/dolphinrc`): barra di stato intera con zoom e spazio libero, anteprime al passaggio del mouse, icone a 80 px, schema `Matugen`. Il file è senza commenti perché Dolphin lo riscrive e li cancellerebbe; le chiavi sono in `/usr/share/config.kcfg/dolphin_*.kcfg`. Le modifiche fatte da Impostazioni finiscono nel repo tramite il symlink: controlla `git diff`.
+- **Places**: le cartelle utente (Documenti, Download, Immagini, Musica, Video, Progetti) le aggiunge lo script `dolphin-places`. Il file dei Places lo crea Dolphin al primo avvio e contiene i dischi della macchina, quindi non sta nel repo. Apri Dolphin una volta, chiudilo e lancia:
+
+```fish
+dolphin-places
+```
 
 ### Cartella Immagini
 

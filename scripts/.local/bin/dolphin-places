@@ -1,0 +1,63 @@
+#!/bin/sh
+# Aggiunge le cartelle utente (xdg-user-dirs) ai Places di Dolphin, subito sotto Home.
+# Si puo' rilanciare: le cartelle gia' presenti o inesistenti vengono saltate.
+# Il file lo crea Dolphin al primo avvio; va lanciato a Dolphin chiuso, se no lo riscrive lui.
+set -eu
+
+places="${XDG_DATA_HOME:-$HOME/.local/share}/user-places.xbel"
+
+if [ ! -f "$places" ]; then
+  echo "dolphin-places: $places non esiste, apri e chiudi Dolphin una volta" >&2
+  exit 1
+fi
+if pgrep -x dolphin >/dev/null; then
+  echo "dolphin-places: chiudi prima Dolphin (tutte le finestre)" >&2
+  exit 1
+fi
+
+# Blocchi XML delle cartelle mancanti, nell'ordine in cui compariranno
+blocks=""
+n=0
+for kind in DOCUMENTS DOWNLOAD PICTURES MUSIC VIDEOS PROJECTS; do
+  dir="$(xdg-user-dir "$kind" 2>/dev/null)" || continue
+  # xdg-user-dir ripiega su $HOME per i tipi non configurati
+  [ -n "$dir" ] && [ "$dir" != "$HOME" ] && [ -d "$dir" ] || continue
+
+  href="file://$(printf '%s' "$dir" | sed 's/%/%25/g; s/ /%20/g')"
+  grep -qF "href=\"$href\"" "$places" && continue
+
+  case "$kind" in
+    DOCUMENTS) icon=folder-documents ;;
+    DOWNLOAD)  icon=folder-download ;;
+    PICTURES)  icon=folder-pictures ;;
+    MUSIC)     icon=folder-music ;;
+    VIDEOS)    icon=folder-videos ;;
+    PROJECTS)  icon=folder-development ;;
+  esac
+  title="$(basename "$dir" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g')"
+  n=$((n + 1))
+
+  blocks="$blocks <bookmark href=\"$href\">
+  <title>$title</title>
+  <info>
+   <metadata owner=\"http://freedesktop.org\">
+    <bookmark:icon name=\"$icon\"/>
+   </metadata>
+   <metadata owner=\"http://www.kde.org\">
+    <ID>$(date +%s)/places-$n</ID>
+   </metadata>
+  </info>
+ </bookmark>
+"
+done
+
+if [ -z "$blocks" ]; then
+  echo "dolphin-places: niente da aggiungere"
+  exit 0
+fi
+
+cp "$places" "$places.orig"
+# Dopo il primo </bookmark>, che chiude Home (Dolphin lo mette sempre per primo)
+BLOCKS="$blocks" awk '{ print } /<\/bookmark>/ && !done { printf "%s", ENVIRON["BLOCKS"]; done = 1 }' \
+  "$places.orig" > "$places"
+echo "dolphin-places: aggiunte $n cartelle (copia del file prima in $places.orig)"
