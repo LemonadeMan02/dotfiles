@@ -8,13 +8,13 @@ Da un'Arch Linux appena installata allo stato attuale:
 
 - sessione **Hyprland** avviata da **uwsm**, con autologin su tty1 e un lock Quickshell come schermata di login;
 - **Quickshell** come barra, launcher, notifiche e dashboard;
-- colori generati da **matugen** a partire dallo sfondo (**awww**), condivisi da Quickshell, Hyprland e kitty;
+- colori generati da **matugen** a partire dallo sfondo (**awww**), condivisi da Quickshell, Hyprland, kitty e Dolphin;
 - terminale **kitty** con **fish** e **starship** (la login shell resta bash);
 - GPU **Nvidia** con il driver `nvidia-open`;
 - rete con **systemd-networkd** e **systemd-resolved** (niente NetworkManager);
 - audio con **PipeWire**, più Bluetooth e stampa.
 
-Pacchetti Stow nel repo: `autostart bash fish hypr kitty matugen quickshell scripts starship systemd uwsm`. `system/` non è un pacchetto Stow: i suoi file si copiano in `/etc` (sezione 6).
+Pacchetti Stow nel repo: `autostart bash dolphin fish hypr kitty matugen quickshell scripts starship systemd uwsm`. `system/` non è un pacchetto Stow: i suoi file si copiano in `/etc` (sezione 6).
 
 Non copre l'installazione di Arch: partizioni, bootloader, kernel, microcode e firmware si scelgono durante l'installazione e dipendono dalla macchina.
 
@@ -144,8 +144,8 @@ cd ~/dotfiles
 Qui Stow può collegare la cartella intera (per esempio `~/.config/hypr` → repo), perché ci scrivono solo queste config:
 
 ```fish
-stow -n -v bash fish hypr khal kitty matugen quickshell starship uwsm vdirsyncer   # prova, non tocca niente
-stow -v bash fish hypr khal kitty matugen quickshell starship uwsm vdirsyncer
+stow -n -v bash dolphin fish hypr khal kitty matugen quickshell starship uwsm vdirsyncer   # prova, non tocca niente
+stow -v bash dolphin fish hypr khal kitty matugen quickshell starship uwsm vdirsyncer
 ```
 
 Su un'installazione nuova `/etc/skel` ha già creato `~/.bash_profile` e `~/.bashrc`: spostali da parte prima di Stow (`mv ~/.bash_profile ~/.bash_profile.bak`, idem per `.bashrc`), altrimenti la prova segnala un conflitto.
@@ -300,6 +300,8 @@ Questi file non sono versionati: si creano da soli o al primo uso.
 | `~/.local/state/quickshell/colors.json` | matugen, al primo sfondo scelto |
 | `~/.local/state/hypr/colors.lua` | matugen, idem |
 | `~/.local/state/kitty/colors.conf` | matugen, idem |
+| `~/.local/state/qt6ct/colors.conf`, `~/.config/qt6ct/qt6ct.conf` | matugen, idem (tema Qt di Dolphin) |
+| `~/.config/kdeglobals`, `~/.local/share/color-schemes/Matugen.colors` | matugen, idem (colori e icone di Dolphin) |
 | `~/.local/share/vdirsyncer/google-ical-url` | tu, a mano: vedi sotto |
 | `~/.local/share/calendars/google/` | vdirsyncer, a ogni sincronizzazione |
 | `~/.local/state/vdirsyncer/status/` | vdirsyncer, idem |
@@ -337,9 +339,18 @@ Gli sfondi non sono nel repo. Crea la cartella e copiaci le immagini:
 mkdir -p ~/Wallpapers
 ```
 
-Poi da Quickshell: launcher (SUPER+Space) → **Wallpaper**, e scegli un'immagine. Quickshell lancia `matugen image <file> -m dark`, che imposta lo sfondo con awww e scrive i tre file dei colori; Hyprland e kitty si ricaricano da soli (`post_hook` in `matugen/.config/matugen/config.toml`). Ai login successivi awww ripristina l'ultimo sfondo.
+Poi da Quickshell: launcher (SUPER+Space) → **Wallpaper**, e scegli un'immagine. Quickshell lancia `matugen image <file> -m dark`, che imposta lo sfondo con awww e scrive i file dei colori; Hyprland e kitty si ricaricano da soli (`post_hook` in `matugen/.config/matugen/config.toml`). Ai login successivi awww ripristina l'ultimo sfondo.
 
 Per usare un'altra cartella, cambia `wallpaperDir` in `config.json`.
+
+### Dolphin
+
+Tema scuro con i colori di matugen, icone Breeze con le cartelle nel colore primario, anteprime di video, PDF e immagini (pacchetti in `pkglist.txt`, gruppo App).
+
+- **Tema**: Dolphin, fuori da Plasma, prende la palette da qt6ct e il resto dallo schema KDE, quindi servono entrambi; matugen li genera dallo stesso sfondo (`matugen/.config/matugen/templates/qt6ct*.conf` e `kde-colors`). `QT_QPA_PLATFORMTHEME=qt6ct` vale solo per Dolphin: lo imposta il wrapper `scripts/.local/bin/dolphin`, che nel PATH viene prima di `/usr/bin`, e per l'avvio via D-Bus il drop-in `systemd/.config/systemd/user/plasma-dolphin.service.d/qt6ct.conf`. In `uwsm/env` cambierebbe icone e font anche a Quickshell.
+- **Apri con → Altra applicazione**: l'elenco delle app viene dal menu di `archlinux-xdg-menu`. uwsm imposta `XDG_MENU_PREFIX=hyprland-`, per cui non esiste nessun menu: wrapper e drop-in lo portano ad `arch-`.
+- **Cambio di sfondo**: le finestre già aperte tengono i colori vecchi, quelle nuove prendono i nuovi. Se Dolphin è partito via D-Bus resta aperto in background: `systemctl --user restart plasma-dolphin`.
+- **Impostazioni** (`dolphin/.config/dolphinrc`): barra di stato intera con zoom e spazio libero, anteprime al passaggio del mouse, icone a 80 px, schema `Matugen`. Il file è senza commenti perché Dolphin lo riscrive e li cancellerebbe; le chiavi sono in `/usr/share/config.kcfg/dolphin_*.kcfg`. Le modifiche fatte da Impostazioni finiscono nel repo tramite il symlink: controlla `git diff`.
 
 ### Cartella Immagini
 
@@ -429,6 +440,13 @@ Symlink di Stow: il primo comando elenca quelli verso il repo, il secondo quelli
 ```fish
 find ~/.config ~/.local/bin -maxdepth 4 -type l -lname '*dotfiles*' -printf '%p -> %l\n'
 find ~/.config ~/.local/bin -maxdepth 4 -xtype l -lname '*dotfiles*'
+```
+
+Dolphin passa dal wrapper (`~/.local/bin/dolphin`) e il drop-in D-Bus è attivo (`Environment=QT_QPA_PLATFORMTHEME=qt6ct XDG_MENU_PREFIX=arch-`):
+
+```fish
+command -s dolphin
+systemctl --user show -p Environment plasma-dolphin
 ```
 
 Config di Hyprland, nessun errore:

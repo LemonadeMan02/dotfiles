@@ -1,0 +1,8 @@
+#!/bin/sh
+# Dolphin col tema Qt di qt6ct (colori matugen). Sta prima di /usr/bin nel PATH, quindi
+# vale per SUPER+E, launcher, xdg-open e terminale; l'avvio via D-Bus ha il suo drop-in
+# (systemd/.config/systemd/user/plasma-dolphin.service.d/qt6ct.conf, da tenere uguale).
+# Solo per Dolphin: messe in uwsm/env cambierebbero icone e font anche a Quickshell.
+# arch- = menu di archlinux-xdg-menu: senza, "Apri con > Altra applicazione" e' vuoto
+# (uwsm imposta hyprland-, per cui non esiste nessun menu).
+QT_QPA_PLATFORMTHEME=qt6ct XDG_MENU_PREFIX=arch- exec /usr/bin/dolphin "$@"

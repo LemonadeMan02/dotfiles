@@ -41,3 +41,22 @@ input_path  = "~/.config/matugen/templates/kitty-colors.conf"
 output_path = "~/.local/state/kitty/colors.conf"
 # SIGUSR1 = reload config in tutte le istanze; `|| true` se kitty non e' aperto
 post_hook   = "pkill -USR1 -x kitty || true"
+
+# Qt (Dolphin): palette di qt6ct e sua config, che sceglie tema icone chiaro o scuro
+[templates.qt6ct-colors]
+input_path  = "~/.config/matugen/templates/qt6ct-colors.conf"
+output_path = "~/.local/state/qt6ct/colors.conf"
+
+[templates.qt6ct]
+input_path  = "~/.config/matugen/templates/qt6ct.conf"
+output_path = "~/.config/qt6ct/qt6ct.conf"
+
+# Stesso template in due posti: kdeglobals per le app KDE, .colors per lo schema di Dolphin
+# Niente post_hook: Dolphin legge i colori all'avvio, le finestre gia' aperte restano come sono
+[templates.kdeglobals]
+input_path  = "~/.config/matugen/templates/kde-colors"
+output_path = "~/.config/kdeglobals"
+
+[templates.kde-colorscheme]
+input_path  = "~/.config/matugen/templates/kde-colors"
+output_path = "~/.local/share/color-schemes/Matugen.colors"

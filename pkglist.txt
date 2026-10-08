@@ -82,6 +82,13 @@ xdg-user-dirs           # xdg-user-dir PICTURES
 # ── App (usate dalle config) ──
 firefox                 # SUPER+B, keybindings.lua
 dolphin                 # SUPER+E, keybindings.lua
+qt6ct                   # tema Qt di Dolphin, scripts/.local/bin/dolphin
+breeze                  # stile Breeze per qt6ct (le icone Breeze arrivano gia' con Dolphin)
+archlinux-xdg-menu      # "Apri con > Altra applicazione" di Dolphin
+ffmpegthumbs            # anteprime dei video in Dolphin
+kdegraphics-thumbnailers # anteprime di PDF e foto RAW in Dolphin
+qt6-imageformats        # anteprime WebP e TIFF
+kimageformats           # anteprime AVIF, HEIC, JXL, PSD
 discord                 # autostart.lua
 spotify-launcher        # autostart.lua, player preferito in Media.qml
 steam                   # richiede [multilib]
