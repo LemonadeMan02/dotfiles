@@ -43,6 +43,17 @@ Il clone via HTTPS non richiede chiavi SSH. Per fare push, una volta configurata
 git remote set-url origin git@github.com:LemonadeMan02/dotfiles.git
 ```
 
+### Installazione rapida
+
+[`install.sh`](install.sh) fa in ordine i passi delle sezioni 3-7: abilita `[multilib]`, installa i pacchetti delle due liste e yay, collega i pacchetti Stow (mettendo da parte i `.bash_profile` e `.bashrc` di `/etc/skel`), copia i file di `system/`, toglie lo splash e rigenera la UKI, abilita i servizi di sistema e utente. Va lanciato come utente normale; pacman e yay chiedono conferma come sempre.
+
+```fish
+./install.sh
+systemctl reboot
+```
+
+Si può rilanciare: salta quello che è già fatto. Si ferma prima di toccare `~` se Stow trova conflitti, e all'inizio se `autologin.conf` nomina un altro utente (sezione 10). Sfondi, calendario e chiave SSH restano a mano (sezioni 8-9). Le sezioni seguenti spiegano cosa fa ogni passo e servono per farli a mano.
+
 ## 3. Pacchetti
 
 ### Abilitare `[multilib]`
