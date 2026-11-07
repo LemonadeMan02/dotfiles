@@ -17,6 +17,10 @@ ShellRoot {
   // File segnale: qs-lock.service lo aspetta prima di risultare avviato,
   // cosi' barra e sfondo (Before= nel servizio) partono a schermo gia' coperto
   readonly property string readyFile: Quickshell.env("XDG_RUNTIME_DIR") + "/qs-lock.ready"
+  // File segnale: c'e' stato almeno uno sblocco, quindi gnome-keyring e' aperto.
+  // Lo aspetta after-unlock; sta nella cartella dell'istanza di Hyprland, vale solo per questa sessione
+  readonly property string unlockedFile: Quickshell.env("XDG_RUNTIME_DIR") + "/hypr/"
+    + Quickshell.env("HYPRLAND_INSTANCE_SIGNATURE") + "/unlocked"
 
   function tryUnlock() {
     if (pam.active || root.currentText === "") return
@@ -42,6 +46,7 @@ ShellRoot {
 
     onCompleted: result => {
       if (result === PamResult.Success) {
+        Quickshell.execDetached(["touch", root.unlockedFile])
         root.unlock()
       } else {
         root.errorText = "Wrong password"

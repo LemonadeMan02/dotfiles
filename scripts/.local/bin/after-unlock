@@ -1,0 +1,12 @@
+#!/bin/sh
+# Lancia un comando dopo il primo sblocco del lock Quickshell nella sessione Hyprland corrente.
+# Con l'autologin gnome-keyring si apre solo allo sblocco (PAM di qs-lock): un'app che chiede
+# un segreto prima aprirebbe una richiesta di password dietro il lock, che resta anche dopo.
+# Il file segnale lo crea lock.qml.
+# Uso: after-unlock uwsm app -- discord
+set -eu
+
+marker="$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/unlocked"
+
+until [ -e "$marker" ]; do sleep 0.2; done
+exec "$@"

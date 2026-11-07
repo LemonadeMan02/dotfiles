@@ -206,7 +206,7 @@ sudo systemctl enable --now bluetooth.service cups.socket cups.path cups.service
 
 Nessun display manager: getty fa l'autologin su tty1, `~/.bash_profile` (pacchetto `bash`) avvia `uwsm start hyprland.desktop`, e la prima cosa che parte nella sessione è il lock Quickshell (`qs-lock.service`, sezione 7). Un solo compositor dal boot al desktop, quindi nessun cambio di modalità dei monitor tra login e sessione.
 
-La password del lock passa da PAM (`/etc/pam.d/qs-lock`), che sblocca anche gnome-keyring: le app trovano i loro segreti come dopo un login normale.
+La password del lock passa da PAM (`/etc/pam.d/qs-lock`), che sblocca anche gnome-keyring: le app trovano i loro segreti come dopo un login normale. Le app in `autostart.lua` passano da `after-unlock` (pacchetto `scripts`) e partono solo dopo il primo sblocco: avviate prima, troverebbero il portachiavi chiuso e aprirebbero una richiesta della sua password dietro il lock.
 
 I file di sistema stanno in `system/`, con gli stessi percorsi che hanno sotto `/`. Non è un pacchetto Stow: si **copiano**, perché un file letto da root non deve essere un symlink verso la home, dove l'utente può modificarlo. Dopo ogni modifica sotto `system/` si ripete il relativo `install`.
 
